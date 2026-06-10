@@ -44,11 +44,11 @@ jobs:
       - name: Upload preview artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vitepress-preview-${{ github.ref_name }}
+          name: vitepress-preview-${{ replace(github.ref_name, '/', '-') }}
           path: docs/.vitepress/dist
           retention-days: 7
 
       - name: Preview summary
         run: |
           echo "Preview build finished for branch: ${{ github.ref_name }}"
-          echo "Download the artifact named: vitepress-preview-${{ github.ref_name }}"
+          echo "Download the artifact named: vitepress-preview-${{ replace(github.ref_name, '/', '-') }}"
