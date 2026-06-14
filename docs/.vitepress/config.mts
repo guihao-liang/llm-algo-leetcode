@@ -5,8 +5,8 @@ const baseConfig = isEdgeOne ? '/' : '/llm-algo-leetcode/'
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: "LLM-Algo-LeetCode",
-  description: "大语言模型算法实战库",
+  title: "大模型算法实战教程 / LLM Algorithm Practice Lab",
+  description: "面向大模型入门到进阶的算法实战教程",
   base: baseConfig,
   ignoreDeadLinks: true,
   markdown: {
@@ -16,7 +16,7 @@ export default defineConfig({
     logo: '/datawhale-logo.png',
     nav: [
       { text: '开始刷题', link: '/01_Hardware_Math_and_Systems/01_Data_Types_and_Precision' },
-      { text: 'GitHub 仓库', link: 'https://github.com/lynnyulinlin-debug/llm-algo-leetcode' },
+      { text: 'GitHub 仓库', link: 'https://github.com/datawhalechina/llm-algo-leetcode' },
     ],
     search: {
       provider: 'local',
