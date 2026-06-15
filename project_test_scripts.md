@@ -9,8 +9,10 @@
 | `test_notebook_answers.py` | Chapter 2 / 3 答案验证 | 含防透题检查 |
 | `test_chapter0_1_notebooks.py` | Chapter 0 / 1 顺序执行 | 直接跑练习 notebook |
 | `check_chapter_links.py` | 站内链接检查 | 检查 Chapter 0 / 1 路由 |
+| `check_source_docs_mirror.py` | 章节正文镜像检查 | 检查 source / docs 一致性 |
 
 ## 去向
 
 - 环境分层与平台选择见 [使用指南](./docs/guide.md)
 - 站点入口见 [README](./README.md) 和 [docs 首页](./docs/index.md)
+- 第零部分 / 第一部分 notebook 只作为练习资产通过链接进入；第二部分 / 第三部分 notebook 内容可在网页正文中以转换后的 Markdown 形式看到
