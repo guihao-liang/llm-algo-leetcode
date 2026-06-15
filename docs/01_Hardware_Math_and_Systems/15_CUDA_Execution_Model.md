@@ -1,95 +1,94 @@
-# 15. CUDA Execution Model
+# 15. CUDA Execution Model | CUDA Execution Model
 
-**Difficulty:** Medium | **Tags:** `CUDA`, `Kernel`, `Execution Model` | **Audience:** Learners preparing to enter Chapter 3
+**难度：** Medium | **标签：** `CUDA`, `Kernel`, `Execution Model` | **目标人群：** 准备进入 Chapter 3 的学习者
 
-This page connects Chapter 1's hardware understanding to Chapter 3's kernel implementation work. You already know why GPUs are fast, why memory is expensive, and why Attention becomes a bottleneck. Now you need to understand how a GPU actually launches and runs a kernel. Once you have that execution model, CUDA, Triton, shared memory, and streams will stop feeling like isolated syntax.
+这一页把 Chapter 1 的硬件理解，接到 Chapter 3 的内核实现上。重点是先理解 GPU 怎么把 kernel 跑起来。
 
-## Why this is a bridge page
+## 为什么这一节是前置页
 
-- Chapter 1 already covered GPU architecture, communication, memory, and programming-model background
-- Chapter 3 will move directly into Triton basics, CUDA kernels, shared memory, streams, and operator fusion
-- If you do not understand threads, blocks, grids, and warps, the implementation chapters are hard to follow
-- So this page exists to answer one question first: how does a GPU execute a kernel?
+- Chapter 1 前面已经讲了 GPU 架构、通信、显存和编程模型的背景
+- Chapter 3 会直接进入 Triton 基础、CUDA kernel、shared memory、stream 和算子融合
+- 如果读者还不知道线程、block、grid、warp 之间是什么关系，后面的实现会很难跟上
+- 所以这一节的目标是：先把“GPU 是怎么调度 kernel 的”讲明白
 
-## The intuition you should build first
+## 你应该先建立的直觉
 
-### 1. A GPU is not "one thread running"
+### 1. GPU 不是“一个线程在跑”，而是“大量线程按层级组织起来跑”
 
-CUDA execution is usually organized around:
+CUDA 的执行模型里，最常见的层级是：
 - grid
 - block
 - warp
 - thread
 
-You do not need every detail here, but you should know:
-- a thread is the smallest execution unit
-- a warp is the basic hardware scheduling granularity
-- a block is the unit of shared-memory cooperation
-- a grid is the full kernel launch layout
+你不需要在这一页记住所有细节，但要知道：
+- thread 是最小执行单元
+- warp 是硬件调度的基本粒度
+- block 是共享内存和协作的边界
+- grid 是整个 kernel 的总体任务分配
 
-### 2. Kernel performance depends heavily on layout
+### 2. kernel 的性能和组织方式强相关
 
-The same matrix operation can perform very differently depending on:
-- how work is split
-- how data is tiled
-- how shared memory is used
-- whether global-memory access is contiguous
+同样是一个矩阵运算，写法不同，性能可能差很多：
+- 线程怎么分配
+- 数据怎么切块
+- 共享内存怎么用
+- global memory 访问是否连续
 
-These decisions directly affect the kernels you will see in Chapter 3.
+这些都直接影响后面 Chapter 3 里的 kernel 质量。
 
-### 3. Asynchrony and overlap matter
+### 3. 异步执行和计算/通信重叠很重要
 
-Many GPU optimizations are not just "compute faster":
-- overlap computation with data movement
-- schedule work better across streams
-- reduce waiting between kernels
+GPU 的很多优化，不只是“算得更快”，而是：
+- 让计算和数据搬运重叠
+- 让不同 stream 的任务更合理地并行
+- 让 kernel 之间减少等待
 
-That is why CUDA streams and scheduling matter later.
+这会直接影响你后面看 CUDA Stream、Triton 调度和通信优化的理解。
 
-## A simple mental model
+## 一个最常见的判断方式
 
-You can think of a CUDA kernel like this:
+你可以把一个 CUDA kernel 粗略想成：
 
 ```text
-split the big job into many tiles -> assign them to blocks -> split each block into threads -> execute threads in warps
+把一个大问题切成很多小块 -> 分配给多个 block -> 每个 block 再分给多个 thread -> 线程通过 warp 方式执行
 ```
 
-This is not a full formula, but it is enough to reason about:
-- which code styles are more GPU-friendly
-- which layouts lead to contiguous access
-- which designs make shared-memory reuse easier
+这不是完整公式，但足够让你在 Chapter 3 里判断：
+- 哪种写法更像 GPU 友好的切块
+- 哪种数据布局更容易形成连续访问
+- 哪种设计更适合 shared memory 复用
 
-## Common mistakes
+## 常见误区
 
-- treating CUDA as "just multi-threading"
-- focusing on syntax while ignoring memory access and thread organization
-- assuming kernel speed only depends on code length
-- thinking streams are automatic speedups without understanding scheduling
+- 把 CUDA 当成“只是多线程编程”
+- 只关注语法，不关注线程组织和内存访问
+- 认为 kernel 快慢只和代码行数有关
+- 把 stream 当成“自动加速”，而不理解它的调度意义
 
-## After studying this page, you should be able to answer
+## 这一页学完后，你应该能回答
 
-- why CUDA kernels are organized by block / warp / thread
-- why tiling matters for performance
-- why shared memory and contiguous access are so important
-- why Chapter 3 needs execution-model knowledge, not just syntax
+- 为什么 GPU kernel 要按 block / warp / thread 组织
+- 为什么数据切块对性能影响很大
+- 为什么 shared memory 和连续访问这么重要
+- 为什么 Chapter 3 不能只看代码语法，而要理解执行模型
 
-## Connection to later chapters
+## 和后续章节的联系
 
-- **Chapter 3: Triton Fundamentals**  
-  You will see how Triton maps programs to block-like execution units
+- **Chapter 3: Triton 基础**  
+  你会看到 Triton 如何用更高层的方式表达 block / program 的映射
 
-- **Chapter 3: CUDA Kernel and Memory Optimization**  
-  You will see how warp behavior, shared memory, streams, and scheduling affect performance
+- **Chapter 3: CUDA 内核与显存优化**  
+  你会看到 warp、shared memory、stream 和 kernel 调度如何真正影响性能
 
-- **Chapter 3: Operator Fusion**  
-  You will see how kernel layout decides whether multiple ops can be fused efficiently
+- **Chapter 3: 算子融合**  
+  你会看到 kernel 组织方式如何决定多个算子能否高效融合
 
-## Summary
+## 小结
 
-This page has one job:
-- explain how GPU kernels are organized
-- explain why memory access and block structure matter
-- explain why Chapter 3 needs these concepts before code
+这一页的作用也很简单：
+- 先让你知道 GPU kernel 是怎么组织起来的
+- 再让你知道为什么 memory access 和 block 结构重要
+- 最后让你知道为什么 Chapter 3 要把这些概念落到实现里
 
-If you can connect "thread organization" with "memory access", you have the basic intuition needed to enter Chapter 3.
-
+如果你能把“线程组织”和“内存访问”联系起来，这一页的目标基本达成。

@@ -1,4 +1,4 @@
-# 15. CUDA Execution Model
+# 15. CUDA 执行模型 | CUDA Execution Model
 
 **难度：** Medium | **标签：** `CUDA`, `Kernel`, `Execution Model` | **目标人群：** 准备进入 Chapter 3 的学习者
 
@@ -71,7 +71,7 @@ GPU 的很多优化，不只是“算得更快”，而是：
 - 为什么 GPU kernel 要按 block / warp / thread 组织
 - 为什么数据切块对性能影响很大
 - 为什么 shared memory 和连续访问这么重要
-- 为什么 Chapter 3 不能只看代码语法，必须理解执行模型
+- 为什么 Chapter 3 不能只看代码语法，而要理解执行模型
 
 ## 和后续章节的联系
 
@@ -91,5 +91,4 @@ GPU 的很多优化，不只是“算得更快”，而是：
 - 再让你知道为什么 memory access 和 block 结构重要
 - 最后让你知道为什么 Chapter 3 要把这些概念落到实现里
 
-如果你已经能把“线程组织”和“内存访问”联系起来，就已经具备进入 Chapter 3 的必要前置直觉了。
-
+如果你能把“线程组织”和“内存访问”联系起来，这一页的目标基本达成。

@@ -1,4 +1,4 @@
-# 18. Triton Block Model
+# 18. Triton Block 模型 | Triton Block Model
 
 **难度：** Medium | **标签：** `Triton`, `Block Model`, `Kernel` | **目标人群：** 准备进入 Chapter 3 的学习者
 
@@ -77,4 +77,4 @@ Triton 关注的不是逐行写低层细节，而是：
 - 再让你知道 program 映射在做什么
 - 最后让你知道为什么 Chapter 3 要先理解分块思路
 
-如果你已经能把“大张量切块”和“程序实例映射”联系起来，你就已经具备进入 Chapter 3 的基础前置直觉了。
+如果你能把“大张量切块”和“程序实例映射”联系起来，这一页的目标基本达成。

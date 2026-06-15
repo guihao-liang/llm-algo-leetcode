@@ -1,4 +1,4 @@
-# 讨论题 27：通信调度优化 (Communication Scheduling Optimization)
+# 27. Communication Scheduling Optimization | 通信调度优化 (Communication Scheduling Optimization)
 
 **难度：** Hard | **标签：** `通信优化`, `Overlap`, `All-Reduce` | **目标人群：** 想把分布式训练通信和计算重叠做好的学习者
 

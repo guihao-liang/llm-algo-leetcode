@@ -1,4 +1,4 @@
-# 讨论题 29：CUDA Stream 高级调度 (CUDA Stream Advanced Scheduling)
+# 29. CUDA Stream 高级调度
 
 **难度：** Hard | **标签：** `CUDA`, `Stream`, `异步调度` | **目标人群：** 想把推理和训练流程调得更细的学习者
 
@@ -149,4 +149,3 @@ Stream C: D2H + 后处理
 对应的 Notebook 练习可以看这里：
 
 - [29_CUDA_Stream_Advanced_Scheduling_Practice.ipynb](./29_CUDA_Stream_Advanced_Scheduling_Practice.ipynb)
-

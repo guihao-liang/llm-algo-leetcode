@@ -1,4 +1,4 @@
-# 讨论题 26：并行策略决策框架 (Parallel Strategy Decision Framework)
+# 26. Parallel Strategy Decision Framework | Parallel Strategy Decision Framework
 
 **难度：** Hard | **标签：** `DP`, `TP`, `PP`, `EP`, `并行策略` | **目标人群：** 需要在多卡训练中做策略判断的学习者
 
@@ -96,7 +96,7 @@
    - Dense 模型：DP / TP / PP 的组合更常见
    - MoE 模型：EP 常常要一起考虑
 
-这不是一个全局最优算法，但它足够实用，能帮助你先排除明显不合适的方案。
+它不是一个全局最优算法，更像一个足够实用的判断框架，能帮助你先排除明显不合适的方案。
 
 如果要把“能不能装下”说得更实用一点，可以记成：
 - 模型参数、梯度、优化器状态大致按 `16 bytes / 参数` 估算
@@ -155,3 +155,7 @@
 - 最后用模拟调度器看看不同策略下通信和计算是否容易 overlap
 
 如果要补 Notebook，优先把这三步做成可运行练习，会比先讲更复杂的分布式细节更有帮助。
+
+## Notebook 口径
+
+这一页当前保留正文草稿和练习建议，不单独挂独立 Notebook。后续如果补练习，会按 Chapter 1 公开 Notebook 的统一模板来做。

@@ -1,90 +1,88 @@
-# 13. Profiling and Bottleneck Analysis
+# 13. Profiling and Bottleneck Analysis | Profiling and Bottleneck Analysis
 
-**Difficulty:** Medium | **Tags:** `Profiling`, `Performance`, `Bottleneck` | **Audience:** Learners preparing to enter Chapter 2 / 3
+**难度：** Medium | **标签：** `Profiling`, `Performance`, `Bottleneck` | **目标人群：** 准备进入 Chapter 2 / 3 的学习者
 
-This page extends Chapter 1's "can estimate, can calculate" skill into "can judge what is slow, whether it is worth optimizing, and how to inspect it". In Chapter 2 / 3, many problems will no longer be "a formula I cannot derive", but instead "why is this model slow", "why does this operator consume so much memory", or "did the optimization actually help?" Profiling turns those questions into observable, localizable, and verifiable problems.
+这一页把 Chapter 1 的“会算、会估”，接到“会判断哪里慢、值不值得优化、该怎么查”上。核心是先观察，再优化。
 
-## Why this is a bridge page
+## 前置关系
 
-- Chapter 1 already covered parameter count, memory, Attention, and system architecture
-- Chapter 2 / 3 will directly face slow training, slow inference, high memory usage, kernel imbalance, and communication bottlenecks
-- Without profiling intuition, it is hard to tell whether the problem is compute, memory, or communication
-- So this page exists to build the basic mindset for finding bottlenecks
+- Chapter 1 已经讲过参数量、显存、Attention 和系统架构
+- Chapter 2 / 3 会直接遇到训练慢、推理慢、显存高和通信瓶颈
+- 先建立“怎么找瓶颈”的基础思维
 
-## The intuition you should build first
+## 你应该先建立的直觉
 
-### 1. Observe first, optimize second
+### 1. 先观察，再优化
 
-Optimization should start by answering:
-- which part is slow
-- whether the slowness is compute, memory, or communication
-- whether it is a one-time spike or a sustained cost
-- whether the average is slow or the tail is slow
+优化不是一上来就改代码，而是先回答：
+- 哪一段最慢
+- 慢的是计算、内存还是通信
+- 是单次慢，还是总耗时慢
+- 是平均慢，还是尾部慢
 
-Without profiling, many optimizations are guesses.
+没有 profiling，很多优化只是猜。
 
-### 2. Bottlenecks are not always inside the algorithm itself
+### 2. bottleneck 不一定只在算法本身
 
-A system may be slow because of:
-- insufficient compute
-- limited memory bandwidth
-- memory allocation and fragmentation
-- CPU-GPU data transfer
-- multi-GPU communication
+一个系统可能慢在：
+- 计算不足
+- memory bandwidth 不够
+- 显存分配和碎片
+- CPU-GPU 数据搬运
+- 多卡通信
 
-So Chapter 1's role is not to say "you must optimize everything", but to tell you where slowness may come from.
+所以 Chapter 1 的作用不是告诉你“要先动手优化”，而是先告诉你“可能慢在哪”。
 
-### 3. Think about whether it is worth optimizing
+### 3. 关注“值不值得优化”
 
-Not every slow part deserves work:
-- if it is only a small share of total time, it may not be worth touching
-- if it is on a hot path, it is worth a close look
-- if the change does not affect the main bottleneck, the gain may be limited
+不是所有慢的地方都值得动：
+- 如果只占总耗时很小，可能不值得折腾
+- 如果是高频路径，就值得认真看
+- 如果优化后不影响主瓶颈，收益可能很有限
 
-This judgment becomes very useful in Chapter 2 / 3.
+这个判断能力，后面 Chapter 2 / 3 会非常常用。
 
-## A common analysis order
+## 一个最常见的分析顺序
 
-You can think about profiling like this:
+你可以把 profiling 粗略理解成下面这条线：
 
 ```text
-start with total time -> inspect hot operators -> inspect memory and communication -> decide whether to optimize
+先看整体耗时 -> 再看热点算子 -> 再看内存和通信 -> 最后决定是否优化
 ```
 
-This is not a tool tutorial. It is a thinking tutorial.  
-Later, in Chapter 2 / 3, you will apply this mindset to training, inference, and kernels.
+这不是工具教程，而是思路教程。  
+真正到 Chapter 2 / 3 时，你会把这个思路应用到训练、推理和 kernel 上。
 
-## Common mistakes
+## 常见误区
 
-- changing code immediately when something looks slow
-- thinking profiling only means checking GPU utilization
-- assuming every bottleneck is an operator bottleneck
-- trusting a single measurement without checking repeat runs
+- 看到慢就马上改代码
+- 以为 profiling 只看 GPU 利用率
+- 以为所有 bottleneck 都在算子
+- 把一次测量当成结论，不看多轮结果
 
-## After studying this page, you should be able to answer
+## 这一页学完后，你应该能回答
 
-- how to tell where a system is actually slow
-- how to distinguish compute, memory, and communication bottlenecks
-- why profiling must come before optimization
-- why many Chapter 2 / 3 conclusions need data, not intuition
+- 怎么判断一个系统到底慢在哪
+- 怎么区分计算瓶颈、内存瓶颈和通信瓶颈
+- 为什么优化之前要先做 profiling
+- 为什么 Chapter 2 / 3 的很多结论都要靠数据验证，而不是靠直觉
 
-## Connection to later chapters
+## 和后续章节的联系
 
 - **Chapter 2: Attention / FlashAttention / PagedAttention**  
-  You will use profiling to tell whether the bottleneck is in the operator or the memory path
+  你会用 profiling 判断慢点到底在算子还是显存
 
 - **Chapter 2: Gradient Checkpointing / ZeRO / Parallelism**  
-  You will use profiling to tell whether the bottleneck is compute or communication
+  你会用 profiling 判断瓶颈是计算还是通信
 
-- **Chapter 3: Triton / CUDA / Operator Fusion**  
-  You will use profiling to verify whether kernel changes actually improve performance
+- **Chapter 3: Triton / CUDA / 算子融合**  
+  你会用 profiling 判断 kernel 的改动是否真的有收益
 
-## Summary
+## 小结
 
-This page has one job:
-- explain how to find bottlenecks
-- explain why you must measure before optimizing
-- explain why Chapter 2 / 3 optimization must be built on profiling
+这一页的作用也很简单：
+- 先让你知道如何找瓶颈
+- 再让你知道为什么要先测量再优化
+- 最后让你知道为什么 Chapter 2 / 3 的优化必须建立在 profiling 之上
 
-If you already know that "where it is slow" matters more than "how to change it", you already have the key intuition needed to enter Chapter 2 / 3.
-
+如果你已经知道“慢在哪里”比“怎么改”更重要，这一页的目标基本达成，后面 Chapter 2 / 3 还会继续用到这套思路。

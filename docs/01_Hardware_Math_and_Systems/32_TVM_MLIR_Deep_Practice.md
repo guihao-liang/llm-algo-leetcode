@@ -1,4 +1,4 @@
-# 讨论题 32：TVM / MLIR 深度实践 (TVM / MLIR Deep Practice)
+# 32. TVM MLIR Deep Practice | TVM / MLIR 深度实践 (TVM / MLIR Deep Practice)
 
 **难度：** Hard | **标签：** `AI 编译器`, `TVM`, `MLIR` | **目标人群：** 想进一步理解编译器后端和算子生成的学习者
 

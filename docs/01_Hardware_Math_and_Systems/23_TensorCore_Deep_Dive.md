@@ -1,4 +1,4 @@
-# 讨论题 23：Tensor Core 深度剖析 (Tensor Core Deep Dive)
+# 23. TensorCore Deep Dive | Tensor Core 深度剖析 (Tensor Core Deep Dive)
 
 **难度：** Hard | **标签：** `GPU`, `矩阵乘法`, `混合精度` | **目标人群：** 想把“Tensor Core 很快”理解到能做性能判断的学习者
 

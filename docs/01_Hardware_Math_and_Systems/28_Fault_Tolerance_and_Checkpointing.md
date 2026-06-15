@@ -1,4 +1,4 @@
-# 讨论题 28：容错与 Checkpoint (Fault Tolerance & Checkpointing)
+# 28. Fault Tolerance and Checkpointing | 容错与 Checkpoint (Fault Tolerance & Checkpointing)
 
 **难度：** Medium-Hard | **标签：** `容错`, `Checkpoint`, `训练恢复` | **目标人群：** 需要理解长训练任务稳定性的学习者
 

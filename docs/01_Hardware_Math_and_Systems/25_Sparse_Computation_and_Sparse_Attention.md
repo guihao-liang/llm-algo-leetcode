@@ -1,4 +1,4 @@
-# 讨论题 25：稀疏计算与稀疏注意力 (Sparse Computation & Sparse Attention)
+# 25. Sparse Computation and Sparse Attention | 稀疏计算与稀疏注意力 (Sparse Computation & Sparse Attention)
 
 **难度：** Medium-Hard | **标签：** `稀疏计算`, `稀疏注意力`, `推理优化` | **目标人群：** 想了解稀疏化加速直觉的学习者
 

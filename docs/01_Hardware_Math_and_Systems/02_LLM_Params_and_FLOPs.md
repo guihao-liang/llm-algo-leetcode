@@ -6,17 +6,17 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 `[02_LLM_Params_and_FLOPs_Practice.md](./02_LLM_Params_and_FLOPs_Practice.md)` 一起学：
+这一节建议和 `[02_LLM_Params_and_FLOPs_Practice.ipynb](./02_LLM_Params_and_FLOPs_Practice.md)` 一起学：
 
 - 先看本文，理解参数量拆解、前向 FLOPs、训练 FLOPs 和 MFU 的基础公式
-- 再做练习页，把参数量、训练时间和场景判断真正算一遍
-- 练习页里的测试用来确认你不是“看懂了”，而是真的“会推导、会估算”
+- 再做 Notebook，把参数量、训练时间和场景判断真正算一遍
+- Notebook 里的测试用来确认你不是“看懂了”，而是真的“会推导、会估算”
 
-如果你后面要做模型选型、训练成本评估或推理成本评估，这一页负责让你知道**怎么算**，练习页负责让你验证**算得对不对**。
+如果你后面要做模型选型、训练成本评估或推理成本评估，这一页负责让你知道**怎么算**，Notebook 负责让你验证**算得对不对**。
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
-> [`02_LLM_Params_and_FLOPs_Practice.md`](./02_LLM_Params_and_FLOPs_Practice.md)  
+> [`02_LLM_Params_and_FLOPs_Practice.ipynb`](./02_LLM_Params_and_FLOPs_Practice.md)  
 
 ---
 

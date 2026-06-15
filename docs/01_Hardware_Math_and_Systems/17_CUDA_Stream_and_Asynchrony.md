@@ -1,4 +1,4 @@
-# 17. CUDA Stream 与异步执行
+# 17. CUDA Stream and Asynchrony | CUDA Stream and Asynchrony
 
 **难度：** Medium | **标签：** `CUDA`, `Stream`, `Asynchrony` | **目标人群：** 准备进入 Chapter 3 的学习者
 
@@ -78,4 +78,4 @@
 - 再让你知道异步执行为什么有价值
 - 最后让你知道为什么 Chapter 3 要把调度和流水化放在前面
 
-如果你已经能把“任务组织”和“重叠执行”联系起来，你就已经具备进入 Chapter 3 的关键前置直觉了。
+如果你能把“任务组织”和“重叠执行”联系起来，这一页的目标基本达成。

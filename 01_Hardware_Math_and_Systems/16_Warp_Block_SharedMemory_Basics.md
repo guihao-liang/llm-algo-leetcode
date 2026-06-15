@@ -1,4 +1,4 @@
-# 16. Warp、Block 与 Shared Memory 基础
+# 16. Warp、Block 与 Shared Memory 基础 | Warp, Block and Shared Memory Basics
 
 **难度：** Medium | **标签：** `CUDA`, `Warp`, `Block`, `Shared Memory` | **目标人群：** 准备进入 Chapter 3 的学习者
 
@@ -79,4 +79,4 @@ shared memory 很快，但容量有限，所以它的价值在于：
 - 再让你知道 shared memory 为什么重要
 - 最后让你知道为什么 Chapter 3 要从这些基础开始
 
-如果你已经能把 warp、block 和 shared memory 串起来理解，你就已经具备进入 Chapter 3 的基础前置直觉了。
+如果你能把 warp、block 和 shared memory 串起来理解，这一页的目标基本达成。

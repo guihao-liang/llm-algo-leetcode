@@ -12,7 +12,7 @@
 
 本练习配套理论文档：[01_Data_Types_and_Precision.md](./01_Data_Types_and_Precision.md)
 
-建议先阅读理论文档，再来完成本练习。理论页负责解释为什么这些数据格式重要，练习页负责把显存、训练和量化收益真正算出来。
+建议先阅读理论文档，再来完成本练习。理论页负责解释为什么这些数据格式重要，Notebook 负责把显存、训练和量化收益真正算出来。
 
 ---
 
@@ -24,6 +24,27 @@
 - 能够为实际场景选择合适的数据格式
 
 ---
+## 本节如何和 Notebook 配合
+
+这一节建议先和 `[01_Data_Types_and_Precision.md](./01_Data_Types_and_Precision.md)` 一起学。
+先完成题目区中的练习，再看参考答案区。Notebook 负责把显存、训练和量化收益真正算出来。
+
+
+
+## 题目区
+
+### TODO 概览
+
+- Part 1: 基础显存计算
+
+- Part 2: 混合精度训练显存计算
+
+- Part 3: 量化方案对比
+
+- Part 4: 实际场景应用
+
+
+
 ## Part 1: 基础显存计算
 
 ### 练习 1.1: 实现显存计算函数
@@ -57,11 +78,7 @@ def calculate_model_memory(num_params_b, dtype):
         'int4': 0.5
     }
     
-    # TODO: 实现显存计算
-    # 提示: 显存(GB) = 参数量(B) × 每参数字节数
-    # memory_gb = ???
-    
-    memory_gb = 0  # 占位初始化
+    memory_gb = num_params_b * bytes_per_param[dtype]
     return memory_gb
 ```
 
@@ -147,15 +164,10 @@ def calculate_training_memory(num_params_b, model_dtype='fp16', optimizer='adam'
         >>> calculate_training_memory(7, 'fp16', 'adam')
         112.0
     """
-    # TODO: 实现训练显存计算
-    # 提示:
-    # 1. 模型参数（FP16/BF16）：2Φ
-    # 2. 梯度（FP16/BF16）：2Φ
-    # 3. 优化器状态（FP32）：
-    #    - Adam: 12Φ（主权重4Φ + 动量4Φ + 方差4Φ）
-    #    - SGD: 4Φ（只有主权重）
-    
-    total_memory_gb = 0  # 占位初始化
+    model_bytes = {'fp32': 4, 'fp16': 2, 'bf16': 2}[model_dtype]
+    gradient_bytes = model_bytes
+    optimizer_bytes = 12 if optimizer == 'adam' else 4
+    total_memory_gb = num_params_b * (model_bytes + gradient_bytes + optimizer_bytes)
     return total_memory_gb
 ```
 
@@ -170,7 +182,7 @@ def test_calculate_training_memory():
         
         # 测试用例 2: LLaMA-7B + SGD
         result = calculate_training_memory(7, 'fp16', 'sgd')
-        assert result == 32, f"错误：应该是 32 GB，实际 {result} GB"
+        assert result == 56, f"错误：应该是 56 GB，实际 {result} GB"
         
         # 测试用例 3: LLaMA-13B + Adam
         result = calculate_training_memory(13, 'bf16', 'adam')
@@ -233,14 +245,10 @@ def calculate_quantization_savings(num_params_b, from_dtype, to_dtype):
         >>> calculate_quantization_savings(7, 'fp16', 'int8')
         (7.0, 50.0)
     """
-    # TODO: 实现量化节省计算
-    # 提示:
-    # 1. 计算原始显存
-    # 2. 计算量化后显存
-    # 3. 计算节省量和百分比
-    
-    savings_gb = 0  # 占位初始化
-    savings_percent = 0  # 占位初始化
+    original_memory = calculate_model_memory(num_params_b, from_dtype)
+    quantized_memory = calculate_model_memory(num_params_b, to_dtype)
+    savings_gb = original_memory - quantized_memory
+    savings_percent = savings_gb / original_memory * 100
     return savings_gb, savings_percent
 ```
 
@@ -320,12 +328,15 @@ def max_model_size(gpu_memory_gb, dtype, overhead_ratio=0.2):
         >>> max_model_size(80, 'fp16', 0.2)
         32.0
     """
-    # TODO: 实现最大模型参数量计算
-    # 提示:
-    # 1. 可用显存 = GPU 显存 × (1 - overhead_ratio)
-    # 2. 最大参数量 = 可用显存 / 每参数字节数
-    
-    max_params_b = 0  # 占位初始化
+    bytes_per_param = {
+        'fp32': 4,
+        'fp16': 2,
+        'bf16': 2,
+        'int8': 1,
+        'int4': 0.5,
+    }
+    available_memory = gpu_memory_gb * (1 - overhead_ratio)
+    max_params_b = available_memory / bytes_per_param[dtype]
     return max_params_b
 ```
 
@@ -403,3 +414,12 @@ print(f"\n💡 ZeRO-3 相比 DDP 提升了 {max_params_zero3/max_params_ddp:.1f}
 - ZeRO-3 可以将训练显存线性扩展到多卡
 
 **下一步：** 学习 [02. LLM Params and FLOPs](./02_LLM_Params_and_FLOPs.md)，掌握参数量和 FLOPs 的计算。
+---
+
+🛑 **STOP HERE** 🛑
+
+
+
+## 参考答案与解析
+
+下面给出参考实现与解析。建议先独立完成题目区，再对照参考答案。

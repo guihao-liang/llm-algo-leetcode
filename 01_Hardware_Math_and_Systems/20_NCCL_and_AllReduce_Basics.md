@@ -1,4 +1,4 @@
-# 20. NCCL 与 AllReduce 基础
+# 20. NCCL 与 AllReduce 基础 | NCCL and AllReduce Basics
 
 **难度：** Medium | **标签：** `NCCL`, `AllReduce`, `Distributed Training` | **目标人群：** 准备进入 Chapter 2 / 3 的学习者
 
@@ -79,4 +79,4 @@ NCCL 的价值在于：
 - 再让你知道 AllReduce 和 NCCL 在做什么
 - 最后让你知道为什么 Chapter 2 / 3 要把它们作为前置基础
 
-如果你已经能把“多卡训练”理解成“计算 + 通信”的组合，你就已经具备进入 Chapter 2 / 3 的必要前置直觉了。
+如果你已经能把“多卡训练”理解成“计算 + 通信”的组合，这一页的目标基本达成。

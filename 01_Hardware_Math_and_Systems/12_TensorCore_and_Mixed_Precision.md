@@ -1,4 +1,4 @@
-# 12. Tensor Core and Mixed Precision
+# 12. Tensor Core 与混合精度 | Tensor Core and Mixed Precision
 
 **难度：** Medium | **标签：** `Tensor Core`, `Mixed Precision`, `Throughput` | **目标人群：** 准备进入 Chapter 2 的学习者
 
@@ -81,5 +81,4 @@
 - 再让你知道混合精度为什么有价值
 - 最后让你知道为什么 Chapter 2 会大量用到这些概念
 
-如果你已经知道“不是越高精度越好”，而是要在精度和吞吐之间做平衡，你就已经具备进入 Chapter 2 的必要前置直觉了。
-
+如果你已经知道“不是越高精度越好”，而是要在精度和吞吐之间做平衡，这一页的目标基本达成。

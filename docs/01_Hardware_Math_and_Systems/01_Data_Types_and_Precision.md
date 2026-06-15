@@ -6,18 +6,18 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 [01_Data_Types_and_Precision_Practice.md](./01_Data_Types_and_Precision_Practice.md) 一起学：
+这一节建议和 `[01_Data_Types_and_Precision_Practice.ipynb](./01_Data_Types_and_Precision_Practice.md)` 一起学：
 
 - 先看本文，建立字节换算、FP16 / BF16 / INT8 / INT4 和混合精度的直觉
-- 再做练习页，把显存计算、训练显存和量化收益真正算一遍
-- 练习页里的测试用来确认你不是“看懂了”，而是真的“会算了”
+- 再做 Notebook，把显存计算、训练显存和量化收益真正算一遍
+- Notebook 里的测试用来确认你不是“看懂了”，而是真的“会算了”
 
-如果你后面要估算模型显存、训练成本或量化收益，这一页负责让你知道**为什么这些格式重要**，练习页负责让你验证**具体能省多少**。
+如果你后面要估算模型显存、训练成本或量化收益，这一页负责让你知道**为什么这些格式重要**，Notebook 负责让你验证**具体能省多少**。
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
 > [`01_Data_Types_and_Precision_Practice.ipynb`](./01_Data_Types_and_Precision_Practice.md)  
-> [`01_Data_Types_and_Precision_Practice.md`](./01_Data_Types_and_Precision_Practice.md)    
+> [`01_Data_Types_and_Precision_Practice.md`](../01_Hardware_Math_and_Systems/01_Data_Types_and_Precision_Practice.md)    
 
 ---
 
@@ -118,7 +118,6 @@ FP16 的动态范围（最大值约 65504）远窄于 FP32（约 $3.4 \times 10^
 <details>
 <summary>点击展开查看解析</summary>
 
-这是一道极其经典的 Infra 进阶面试题。
 在混合精度训练中，模型的前向传播（Forward）和反向传播（Backward）都是用 16-bit 跑的，这样可以节省 50% 的显存并利用 Tensor Core 加速。
 
 但问题出在**参数更新（Optimizer Step）**这一步：

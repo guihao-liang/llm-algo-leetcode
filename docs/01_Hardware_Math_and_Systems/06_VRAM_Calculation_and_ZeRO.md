@@ -7,17 +7,18 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 `[06_VRAM_Calculation_and_ZeRO_Practice.md](./06_VRAM_Calculation_and_ZeRO_Practice.md)` 一起学：
+这一节建议和 `[06_VRAM_Calculation_and_ZeRO_Practice.ipynb](./06_VRAM_Calculation_and_ZeRO_Practice.md)` 一起学：
 
 - 先看本文，理解 16 bytes、ZeRO-1/2/3 和激活值显存的理论推导
-- 再做练习页，把 DDP、ZeRO 和最大模型规模真正算一遍
-- 练习页里的测试用来确认你不是“看懂了”，而是真的“会估算、会反推”
+- 再做 Notebook，把 DDP、ZeRO 和最大模型规模真正算一遍
+- Notebook 里的测试用来确认你不是“看懂了”，而是真的“会估算、会反推”
 
-如果你后面要判断模型能不能装下、训练是否会 OOM，这一页负责让你知道**怎么算显存**，练习页负责让你验证**算出来的结果是否可信**。
+如果你后面要判断模型能不能装下、训练是否会 OOM，这一页负责让你知道**怎么算显存**，Notebook 负责让你验证**算出来的结果是否可信**。
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
-> [`06_VRAM_Calculation_and_ZeRO_Practice.md`](./06_VRAM_Calculation_and_ZeRO_Practice.md)  
+> [`06_VRAM_Calculation_and_ZeRO_Practice.ipynb`](./06_VRAM_Calculation_and_ZeRO_Practice.md)  
+> [`06_VRAM_Calculation_and_ZeRO_Practice.md`](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO_Practice.md)  
 
 ---
 

@@ -18,17 +18,18 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 [03_GPU_Architecture_and_Memory_Practice.md](./03_GPU_Architecture_and_Memory_Practice.md) 一起学：
+这一节建议和 `[03_GPU_Architecture_and_Memory_Practice.ipynb](./03_GPU_Architecture_and_Memory_Practice.md)` 一起学：
 
 - 先看本文，建立 GPU 架构、内存层级和访存瓶颈的直觉
-- 再做练习页，把带宽、显存和 FlashAttention 的收益算出来
-- 练习页里的测试用来确认你不是“看懂了”，而是真的“会算了”
+- 再做 Notebook，把带宽、显存和 FlashAttention 的收益算出来
+- Notebook 里的测试用来确认你不是“看懂了”，而是真的“会算了”
 
-如果你后面要写自己的算子，这一页负责让你知道**为什么要优化**，练习页负责让你验证**到底省了多少**。
+如果你后面要写自己的算子，这一页负责让你知道**为什么要优化**，Notebook 负责让你验证**到底省了多少**。
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
-> [`03_GPU_Architecture_and_Memory_Practice.md`](./03_GPU_Architecture_and_Memory_Practice.md)  
+> [`03_GPU_Architecture_and_Memory_Practice.ipynb`](./03_GPU_Architecture_and_Memory_Practice.md)  
+> [`03_GPU_Architecture_and_Memory_Practice.md`](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory_Practice.md)  
 
 ---
 

@@ -1,4 +1,4 @@
-# 讨论题 24：SRAM 优化技术 (SRAM Optimization Techniques)
+# 24. SRAM Optimization Techniques | SRAM 优化技术 (SRAM Optimization Techniques)
 
 **难度：** Hard | **标签：** `Shared Memory`, `Bank Conflict`, `访存优化` | **目标人群：** 想进一步理解片上存储优化的学习者
 

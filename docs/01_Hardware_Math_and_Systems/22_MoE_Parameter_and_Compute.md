@@ -1,4 +1,4 @@
-# 讨论题 22：MoE 模型参数量计算 (Mixture of Experts)
+# 22. MoE Parameter and Compute | MoE 模型参数量计算 (Mixture of Experts)
 
 **难度：** Medium-Hard | **标签：** `MoE`, `参数量`, `路由` | **目标人群：** 想理解“大模型为什么能又大又省算”的学习者
 
@@ -151,6 +151,6 @@ MoE 的工程落地和 1C 的分布式通信章节强相关，建议后面接着
 
 对应的 Notebook 练习可以看这里：
 
-- [22_MoE_Parameter_and_Compute_Practice.ipynb](../../01_Hardware_Math_and_Systems/22_MoE_Parameter_and_Compute_Practice.ipynb)
+- [22_MoE_Parameter_and_Compute_Practice.ipynb](./22_MoE_Parameter_and_Compute_Practice.md)
 
 如果要补 Notebook，优先做这三件事会比先讲更复杂的 MoE 变体更有价值。

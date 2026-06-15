@@ -1,4 +1,4 @@
-# 讨论题 31：GPU 虚拟化与 MIG (GPU Virtualization & MIG)
+# 31. GPU Virtualization and MIG | GPU 虚拟化与 MIG (GPU Virtualization & MIG)
 
 **难度：** Medium | **标签：** `MIG`, `GPU 虚拟化`, `多租户` | **目标人群：** 关注多租户推理和资源隔离的学习者
 

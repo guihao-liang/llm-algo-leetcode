@@ -1,4 +1,4 @@
-# 13. Profiling and Bottleneck Analysis
+# 13. 性能分析与瓶颈定位 | Profiling and Bottleneck Analysis
 
 **难度：** Medium | **标签：** `Profiling`, `Performance`, `Bottleneck` | **目标人群：** 准备进入 Chapter 2 / 3 的学习者
 
@@ -31,7 +31,7 @@
 - CPU-GPU 数据搬运
 - 多卡通信
 
-所以 Chapter 1 的作用不是告诉你“必须优化”，而是先告诉你“可能慢在哪”。
+所以 Chapter 1 的作用不是告诉你“要先动手优化”，而是先告诉你“可能慢在哪”。
 
 ### 3. 关注“值不值得优化”
 
@@ -85,5 +85,4 @@
 - 再让你知道为什么要先测量再优化
 - 最后让你知道为什么 Chapter 2 / 3 的优化必须建立在 profiling 之上
 
-如果你已经知道“慢在哪里”比“怎么改”更重要，你就已经具备进入 Chapter 2 / 3 的关键前置直觉了。
-
+如果你已经知道“慢在哪里”比“怎么改”更重要，这一页的目标基本达成，后面 Chapter 2 / 3 还会继续用到这套思路。

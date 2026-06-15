@@ -1,4 +1,4 @@
-# 讨论题 30：动态 Shape 处理 (Dynamic Shape Handling)
+# 30. Dynamic Shape Handling | 动态 Shape 处理 (Dynamic Shape Handling)
 
 **难度：** Medium-Hard | **标签：** `动态 Shape`, `推理服务`, `Batching` | **目标人群：** 想理解变长序列和动态 batching 的学习者
 

@@ -1,96 +1,92 @@
-# 11. KV Cache and Memory Growth
+# 11. KV Cache and Memory Growth | KV Cache and Memory Growth
 
-**Difficulty:** Medium | **Tags:** `Inference Memory`, `Attention`, `KV Cache` | **Audience:** Learners preparing to enter Chapter 2 / 3
+**难度：** Medium | **标签：** `推理显存`, `Attention`, `KV Cache` | **目标人群：** 准备进入 Chapter 2 / 3 的学习者
 
-This page is not here to re-teach Attention. Its job is to connect the Chapter 1 ability to estimate memory with the real inference problems you will meet in Chapter 2. Once a model starts generating long contexts, KV cache becomes the main source of memory growth. Understanding it is the difference between knowing a model can run and knowing whether it can keep running stably at scale.
+这一页把 Chapter 1 的显存估算，接到 Chapter 2 的长上下文推理问题上。重点只有一个：KV cache 会随着上下文变长而持续增长。
 
-## Why this is a bridge page
+## 为什么这一节是前置页
 
-- Chapter 1 already covered parameter count, memory, and the basic cost of Attention
-- Chapter 2 will move directly into `Attention MHA/GQA`, `FlashAttention`, and `vLLM PagedAttention`
-- Without a clear KV cache model, those optimizations look like disconnected tricks
-- This page exists to explain why inference memory grows in the first place
+- Chapter 1 已经讲过参数量、显存和 Attention 代价
+- Chapter 2 会直接遇到 MHA/GQA、FlashAttention 和 PagedAttention
+- 这一页先把“推理时显存为什么涨”说清楚
 
-## The intuition you should build first
+## 你应该先建立的直觉
 
-### 1. Training memory and inference memory are different
+### 1. 训练显存和推理显存不是一回事
 
-During training, memory is usually dominated by:
-- parameters
-- gradients
-- optimizer states
-- activations
+训练时，显存大头通常是：
+- 参数
+- 梯度
+- 优化器状态
+- 激活值
 
-During inference, the major memory consumers are usually:
-- parameters
+推理时，显存大头通常变成：
+- 参数
 - KV cache
-- temporary activations and workspace
+- 临时激活和 workspace
 
-So in inference, the part that keeps growing is usually the KV cache, not gradients.
+也就是说，推理时最容易持续增长的部分，不是梯度，而是 KV cache。
 
-### 2. KV cache grows with context length
+### 2. KV cache 会随着上下文长度增长
 
-In autoregressive generation, each new token stores its Key and Value for reuse by future tokens.
+在自回归生成里，每生成一个 token，都要把这一轮的 Key 和 Value 保存下来，供后续 token 复用。
 
-That means:
-- longer context -> larger cache
-- larger batch -> larger cache
-- deeper model -> larger cache
-- more heads / larger head dimension -> larger cache
+这带来一个直接结果：
+- 上下文越长，cache 越大
+- batch 越大，cache 越大
+- 层数越多，cache 越大
+- head 数和 head dim 越大，cache 也越大
 
-### 3. Long-context inference is not only slower compute
+### 3. 长上下文推理不是“单次算得慢”，而是“历史状态越来越贵”
 
-The real issue is often that history becomes expensive to keep around.
+这也是很多优化的出发点：
+- FlashAttention 主要解决计算和中间矩阵存储
+- PagedAttention 主要解决 KV cache 的组织和分配
+- Quantization 主要解决参数和部分缓存的内存压力
 
-This is why different optimizations exist:
-- FlashAttention reduces compute and intermediate matrix pressure
-- PagedAttention improves how KV cache is organized and allocated
-- Quantization reduces parameter and some memory pressure
+## 一个最常见的估算方式
 
-## A simple estimation rule
-
-For decoder-only models, a useful rough mental model is:
+对 decoder-only 模型来说，KV cache 可以粗略理解为：
 
 ```text
-KV Cache size ∝ layers × sequence length × batch size × hidden/head-related dimensions
+KV Cache 规模 ∝ 层数 × 序列长度 × batch size × hidden/head 相关维度
 ```
 
-You do not need the full formula on this page. What matters is the intuition:
-- doubling sequence length noticeably increases memory
-- doubling batch size also increases memory
-- deeper models make KV cache harder to ignore
+你不用在这一页死记完整公式，关键是知道：
+- 序列长度翻倍，cache 就明显变大
+- batch 翻倍，cache 也会明显变大
+- 模型越深，cache 也越难忽略
 
-## Common mistakes
+## 常见误区
 
-- confusing KV cache with training-time gradient storage
-- looking only at parameter count and ignoring inference history
-- thinking long-context inference is just a compute problem
-- assuming "it can generate" means "it can keep generating stably"
+- 把 KV cache 当成训练时的梯度缓存
+- 只看参数量，不看推理时的历史状态
+- 以为长上下文只是“attention 计算更慢”，其实首先是显存压力更大
+- 把“能生成”误当成“能稳定长时间生成”
 
-## After studying this page, you should be able to answer
+## 这一页学完后，你应该能回答
 
-- why inference memory grows with generation length
-- why long-context inference becomes difficult
-- why vLLM emphasizes PagedAttention
-- why Chapter 2 studies `Attention`, `FlashAttention`, and `PagedAttention` together
+- 为什么推理时显存会随着生成长度增长
+- 为什么长上下文推理会越来越难做
+- 为什么 vLLM 会强调 PagedAttention
+- 为什么 Chapter 2 的 `Attention`、`FlashAttention` 和 `PagedAttention` 要连着学
 
-## Connection to later chapters
+## 和后续章节的联系
 
 - **Chapter 2: Attention MHA/GQA**  
-  You will see how head count, KV sharing, and cache size are related
+  这里会直接看到注意力头数、KV 共享和缓存大小的关系
 
 - **Chapter 2: FlashAttention**  
-  You will see how compute optimization reduces intermediate matrix pressure, but does not automatically solve KV cache organization
+  你会看到计算优化如何降低中间矩阵的压力，但它不等于自动解决 KV cache 组织问题
 
 - **Chapter 2: vLLM PagedAttention**  
-  You will see KV cache management become a real engineering problem
+  这里会把 KV cache 的管理变成真正的工程问题
 
-## Summary
+## 小结
 
-This page has one job:
-- explain what KV cache is
-- explain why it grows
-- explain why Chapter 2 needs to deal with it explicitly
+这一页的作用很简单：
+- 先让你知道 KV cache 是什么
+- 再让你知道它为什么会长
+- 最后让你知道为什么 Chapter 2 要专门处理它
 
-If you can already separate "parameter memory" from "inference cache memory", you have the basic intuition needed to enter Chapter 2.
-
+能把“参数显存”和“推理缓存”区分开，就说明这一页的目标基本达成，后面可以继续看 Chapter 2。
