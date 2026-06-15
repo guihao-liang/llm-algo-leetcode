@@ -1,4 +1,4 @@
-# 12. Debugging Techniques Practice | Debugging Techniques - 练习
+# 12. 调试技巧
 
 **难度：** Medium | **标签：** `PyTorch`, `Debugging`, `NaN`, `Gradients` | **目标人群：** Chapter 0 入门学习者
 

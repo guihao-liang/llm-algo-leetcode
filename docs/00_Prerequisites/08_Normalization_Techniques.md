@@ -1,4 +1,4 @@
-# 08. Normalization Techniques Practice | Normalization Techniques - 练习
+# 08. Normalization Techniques | 归一化技术
 
 **难度：** Medium | **标签：** `PyTorch`, `BatchNorm`, `LayerNorm`, `Normalization` | **目标人群：** Chapter 0 入门学习者
 

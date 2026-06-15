@@ -33,7 +33,7 @@ RuntimeError: CUDA out of memory. Tried to allocate 2.00 GiB
 
 ---
 
-## Part 1: 显存监控
+## 显存监控
 
 ### 1.1 基础显存查询
 
@@ -95,7 +95,7 @@ print_memory_usage("After backward pass:")
 
 ---
 
-## 📖 Part 2: 显存分析
+## 显存分析
 
 ### 2.1 使用 Profiler 分析显存
 
@@ -164,7 +164,7 @@ measure_peak_memory(train_step, model, input, target)
 
 ---
 
-## 📖 Part 3: 显存优化技巧
+## 显存优化技巧
 
 ### 3.1 减小 Batch Size
 
@@ -320,7 +320,7 @@ x.mul_(2)      # 原地乘法
 
 ---
 
-## 📖 Part 4: 显存泄漏排查
+## 显存泄漏排查
 
 ### 4.1 常见的显存泄漏原因
 
@@ -338,7 +338,7 @@ losses = []
 for i in range(100):
     output = model(input)
     loss = criterion(output, target)
-    losses.append(loss.item())  # ✅ 只保留标量
+    losses.append(loss.item())  # 只保留标量
     loss.backward()
 ```
 
@@ -352,7 +352,7 @@ for i in range(100):
 
 # 解决方法：每次清零梯度
 for i in range(100):
-    optimizer.zero_grad()  # ✅ 清零梯度
+    optimizer.zero_grad()  # 清零梯度
     output = model(input)
     loss = criterion(output, target)
     loss.backward()
@@ -379,7 +379,7 @@ class MyModel(nn.Module):
     
     def forward(self, x):
         result = self.linear(x)
-        self.cache.append(result.detach())  # ✅ 分离计算图
+        self.cache.append(result.detach())  # 分离计算图
         return result
 ```
 
@@ -400,7 +400,7 @@ for obj in gc.get_objects():
 
 ---
 
-## 📖 Part 5: 显存优化对比
+## 显存优化对比
 
 ### 5.1 对比不同优化策略
 
@@ -627,11 +627,11 @@ def train_without_leak(model, train_loader, optimizer, criterion):
 ## 🎓 总结
 
 本节学习了显存分析和优化的核心技能：
-- ✅ 显存监控和分析工具
-- ✅ 梯度累积技术
-- ✅ 混合精度训练
-- ✅ 梯度检查点
-- ✅ 显存泄漏排查
+- 显存监控和分析工具
+- 梯度累积技术
+- 混合精度训练
+- 梯度检查点
+- 显存泄漏排查
 
 **关键要点：**
 - 显存优化是训练大模型的关键

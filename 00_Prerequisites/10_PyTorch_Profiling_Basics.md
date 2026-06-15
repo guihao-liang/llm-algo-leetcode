@@ -17,7 +17,7 @@
 
 ## 练习
 
-### Part 1: `torch.profiler` 基础
+## `torch.profiler` 基础
 
 ### 1.1 简单示例
 
@@ -66,7 +66,7 @@ if torch.cuda.is_available():
 
 ---
 
-## Part 2: 性能报告解读
+## 性能报告解读
 
 ### 2.1 关键指标
 
@@ -105,7 +105,7 @@ print(prof.key_averages().table(
 
 ---
 
-## Part 3: 导出和可视化
+## 导出和可视化
 
 ### 3.1 导出 Chrome Trace
 
@@ -140,7 +140,7 @@ with profile(
 
 ---
 
-## Part 4: 分析训练循环
+## 分析训练循环
 
 ### 4.1 完整训练循环的 Profiling
 
@@ -213,7 +213,7 @@ with profile(
 
 ---
 
-## Part 5: 常见性能问题定位
+## 常见性能问题定位
 
 ### 5.1 CPU-GPU 数据传输瓶颈
 
@@ -267,7 +267,7 @@ final_results = [r.item() for r in results]
 
 ---
 
-## 📖 Part 6: 实用技巧
+## 实用技巧
 
 ### 6.1 只分析部分代码
 
@@ -357,7 +357,7 @@ if torch.cuda.is_available():
 
 ---
 
-## 🎯 实战练习
+## 实战练习
 
 ### 练习 1: 分析模型的性能瓶颈
 
@@ -412,7 +412,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 ---
 
-## 📚 参考答案
+## 参考答案
 
 <details>
 <summary>点击查看练习 1 答案</summary>
@@ -509,11 +509,11 @@ for bs in batch_sizes:
 ## 🎓 总结
 
 本节学习了 PyTorch 性能分析的核心技能：
-- ✅ torch.profiler 的基本使用
-- ✅ 性能报告的解读
-- ✅ Chrome Trace 和 TensorBoard 可视化
-- ✅ 常见性能问题的定位
-- ✅ 实用的性能测试技巧
+- torch.profiler 的基本使用
+- 性能报告的解读
+- Chrome Trace 和 TensorBoard 可视化
+- 常见性能问题的定位
+- 实用的性能测试技巧
 
 **关键要点：**
 - Profiling 是性能优化的第一步

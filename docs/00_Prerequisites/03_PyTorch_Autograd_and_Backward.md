@@ -20,7 +20,7 @@ Autograd 会自动记录前向计算，并在 `backward()` 时沿着计算图回
 
 ---
 
-## Part 1: 基础自动求导
+## 基础自动求导
 
 ### 1.1 简单示例
 
@@ -76,7 +76,7 @@ print(y.grad)  # tensor([6.])  因为 dz/dy = 2y = 6
 
 ---
 
-## Part 2: `requires_grad` 和 `grad_fn`
+## `requires_grad` 和 `grad_fn`
 
 ### 2.1 requires_grad
 
@@ -125,7 +125,7 @@ print(y.grad)  # None（非叶子节点的梯度会被释放）
 
 ---
 
-## Part 3: 梯度累积和清零
+## 梯度累积和清零
 
 ### 3.1 梯度累积
 
@@ -188,7 +188,7 @@ for epoch in range(10):
 
 ---
 
-## Part 4: 控制梯度计算
+## 控制梯度计算
 
 ### 4.1 torch.no_grad() - 禁用梯度计算
 
@@ -241,7 +241,7 @@ def inference(model, input):
 
 ---
 
-## 📖 Part 5: 高级梯度操作
+## 高级梯度操作
 
 ### 5.1 retain_graph - 保留计算图
 
@@ -289,7 +289,7 @@ print(grad2_y)  # tensor([12.])  因为 d^2y/dx^2 = 6x = 12
 
 ---
 
-## 📖 Part 6: 自定义 autograd.Function
+## 自定义 autograd.Function
 
 ### 6.1 基本结构
 
@@ -373,7 +373,7 @@ print(x.grad)  # tensor([0.25])  因为 σ'(0) = 0.5 * 0.5 = 0.25
 
 ---
 
-## 📖 Part 7: 梯度检查（Gradient Checking）
+## 梯度检查（Gradient Checking）
 
 ### 7.1 数值梯度 vs 解析梯度
 
@@ -454,7 +454,7 @@ print("Gradient check:", "Passed" if test else "Failed")
 
 ---
 
-## 🎯 实战练习
+## 实战练习
 
 ### 练习 1: 实现 Softmax 的自定义 autograd
 
@@ -560,7 +560,7 @@ def clip_gradients(model, max_norm=1.0):
 
 ---
 
-## 📚 参考答案
+## 参考答案
 
 <details>
 <summary>点击查看练习 1 答案</summary>
@@ -657,11 +657,11 @@ def clip_gradients(model, max_norm=1.0):
 ## 🎓 总结
 
 本节学习了 PyTorch 自动求导的核心概念：
-- ✅ 自动求导的基本原理和使用
-- ✅ 计算图和梯度传播
-- ✅ 梯度累积和清零
-- ✅ 控制梯度计算（no_grad、detach）
-- ✅ 自定义 autograd.Function
-- ✅ 梯度检查和调试
+- 自动求导的基本原理和使用
+- 计算图和梯度传播
+- 梯度累积和清零
+- 控制梯度计算（no_grad、detach）
+- 自定义 autograd.Function
+- 梯度检查和调试
 
 **下一步：** 学习 [04. PyTorch nn.Module Basics](./04_PyTorch_nn_Module_Basics.md)，掌握模块定义和参数管理。

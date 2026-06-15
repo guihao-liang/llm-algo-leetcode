@@ -1,10 +1,10 @@
-# 01. NumPy and Einsum Practice | NumPy and Einsum - 练习
+# 01. NumPy and Einsum | NumPy 与 Einsum
 
 **难度：** Easy | **标签：** `NumPy`, `Broadcasting`, `Einsum` | **目标人群：** Chapter 0 入门学习者
 
-> 🚀 **云端运行环境**
+本页的实战代码可以点击下面的链接在免费 GPU 算力平台上直接运行：
 >
-> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/00_Prerequisites/01_NumPy_and_Einsum.ipynb)
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/00_Prerequisites/01_NumPy_and_Einsum.md)
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 ## 学习目标

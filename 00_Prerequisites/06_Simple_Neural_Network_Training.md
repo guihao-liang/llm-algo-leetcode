@@ -41,7 +41,7 @@ for epoch in range(num_epochs):
 
 ---
 
-## Part 1: 完整的训练循环
+## 完整的训练循环
 
 ### 1.1 基础训练循环
 
@@ -189,7 +189,7 @@ def train(model, train_loader, val_loader, criterion, optimizer,
 
 ---
 
-## 📖 Part 2: model.train() vs model.eval()
+## `model.train()` vs `model.eval()`
 
 ### 2.1 为什么需要切换模式？
 
@@ -230,7 +230,7 @@ model.eval()
 
 ---
 
-## 📖 Part 3: 早停（Early Stopping）
+## 早停（Early Stopping）
 
 ### 3.1 什么是早停？
 
@@ -301,7 +301,7 @@ for epoch in range(num_epochs):
 
 ---
 
-## 📖 Part 4: 模型保存和加载
+## 模型保存和加载
 
 ### 4.1 保存和加载 state_dict（推荐）
 
@@ -349,7 +349,7 @@ best_acc = checkpoint['best_acc']
 
 ---
 
-## 📖 Part 5: 学习率调度
+## 学习率调度
 
 ### 5.1 StepLR - 每隔几个 epoch 降低学习率
 
@@ -395,7 +395,7 @@ for epoch in range(num_epochs):
 
 ---
 
-## 📖 Part 6: 进度条和日志
+## 进度条和日志
 
 ### 6.1 使用 tqdm 显示进度条
 
@@ -625,11 +625,11 @@ def main():
 ## 🎓 总结
 
 本节学习了完整的神经网络训练流程：
-- ✅ 训练循环的标准结构
-- ✅ model.train() vs model.eval()
-- ✅ 早停（Early Stopping）
-- ✅ 模型保存和加载
-- ✅ 学习率调度
-- ✅ 进度条和日志记录
+- 训练循环的标准结构
+- model.train() vs model.eval()
+- 早停（Early Stopping）
+- 模型保存和加载
+- 学习率调度
+- 进度条和日志记录
 
 **下一步：** 学习 [10. PyTorch Profiling Basics](./10_PyTorch_Profiling_Basics.md)，掌握性能分析工具。

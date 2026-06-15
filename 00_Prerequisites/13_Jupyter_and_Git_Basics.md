@@ -1,4 +1,4 @@
-# 13. Jupyter and Git Basics Practice | Jupyter and Git Basics - 练习
+# 13. Jupyter 与 Git 基础
 
 **难度：** Easy | **标签：** `Notebook`, `Git`, `Version Control`, `Workflow` | **目标人群：** Chapter 0 入门学习者
 

@@ -1,4 +1,4 @@
-# 07. Activation Functions Practice | Activation Functions - 练习
+# 07. Activation Functions | 激活函数
 
 **难度：** Easy | **标签：** `PyTorch`, `Activation`, `GELU`, `SiLU` | **目标人群：** Chapter 0 入门学习者
 

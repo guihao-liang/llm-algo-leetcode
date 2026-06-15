@@ -27,7 +27,7 @@
 
 ---
 
-## Part 1: Tensor 创建
+## Tensor 创建
 
 ### 1.1 从数据创建
 
@@ -83,7 +83,7 @@ rand_like = torch.rand_like(x)
 
 ---
 
-## Part 2: Tensor 属性
+## Tensor 属性
 
 ```python
 x = torch.randn(2, 3, 4)
@@ -110,7 +110,7 @@ print(x.requires_grad)  # False
 
 ---
 
-## Part 3: 形状变换
+## 形状变换
 
 ### 3.1 view() - 快速但要求内存连续
 
@@ -139,7 +139,7 @@ x_reshaped = x.reshape(6, 4)  # torch.Size([6, 4])
 
 # 即使内存不连续也能工作
 x_t = x.transpose(0, 1)
-x_reshaped = x_t.reshape(-1)  # ✅ 可以工作
+x_reshaped = x_t.reshape(-1)  # 可以工作
 ```
 
 ### 3.3 permute() - 改变维度顺序
@@ -196,7 +196,7 @@ print(x_unsqueezed.shape)  # torch.Size([2, 1, 3])
 
 ---
 
-## Part 4: 索引和切片
+## 索引和切片
 
 ```python
 x = torch.randn(3, 4, 5)
@@ -225,7 +225,7 @@ x_masked = x.masked_fill(mask, 0)  # 将所有大于 0 的元素设为 0
 
 ---
 
-## Part 5: 设备转移（CPU ↔ GPU）
+## 设备转移（CPU ↔ GPU）
 
 ```python
 # 创建 CPU Tensor
@@ -251,7 +251,7 @@ x = x.to(device)
 
 ---
 
-## Part 6: 数据类型转换
+## 数据类型转换
 
 ```python
 x = torch.randn(2, 3)
@@ -274,7 +274,7 @@ x_half = x.to(torch.float16)  # 或 x.half()
 
 ---
 
-## Part 7: 内存连续性
+## 内存连续性
 
 ```python
 x = torch.randn(2, 3, 4)
@@ -298,7 +298,7 @@ print(x_t_contiguous.is_contiguous())  # True
 
 ---
 
-## Part 8: Tensor 与 NumPy 互转
+## Tensor 与 NumPy 互转
 
 ```python
 import numpy as np
@@ -325,7 +325,7 @@ x_np = x.clone().numpy()  # 不共享内存
 
 ---
 
-## 🎯 实战练习
+## 实战练习
 
 ### 练习 1: 创建 Causal Mask
 
@@ -427,7 +427,7 @@ print(c.shape)  # 应该是 torch.Size([2, 3, 5])
 
 ---
 
-## 📚 参考答案
+## 参考答案
 
 <details>
 <summary>点击查看练习 1 答案</summary>
@@ -485,12 +485,12 @@ def batch_matmul(a, b):
 ## 🎓 总结
 
 本节学习了 PyTorch Tensor 的核心操作：
-- ✅ Tensor 的创建和属性
-- ✅ 形状变换（view、reshape、permute）
-- ✅ 索引和切片
-- ✅ 设备转移（CPU ↔ GPU）
-- ✅ 数据类型转换
-- ✅ 内存连续性
-- ✅ 与 NumPy 的互操作
+- Tensor 的创建和属性
+- 形状变换（view、reshape、permute）
+- 索引和切片
+- 设备转移（CPU ↔ GPU）
+- 数据类型转换
+- 内存连续性
+- 与 NumPy 的互操作
 
 **下一步：** 学习 [03. PyTorch Autograd and Backward](./03_PyTorch_Autograd_and_Backward.md)，掌握自动求导的原理。

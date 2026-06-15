@@ -1,4 +1,4 @@
-# 09. Attention Mechanism Intro Practice | Attention Mechanism Intro - 练习
+# 09. Attention Mechanism Intro | Attention 机制入门
 
 **难度：** Medium | **标签：** `PyTorch`, `Attention`, `Mask`, `Softmax` | **目标人群：** Chapter 0 入门学习者
 

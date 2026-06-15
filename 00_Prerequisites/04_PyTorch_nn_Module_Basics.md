@@ -1,8 +1,8 @@
-# 04. PyTorch nn.Module Basics Practice | PyTorch nn.Module Basics - 练习
+# 04. PyTorch nn.Module 基础
 
 **难度：** Medium | **标签：** `PyTorch`, `nn.Module`, `Parameters` | **目标人群：** PyTorch 入门学习者
 
-> 🚀 **云端运行环境**
+本页的实战代码可以点击下面的链接在免费 GPU 算力平台上直接运行：
 >
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/00_Prerequisites/04_PyTorch_nn_Module_Basics.ipynb)
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
