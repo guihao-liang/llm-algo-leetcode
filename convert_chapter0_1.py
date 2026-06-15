@@ -90,6 +90,7 @@ def process_markdown_file(md_path, out_path):
         source_text = f.read()
 
     source_text = re.sub(r'(\]\([^)]+)\.ipynb\)', r'\1.md)', source_text)
+    source_text = re.sub(r'\[([^\]]+)\.ipynb\]\(([^)]+)\.md\)', r'[\1.md](\2.md)', source_text)
     source_text = source_text.replace('../docs/', '../')
     lines = source_text.split('\n')
 

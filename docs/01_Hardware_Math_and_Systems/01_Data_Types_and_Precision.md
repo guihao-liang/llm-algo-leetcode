@@ -6,7 +6,7 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 `[01_Data_Types_and_Precision_Practice.ipynb](./01_Data_Types_and_Precision_Practice.md)` 一起学：
+这一节建议和 [练习页](./01_Data_Types_and_Precision_Practice.md) 一起学：
 
 - 先看本文，建立字节换算、FP16 / BF16 / INT8 / INT4 和混合精度的直觉
 - 再做 Notebook，把显存计算、训练显存和量化收益真正算一遍
@@ -16,7 +16,7 @@
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
-> [`01_Data_Types_and_Precision_Practice.ipynb`](./01_Data_Types_and_Precision_Practice.md)  
+> [练习页](./01_Data_Types_and_Precision_Practice.md)  
 > [`01_Data_Types_and_Precision_Practice.md`](../01_Hardware_Math_and_Systems/01_Data_Types_and_Precision_Practice.md)    
 
 

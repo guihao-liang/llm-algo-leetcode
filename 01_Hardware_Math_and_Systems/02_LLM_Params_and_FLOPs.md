@@ -6,7 +6,7 @@
 
 ## 本节如何和 Notebook 配合
 
-这一节建议和 `[02_LLM_Params_and_FLOPs_Practice.ipynb](./02_LLM_Params_and_FLOPs_Practice.ipynb)` 一起学：
+这一节建议和 [练习页](./02_LLM_Params_and_FLOPs_Practice.ipynb) 一起学：
 
 - 先看本文，理解参数量拆解、前向 FLOPs、训练 FLOPs 和 MFU 的基础公式
 - 再做 Notebook，把参数量、训练时间和场景判断真正算一遍
@@ -16,7 +16,7 @@
 
 > **相关阅读**:  
 > 本章对应的练习资产：  
-> [`02_LLM_Params_and_FLOPs_Practice.ipynb`](./02_LLM_Params_and_FLOPs_Practice.ipynb)  
+> [练习页](./02_LLM_Params_and_FLOPs_Practice.ipynb)  
 
 
 

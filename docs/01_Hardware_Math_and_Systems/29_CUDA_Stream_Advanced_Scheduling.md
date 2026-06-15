@@ -139,7 +139,7 @@ Stream C: D2H + 后处理
 
 ## 配合练习
 
-这一页建议和后面的 [29_CUDA_Stream_Advanced_Scheduling_Practice.ipynb](./29_CUDA_Stream_Advanced_Scheduling_Practice.md) 一起看。这页的练习可以围绕下面三步展开：
+这一页建议和后面的 [练习页](./29_CUDA_Stream_Advanced_Scheduling_Practice.md) 一起看。这页的练习可以围绕下面三步展开：
 
 - 先做一个 Stream 优先级的小实验，看高 / 低优先级任务的调度差异
 - 再做 Event 同步，观察不同 Stream 之间的依赖是怎么被串起来的
@@ -147,4 +147,4 @@ Stream C: D2H + 后处理
 
 对应的 Notebook 练习可以看这里：
 
-- [29_CUDA_Stream_Advanced_Scheduling_Practice.ipynb](./29_CUDA_Stream_Advanced_Scheduling_Practice.md)
+- [练习页](./29_CUDA_Stream_Advanced_Scheduling_Practice.md)
