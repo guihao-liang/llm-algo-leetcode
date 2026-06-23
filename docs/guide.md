@@ -91,6 +91,8 @@
 - Part 3 是 **GPU-required**
 - 少数页面可能有阅读路径或 CPU fallback，但不构成完整学习路径
 
+如果你在 Colab 中打开 Part 3，请优先选择免费的 `T4 GPU`，或者任意可用的 GPU runtime，再运行 notebook 最前面的环境准备单元。该单元会在 `triton` 缺失时自动安装依赖；如果连 GPU runtime 都没有，Part 3 只能阅读，不能按完整路径验收。
+
 ### 4. 统一交付层
 
 适用场景：
