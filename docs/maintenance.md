@@ -100,8 +100,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - 保持部分内容、站点导航、Notebook 入口和测试脚本同步
 - 控制改动范围，避免跨部分的大面积联动回归
 - 将可验证的变更拆成小提交，便于 review 和回滚
-- 让维护工作可以被复用，而不是依赖某个人的记忆
-- 把操作系统、包版本、测试脚本和云端环境纳入同一套维护口径
+- 让维护工作可以复用，不依赖个人记忆
 
 ## 本地 GPU 验证基线
 
@@ -129,67 +128,22 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 
 ## 当前维护对象
 
-- `README.md`：项目首页和总入口
-- `docs/index.md`：站点首页
-- `docs/guide.md`：环境与学习方式
-- `docs/.vitepress/config.mts`：站点导航
+- `README.md`、`docs/index.md`、`docs/guide.md`、`docs/.vitepress/config.mts`：入口与导航
 - `00_Prerequisites/intro.md`、`01_Hardware_Math_and_Systems/intro.md`、`02_PyTorch_Algorithms/intro.md`、`03_CUDA_and_Triton_Kernels/intro.md`：各部分导学
-- `docs/` 下对应页面：站点侧镜像
-- `test_chapter0_1_notebooks.py`：第零部分 / 第一部分验证
-- `test_notebook_answers.py`：第二部分 / 第三部分验证
-- `check_chapter_links.py`：站内链接检查
-- `check_source_docs_mirror.py`：部分正文与 docs 镜像一致性检查
-- `convert_chapter0_1.py`：第零部分 / 第一部分 source -> docs 转换
-- `convert_notebook.py`：第二部分 / 第三部分 source -> docs 转换
-  - 默认全量重建 Part 2 / 3 的 `docs/` 镜像
-  - 支持 `--dir` / `--file` 局部同步
-  - 支持 `--dry-run` 预览影响范围
-- `SESSION_HANDOFF.md`：当前交接记录
+- `docs/` 下对应页面：站点镜像
+- `convert_chapter0_1.py`、`convert_notebook.py`：source -> docs 转换
+- `test_chapter0_1_notebooks.py`、`test_notebook_answers.py`：Notebook 验证
+- `check_chapter_links.py`、`check_source_docs_mirror.py`：链接和镜像一致性检查
 
 ## 文档职责图
 
-为了避免把环境说明、维护规则和 CNB 入口写混，当前文档分工如下：
+为了避免把环境说明、维护规则和 CNB 入口写混，当前分工只保留一句话版本：
 
-### `docs/guide.md`
-
-- 负责“怎么学、怎么选环境、怎么验证”
-- 统一说明：
-  - 本地 conda
-  - CNB
-  - 在线 Notebook
-  - Docker / 云端 GPU
-- 负责 Part 0 / 1 / 2 / 3 的环境决策树和验证顺序
-
-### `cnb/README.md`
-
-- 负责 CNB 的补充说明
-- 说明 CNB 的两层：
-  - `push` / `pull_request`：流水线
-  - `vscode` / `vscode-gpu`：交互环境
-- 负责 CNB 验证顺序和 GPU 入口口径
-
-### `docs/maintenance.md`
-
-- 负责维护规则、发布规则和验证规则
-- 记录：
-  - 本地 / CNB / GPU 的边界
-  - 部分分组和占位规范
-  - 版本来源与测试脚本
-  - 发布前检查清单
-
-### `README.md` / `docs/index.md`
-
-- 负责项目门面和站点导航
-- 只放入口和简短概览，不展开长篇环境说明
-
-### `process/*.md`
-
-- 负责临时记录、交接、阶段总结
-- 不作为学习正文，不进入站点导航
-- `docs/.vitepress/config.mts`：侧边栏和导航
-- `docs/guide.md`：环境与平台说明
-- `docs/contributing.md`：贡献和测试说明
-- `docs/maintenance.md`：维护与发布说明
+- `docs/guide.md`：怎么学、怎么选环境、怎么验证
+- `cnb/README.md`：CNB 入口和交互环境说明
+- `docs/maintenance.md`：维护、发布和验证规则
+- `README.md` / `docs/index.md`：项目门面和站点导航
+- `process/*.md`：临时记录、交接、阶段总结
 
 ## 常规维护流程
 
@@ -219,7 +173,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 
 ### 3. 先做本地验证
 
-建议按改动类型选择测试：
+建议按改动类型选择测试，优先用统一入口：
 
 - 统一入口：`python verify.py chapter0_1` / `python verify.py chapter2` / `python verify.py chapter3` / `python verify.py all`
 - 文档链接：`python check_chapter_links.py`
@@ -244,7 +198,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - Part 1：优先保证理论文档准确，练习资产与导学一致
 - Part 2：主定位是算法验证层，优先保证题目链接、站内导学、参考答案和 `.md` 页面一致
 - Part 3：主定位是工程实现层，优先保证 GPU 环境说明、Triton/CUDA 路径、导学页跳转和站内链接一致
-- Part 2 / 3 的软件环境分层属于教程主体的一部分，环境文件、依赖拆分和部分内容要同步维护，不要把环境说明散落到单题里
+- Part 2 / 3 的软件环境分层属于教程主体的一部分，环境文件、依赖拆分和部分内容要同步维护
 - Part 2 / 3 的 GPU 等级标注应尽量基于 notebook 代码审计结果；新增题目时要明确它是 CPU-first、GPU-recommended 还是 GPU-required
 
 ## Part 2 / 3 分工约定
@@ -254,11 +208,29 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - Part 0 / 1 可以提及 CUDA / Triton 作为后续预告，但不承担 Part 3 的工程执行责任
 - Part 2 中允许存在 GPU 特例页，例如单独的 GPU-required 小节；此类页面应单独标注并按特例验证，不应推导出整章默认规则
 
+## Part 1 桥接约定
+
+- Part 1 是 Part 2 和 Part 3 的共同前置，不只是 Part 3 的前置
+- 如果一个概念同时服务 Part 2 和 Part 3，优先在 Part 1 补强，而不是在后续章节重复堆叠
+- Part 1 的职责是建立硬件、系统、内存、调度和编程模型的认知桥梁，不是提前承担 Part 3 的代码实现责任
+- Part 1 的内容组织应优先形成一条可执行的前导导读链，明确告诉读者先看什么、解决什么问题、再进入哪一部分
+- 如果某个概念只服务少数 Part 3 页面，则保留为 Part 3 的局部桥接或支撑小节，不必上移到 Part 1
+
 ### Part 3 入口页补充约束
 
 - Part 3 的 `intro.md` 属于高风险入口页，既要检查源文件，也要检查 `docs/` 镜像页
 - 入口页中的 Task 链接、前置页、后续页和环境说明必须在镜像环境里保持可用
 - 任何涉及 Part 3 导学页结构或路径的改动，除了常规 notebook 验证外，还应补做一次链接可用性检查
+
+### 小节链接入口规范
+
+- 新增或重写的小节，优先采用统一的链接块顺序：`导语` -> `前置` -> `相关阅读`
+- `导语` 用一两句话说明本节解决什么问题
+- `前置` 只放必须先懂的内部章节、导学页或同部分页面，控制在 2 到 4 个；判断标准是“跳过它会不会卡住”
+- `相关阅读` 只放可选补充、同主题扩展或外部 URL；判断标准是“跳过它也能继续，但看了更完整”
+- 正文中尽量不要散插大量链接；如果必须引用，优先先把入口收敛到这三块
+- Part 1 的组页可以继续保留现有的 `前置关系 / 桥接 / 扩展` 结构；如果后续重写入口页，也应尽量迁移到同一套口径
+- Part 3 的 notebook 导入页、桥接页和总结页应优先使用这套口径，保证源文件和 `docs/` 镜像页一致可读
 
 ## 分组原则
 

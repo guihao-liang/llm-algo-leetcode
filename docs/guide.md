@@ -93,6 +93,8 @@
 
 如果你在 Colab 中打开 Part 3，请优先选择免费的 `T4 GPU`，或者任意可用的 GPU runtime，再运行 notebook 最前面的环境准备单元。该单元会在 `triton` 缺失时自动安装依赖；如果连 GPU runtime 都没有，Part 3 只能阅读，不能按完整路径验收。
 
+Part 3 的主叙事链是 `PyTorch -> Triton -> CUDA`：先在 PyTorch 层理解算法与行为，再用 Triton 把算子高效落到 GPU，最后在 CUDA 层处理更底层的控制、系统扩展和工程边界。
+
 ### 4. 统一交付层
 
 适用场景：
