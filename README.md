@@ -35,7 +35,7 @@
 
 ## 🆕 更新时间线
 
-- **2026-06-15**：[最新更新点]推进 Chapter 0 / 1 的分组与导读收口，统一部分级导航，并完成网页底部评论区接入 GitHub Discussions，同时持续扩展 Chapter 1 的正文、桥接页与 Notebook 结构。
+- **2026-06-15**：[最新更新点]推进第零部分 / 第一部分的分组与导读收口，统一部分级导航，并完成网页底部评论区接入 GitHub Discussions，同时持续扩展第一部分的正文、桥接页与 Notebook 结构。
 - **2026-06-13**：修复 dead link，并为未完成页面补充占位页，避免学习入口出现 404。
 - **2026-04-21**：更新 Colab 徽章链接，统一指向官方 `datawhalechina` 仓库。
 - **2026-04-20**：上线站点首页与部分导学；新增第零部分前置知识与第一部分练习内容，完善在线阅读入口与学习路径。
@@ -53,11 +53,11 @@
 
 ## 🚀 快速开始
 
-如果你想开始学习，直接从在线站点或左侧章节目录进入即可。环境与平台差异见 [使用指南](./docs/guide.md)。
+如果你想开始学习，直接从在线站点或左侧部分目录进入即可。环境与平台差异见 [使用指南](./docs/guide.md)。
 
 ### 学习路径
 
-1. 在左侧侧边栏选择感兴趣的章节
+1. 在左侧侧边栏选择感兴趣的部分
 2. 点击 **📖 完整导学** 了解学习路径
 3. 选择具体题目开始学习
 4. 环境和平台差异见 [使用指南](./docs/guide.md)
@@ -70,7 +70,7 @@
 
 适合：
 - 先看目录
-- 先读章节导学
+- 先读部分导学
 - 先用 Colab 跑练习
 
 ### 方式 2：本地学习
@@ -87,7 +87,7 @@ jupyter lab
 
 - [使用指南](./docs/guide.md) - 环境与学习方式
 - [贡献指南](./docs/contributing.md) - 如何参与项目开发和测试
-- [维护与发布手册](./docs/maintenance.md) - 章节、链接、测试与发布的维护约定
+- [维护与发布手册](./docs/maintenance.md) - 部分、链接、测试与发布的维护约定
 - [自动化测试脚本索引](./project_test_scripts.md) - 各类验证脚本入口
 
 ## 👨‍💻 贡献者名单
@@ -121,15 +121,15 @@ This project is strictly limited to the Large Language Model (LLM) domain, exclu
 
 - **Job Seekers**: Reinforce the most common LLM algorithm, AI infrastructure, and kernel optimization interview topics.
 - **AI Practitioners**: Learn LLM mechanisms from the code level, including distributed communication, VRAM optimization, and Triton/CUDA operators.
-- **Prerequisites**: Basic Python and deep learning knowledge, plus PyTorch familiarity. Advanced chapters require some C++/CUDA background.
+- **Prerequisites**: Basic Python and deep learning knowledge, plus PyTorch familiarity. Advanced parts require some C++/CUDA background.
 
 ## Update Timeline
 
-- **2026-06-15**: [Latest update] finalized the Chapter 0 / 1 grouping and guide cleanup, unified the part-level navigation, connected the page comments to GitHub Discussions, and continued expanding Chapter 1 content, bridge pages, and notebook structure.
+- **2026-06-15**: [Latest update] finalized the Part 0 / 1 grouping and guide cleanup, unified the part-level navigation, connected the page comments to GitHub Discussions, and continued expanding Part 1 content, bridge pages, and notebook structure.
 - **2026-06-13**: [Latest update] fixed dead links and added placeholder pages for unfinished content to prevent 404s in learning entry points.
 - **2026-04-21**: Updated Colab badges to point to the official `datawhalechina` repository.
-- **2026-04-20**: Launched the site homepage and chapter guides; added Chapter 0 prerequisites and Chapter 1 practice content to unify the learning path.
-- **2026-04-18 ~ 2026-04-19**: Refactored Chapter 2 / 3 content, polishing notebooks, answer sections, and operator implementation notes.
+- **2026-04-20**: Launched the site homepage and part guides; added Part 0 prerequisites and Part 1 practice content to unify the learning path.
+- **2026-04-18 ~ 2026-04-19**: Refactored Part 2 / 3 content, polishing notebooks, answer sections, and operator implementation notes.
 - **2026-04-02**: Completed the initial tutorial notebooks, docs, and test scripts.
 
 ## Part Overview

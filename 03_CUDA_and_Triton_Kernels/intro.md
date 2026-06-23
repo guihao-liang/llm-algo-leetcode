@@ -2,7 +2,7 @@
 
 ## 🎯 本部分概览
 
-本章聚焦大模型算子的高性能实现，重点是把 Chapter 2 的算法实现落到 Triton / CUDA / 分布式层。
+本部分聚焦大模型算子的高性能实现，重点是把第二部分的算法实现落到 Triton / CUDA / 分布式层。
 
 ### 零基础过渡 5 Task
 
@@ -28,8 +28,8 @@
 
 - **整体定位：GPU-required**
 - **完整体验**：需要 NVIDIA GPU，且推荐 Linux + CUDA + Triton
-- **代码审计结果**：Chapter 3 的 Triton / CUDA notebook 直接面向 GPU 内核、显存和通信行为，不能把 CPU 作为完整替代
-- **例外说明**：少数页面可能支持 CPU fallback 或仅用于阅读，但不构成 Chapter 3 的标准运行路径
+- **代码审计结果**：第三部分的 Triton / CUDA notebook 直接面向 GPU 内核、显存和通信行为，不能把 CPU 作为完整替代
+- **例外说明**：少数页面可能支持 CPU fallback 或仅用于阅读，但不构成第三部分的标准运行路径
 
 ### 前置页面
 
