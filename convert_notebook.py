@@ -77,6 +77,12 @@ def process_first_cell(source_text, ipynb_path):
 
     return '\n'.join(lines)
 
+def normalize_markdown_links(source_text):
+    """将 source 侧 Markdown 中的常见链接改写为 docs 镜像可用的路径。"""
+    source_text = re.sub(r'(\]\([^)]+)\.ipynb\)', r'\1.md)', source_text)
+    source_text = source_text.replace('../docs/', '../')
+    return source_text
+
 def process_markdown_file(md_path, out_path):
     """处理纯 Markdown 文件，主要是合并双语标题"""
     filename = os.path.basename(md_path)
@@ -84,7 +90,13 @@ def process_markdown_file(md_path, out_path):
     name = filename.replace('.md', '')
     parts = name.split('_')
     if len(parts) < 2:
-        shutil.copy2(md_path, out_path)
+        with open(md_path, "r", encoding="utf-8") as f:
+            source_text = f.read()
+
+        source_text = normalize_markdown_links(source_text)
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(source_text)
         return
 
     number = parts[0]
@@ -93,11 +105,8 @@ def process_markdown_file(md_path, out_path):
     with open(md_path, "r", encoding="utf-8") as f:
         source_text = f.read()
 
-    lines = source_text.split('\n')
-
     # 先把指向源码/镜像目录的常见链接统一改写到 docs 侧可用的相对路径
-    source_text = re.sub(r'(\]\([^)]+)\.ipynb\)', r'\1.md)', source_text)
-    source_text = source_text.replace('../docs/', '../')
+    source_text = normalize_markdown_links(source_text)
     lines = source_text.split('\n')
 
     # 处理双语标题
