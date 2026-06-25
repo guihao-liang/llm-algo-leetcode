@@ -72,8 +72,8 @@ def check_chapter3_intro_links() -> None:
     """Verify source/docs entry-page links for Chapter 3."""
     link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
     paths = [
-        ROOT / "03_CUDA_and_Triton_Kernels/intro.md",
-        ROOT / "docs/03_CUDA_and_Triton_Kernels/intro.md",
+        ROOT / "03_Triton_Kernels/intro.md",
+        ROOT / "docs/03_Triton_Kernels/intro.md",
     ]
 
     missing: list[tuple[str, str]] = []
@@ -139,10 +139,10 @@ def verify_chapter2(*, build_docs: bool) -> None:
 
 
 def verify_chapter3(*, build_docs: bool) -> None:
-    run_python("convert_notebook.py", "--dir", "03_CUDA_and_Triton_Kernels")
+    run_python("convert_notebook.py", "--dir", "03_Triton_Kernels")
     run_python("check_source_docs_mirror.py")
     if has_cuda():
-        run_python("test_notebook_answers.py", "--all", "--dir", "03_CUDA_and_Triton_Kernels", "--mode", "both")
+        run_python("test_notebook_answers.py", "--all", "--dir", "03_Triton_Kernels", "--mode", "both")
     else:
         print("[verify] GPU not available, skipping Chapter 3 notebook answer tests.")
     check_chapter3_intro_links()

@@ -12,11 +12,11 @@
 
 | Task | 对应入口 | 一句话目标 |
 |:---|:---|:---|
-| Task 1 | [3.1 Triton 基础](../03_CUDA_and_Triton_Kernels/3_1.md) | 认识 Triton 的编程模型和基础 kernel 写法。 |
-| Task 2 | [3.1 Triton 基础](../03_CUDA_and_Triton_Kernels/3_1.md) | 从向量加法、RMSNorm、SwiGLU 进入融合算子思维。 |
-| Task 3 | [3.2 Triton 进阶](../03_CUDA_and_Triton_Kernels/3_2.md) | 把 softmax、RoPE、FlashAttention 和 KV cache 串起来。 |
-| Task 4 | [3.3 Triton 项目](../03_CUDA_and_Triton_Kernels/3_3.md) | 学会调试、profiling 和项目化落地。 |
-| Task 5 | [06.5 Triton 设计模式与过渡总结](../03_CUDA_and_Triton_Kernels/06_5_Triton_Design_Patterns.md) | 把 Triton 的常用模式收束成可复用骨架。 |
+| Task 1 | [3.1 Triton 基础](../03_Triton_Kernels/3_1.md) | 认识 Triton 的编程模型和基础 kernel 写法。 |
+| Task 2 | [3.1 Triton 基础](../03_Triton_Kernels/3_1.md) | 从向量加法、RMSNorm、SwiGLU 进入融合算子思维。 |
+| Task 3 | [3.2 Triton 进阶](../03_Triton_Kernels/3_2.md) | 把 softmax、RoPE、FlashAttention 和 KV cache 串起来。 |
+| Task 4 | [3.3 Triton 项目](../03_Triton_Kernels/3_3.md) | 学会调试、profiling 和项目化落地。 |
+| Task 5 | [06.5 Triton 设计模式与过渡总结](../03_Triton_Kernels/06_5_Triton_Design_Patterns.md) | 把 Triton 的常用模式收束成可复用骨架。 |
 
 ### 学习组划分
 
@@ -51,8 +51,8 @@
 
 ### 后续页面
 
-- [3.1 Triton 基础](../03_CUDA_and_Triton_Kernels/3_1.md)
-- [06.5 Triton 设计模式与过渡总结](../03_CUDA_and_Triton_Kernels/06_5_Triton_Design_Patterns.md)
+- [3.1 Triton 基础](../03_Triton_Kernels/3_1.md)
+- [06.5 Triton 设计模式与过渡总结](../03_Triton_Kernels/06_5_Triton_Design_Patterns.md)
 
 ### 环境说明
 

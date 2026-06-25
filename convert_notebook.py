@@ -7,7 +7,7 @@ import argparse
 
 SOURCE_DIRS = [
     "02_PyTorch_Algorithms",
-    "03_CUDA_and_Triton_Kernels",
+    "03_Triton_Kernels",
     "04_CUDA_and_System_Optimization",
 ]
 
@@ -154,7 +154,7 @@ def collect_targets(args):
             continue
         if not (
             norm.startswith("02_PyTorch_Algorithms" + os.sep)
-            or norm.startswith("03_CUDA_and_Triton_Kernels" + os.sep)
+            or norm.startswith("03_Triton_Kernels" + os.sep)
             or norm.startswith("04_CUDA_and_System_Optimization" + os.sep)
         ):
             continue
@@ -166,7 +166,7 @@ def collect_targets(args):
 def clean_full_docs_tree():
     for d in [
         "docs/02_PyTorch_Algorithms",
-        "docs/03_CUDA_and_Triton_Kernels",
+        "docs/03_Triton_Kernels",
         "docs/04_CUDA_and_System_Optimization",
     ]:
         if os.path.exists(d):
@@ -200,7 +200,7 @@ def main():
     targets = collect_targets(args)
     if not args.dirs and not args.files:
         if args.dry_run:
-            print("[dry-run] 清理 docs/02_PyTorch_Algorithms 和 docs/03_CUDA_and_Triton_Kernels")
+            print("[dry-run] 清理 docs/02_PyTorch_Algorithms 和 docs/03_Triton_Kernels")
         else:
             clean_full_docs_tree()
         print("✅ 目录清理完成")

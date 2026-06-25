@@ -17,9 +17,9 @@
 
 ### 前置页面
 
-- [3.1 Triton 基础](../03_CUDA_and_Triton_Kernels/intro.md)
-- [3.2 Triton 进阶](../03_CUDA_and_Triton_Kernels/intro.md)
-- [3.3 Triton 项目](../03_CUDA_and_Triton_Kernels/intro.md)
+- [3.1 Triton 基础](../03_Triton_Kernels/intro.md)
+- [3.2 Triton 进阶](../03_Triton_Kernels/intro.md)
+- [3.3 Triton 项目](../03_Triton_Kernels/intro.md)
 
 ### Part 3 前导路径
 

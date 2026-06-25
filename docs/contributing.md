@@ -61,7 +61,7 @@ python test_notebook_answers.py --all --dir 02_PyTorch_Algorithms --mode answer
 
 # 5. 批量检查所有部分（提交 PR 前推荐）
 python test_notebook_answers.py --all --dir 02_PyTorch_Algorithms --mode both
-python test_notebook_answers.py --all --dir 03_CUDA_and_Triton_Kernels --mode both
+python test_notebook_answers.py --all --dir 03_Triton_Kernels --mode both
 python test_notebook_answers.py --all --dir 01_Hardware_Math_and_Systems --mode both  # 如果有练习题
 ```
 

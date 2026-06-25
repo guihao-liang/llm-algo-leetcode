@@ -277,44 +277,44 @@ export default defineConfig({
       {
         text: '第三部分：Triton 算子开发',
         items: [
-          { text: '📖 完整导学', link: '/03_CUDA_and_Triton_Kernels/intro' },
+          { text: '📖 完整导学', link: '/03_Triton_Kernels/intro' },
           {
             text: '3.1 Triton 基础',
-            link: '/03_CUDA_and_Triton_Kernels/3_1',
+            link: '/03_Triton_Kernels/3_1',
             collapsed: true,
             items: [
-              { text: '📖 组页', link: '/03_CUDA_and_Triton_Kernels/3_1' },
-              { text: '01. Triton Vector Addition', link: '/03_CUDA_and_Triton_Kernels/01_Triton_Vector_Addition' },
-              { text: '02. Triton Fused SwiGLU', link: '/03_CUDA_and_Triton_Kernels/02_Triton_Fused_SwiGLU' },
-              { text: '03. Triton Fused RMSNorm', link: '/03_CUDA_and_Triton_Kernels/03_Triton_Fused_RMSNorm' },
-              { text: '04. Triton GEMM Tutorial', link: '/03_CUDA_and_Triton_Kernels/04_Triton_GEMM_Tutorial' },
-              { text: '05. Triton Autotune and Profiling', link: '/03_CUDA_and_Triton_Kernels/05_Triton_Autotune_and_Profiling' }
+              { text: '📖 组页', link: '/03_Triton_Kernels/3_1' },
+              { text: '01. Triton Vector Addition', link: '/03_Triton_Kernels/01_Triton_Vector_Addition' },
+              { text: '02. Triton Fused SwiGLU', link: '/03_Triton_Kernels/02_Triton_Fused_SwiGLU' },
+              { text: '03. Triton Fused RMSNorm', link: '/03_Triton_Kernels/03_Triton_Fused_RMSNorm' },
+              { text: '04. Triton GEMM Tutorial', link: '/03_Triton_Kernels/04_Triton_GEMM_Tutorial' },
+              { text: '05. Triton Autotune and Profiling', link: '/03_Triton_Kernels/05_Triton_Autotune_and_Profiling' }
             ]
           },
           {
             text: '3.2 Triton 进阶',
-            link: '/03_CUDA_and_Triton_Kernels/3_2',
+            link: '/03_Triton_Kernels/3_2',
             collapsed: true,
             items: [
-              { text: '📖 组页', link: '/03_CUDA_and_Triton_Kernels/3_2' },
-              { text: '06. Triton Fused Softmax', link: '/03_CUDA_and_Triton_Kernels/06_Triton_Fused_Softmax' },
-              { text: '06.5 Triton Design Patterns', link: '/03_CUDA_and_Triton_Kernels/06_5_Triton_Design_Patterns' },
-              { text: '07. Triton Fused RoPE', link: '/03_CUDA_and_Triton_Kernels/07_Triton_Fused_RoPE' },
-              { text: '08. Triton Flash Attention', link: '/03_CUDA_and_Triton_Kernels/08_Triton_Flash_Attention' },
-              { text: '09. Triton PagedAttention', link: '/03_CUDA_and_Triton_Kernels/09_Triton_PagedAttention' },
-              { text: '10. Triton Quantization', link: '/03_CUDA_and_Triton_Kernels/10_Triton_Quantization' },
-              { text: '11. Triton Multi-LoRA', link: '/03_CUDA_and_Triton_Kernels/11_Triton_Multi_LoRA' }
+              { text: '📖 组页', link: '/03_Triton_Kernels/3_2' },
+              { text: '06. Triton Fused Softmax', link: '/03_Triton_Kernels/06_Triton_Fused_Softmax' },
+              { text: '06.5 Triton Design Patterns', link: '/03_Triton_Kernels/06_5_Triton_Design_Patterns' },
+              { text: '07. Triton Fused RoPE', link: '/03_Triton_Kernels/07_Triton_Fused_RoPE' },
+              { text: '08. Triton Flash Attention', link: '/03_Triton_Kernels/08_Triton_Flash_Attention' },
+              { text: '09. Triton PagedAttention', link: '/03_Triton_Kernels/09_Triton_PagedAttention' },
+              { text: '10. Triton Quantization', link: '/03_Triton_Kernels/10_Triton_Quantization' },
+              { text: '11. Triton Multi-LoRA', link: '/03_Triton_Kernels/11_Triton_Multi_LoRA' }
             ]
           },
           {
             text: '3.3 Triton 项目',
-            link: '/03_CUDA_and_Triton_Kernels/3_3',
+            link: '/03_Triton_Kernels/3_3',
             collapsed: true,
             items: [
-              { text: '📖 组页', link: '/03_CUDA_and_Triton_Kernels/3_3' },
-              { text: '12. Triton Memory Model and Debug', link: '/03_CUDA_and_Triton_Kernels/12_Triton_Memory_Model_and_Debug' },
-              { text: '13. Triton Llama3 Block Project', link: '/03_CUDA_and_Triton_Kernels/13_Triton_Llama3_Block_Project' },
-              { text: '14. Triton Best Practices and FAQ', link: '/03_CUDA_and_Triton_Kernels/14_Triton_Best_Practices_and_FAQ' }
+              { text: '📖 组页', link: '/03_Triton_Kernels/3_3' },
+              { text: '12. Triton Memory Model and Debug', link: '/03_Triton_Kernels/12_Triton_Memory_Model_and_Debug' },
+              { text: '13. Triton Llama3 Block Project', link: '/03_Triton_Kernels/13_Triton_Llama3_Block_Project' },
+              { text: '14. Triton Best Practices and FAQ', link: '/03_Triton_Kernels/14_Triton_Best_Practices_and_FAQ' }
             ]
           }
         ]

@@ -54,7 +54,7 @@
 - [2.5 反向传播与显存优化](../docs/02_PyTorch_Algorithms/2_5.md)
 - [2.6 核心推理优化](../docs/02_PyTorch_Algorithms/2_6.md)
 - [2.8 分布式与扩展](../docs/02_PyTorch_Algorithms/2_8.md)
-- [3.1 Triton 基础](../docs/03_CUDA_and_Triton_Kernels/intro.md)
+- [3.1 Triton 基础](../docs/03_Triton_Kernels/intro.md)
 
 ### 题目与测试
 

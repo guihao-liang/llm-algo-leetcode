@@ -236,7 +236,7 @@ python verify.py chapter4 --no-build
 如果需要绕过统一入口做底层排查，再直接跑：
 
 ```bash
-python test_notebook_answers.py --all --dir 03_CUDA_and_Triton_Kernels --mode both
+python test_notebook_answers.py --all --dir 03_Triton_Kernels --mode both
 python test_notebook_answers.py --all --dir 04_CUDA_and_System_Optimization --mode both
 ```
 
