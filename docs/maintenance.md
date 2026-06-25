@@ -11,17 +11,19 @@
 - `docs/guide.md`：使用指南，说明如何选择环境和学习方式
 - `docs/contributing.md`：贡献指南，说明如何参与开发和测试
 - `docs/maintenance.md`：维护与发布手册，说明仓库如何维护
+- `docs/template_guidelines.md`：题目模板与网页化转换规范，给新增或改写 Notebook 题目时参考
 
 ### 部分内容
 
 - `docs/00_Prerequisites/`：Part 0，前置知识与环境准备
 - `docs/01_Hardware_Math_and_Systems/`：Part 1，硬件、算力推导与系统级理论
 - `docs/02_PyTorch_Algorithms/`：Part 2，PyTorch 算法实战
-- `docs/03_CUDA_and_Triton_Kernels/`：Part 3，CUDA C++ 与 Triton 算子开发
+- `docs/03_CUDA_and_Triton_Kernels/`：Part 3，Triton 算子开发
+- `docs/04_CUDA_and_System_Optimization/`：Part 4，CUDA C++ 与系统优化
 
 ### 练习与验证
 
-- `test_notebook_answers.py`：Part 2 / 3 的通用 Notebook 验证脚本
+- `test_notebook_answers.py`：Part 2 / 3 / 4 的通用 Notebook 验证脚本
 - `test_chapter0_1_notebooks.py`：Part 0 / 1 的顺序执行验证脚本
 - `check_chapter_links.py`：站内链接检查脚本
 
@@ -42,7 +44,7 @@
 
 - `requirements/base.txt`：基础依赖版本的主来源
 - `requirements/dev.txt`：开发和测试依赖版本的主来源
-- `requirements/gpu.txt`：Part 3 / Triton / CUDA 扩展依赖版本的主来源
+- `requirements/gpu.txt`：Part 3 / Part 4 / Triton / CUDA 扩展依赖版本的主来源
 - `environment.yml`：只负责 Python 版本和串联依赖，不应重复维护另一套独立版本表
 - `cnb/environment.yml`：CNB 侧环境骨架，原则上复用同一套版本约定
 
@@ -73,16 +75,31 @@
 
 `convert_notebook.py` 现在支持两种运行方式：
 
-- 全量模式：不带参数运行，重建 Part 2 / 3 的整章 `docs/` 镜像
+- 全量模式：不带参数运行，重建 Part 2 / 3 / 4 的整章 `docs/` 镜像
 - 局部模式：通过 `--dir` 或 `--file` 只同步指定目录或文件，适合只修某几个 notebook 时使用
 
 局部模式示例：
 
 ```bash
 python convert_notebook.py --dir 03_CUDA_and_Triton_Kernels
+python convert_notebook.py --dir 04_CUDA_and_System_Optimization
 python convert_notebook.py --file 03_CUDA_and_Triton_Kernels/05_Triton_Autotune_and_Profiling.ipynb
-python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
+python convert_notebook.py --dry-run --dir 04_CUDA_and_System_Optimization
 ```
+
+### 分组页维护
+
+group md 不是每个 part 的硬性正文资产，而是“需要分组导航时才维护”的入口层文件。
+
+- 如果一个 part 有稳定的分组结构，应在 source 里维护 group md，让脚本同步到 `docs/`
+- 如果一个 part 只是单导学或没有稳定分组，不必强行补 group md
+- group md 的职责是导航和组织，不承载正文推导
+
+当前原则：
+
+- source 里保留真正的内容源文件
+- `docs/` 里保留脚本生成的镜像页
+- group md 只在确实需要“组内导航”时出现，避免把结构文件和正文文件混在一起
 
 ### 手工维护文件
 
@@ -93,6 +110,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - `docs/guide.md`
 - `docs/contributing.md`
 - `docs/maintenance.md`
+- `docs/template_guidelines.md`
 - `docs/.vitepress/config.mts`
 
 ## 维护目标
@@ -129,7 +147,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 ## 当前维护对象
 
 - `README.md`、`docs/index.md`、`docs/guide.md`、`docs/.vitepress/config.mts`：入口与导航
-- `00_Prerequisites/intro.md`、`01_Hardware_Math_and_Systems/intro.md`、`02_PyTorch_Algorithms/intro.md`、`03_CUDA_and_Triton_Kernels/intro.md`：各部分导学
+- `00_Prerequisites/intro.md`、`01_Hardware_Math_and_Systems/intro.md`、`02_PyTorch_Algorithms/intro.md`、`03_CUDA_and_Triton_Kernels/intro.md`、`04_CUDA_and_System_Optimization/intro.md`：各部分导学
 - `docs/` 下对应页面：站点镜像
 - `convert_chapter0_1.py`、`convert_notebook.py`：source -> docs 转换
 - `test_chapter0_1_notebooks.py`、`test_notebook_answers.py`：Notebook 验证
@@ -142,6 +160,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - `docs/guide.md`：怎么学、怎么选环境、怎么验证
 - `cnb/README.md`：CNB 入口和交互环境说明
 - `docs/maintenance.md`：维护、发布和验证规则
+- `docs/template_guidelines.md`：Notebook 题目模板和网页化转换规范
 - `README.md` / `docs/index.md`：项目门面和站点导航
 - `process/*.md`：临时记录、交接、阶段总结
 
@@ -179,9 +198,10 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - 文档链接：`python check_chapter_links.py`
 - 站点构建：`cd docs && npm run docs:build`
 - Part 0 / 1 练习：`python test_chapter0_1_notebooks.py`
-- Part 2 / 3 题目答案：`python test_notebook_answers.py --all --dir 02_PyTorch_Algorithms --mode both`
+- Part 2 / 3 / 4 题目答案：`python test_notebook_answers.py --all --dir 02_PyTorch_Algorithms --mode both`
 - Part 3 内核题：`python test_notebook_answers.py --all --dir 03_CUDA_and_Triton_Kernels --mode both`
-- Part 3 入口页：检查 `03_CUDA_and_Triton_Kernels/intro.md` 与 `docs/03_CUDA_and_Triton_Kernels/intro.md` 的链接可用性
+- Part 4 内核题：`python test_notebook_answers.py --all --dir 04_CUDA_and_System_Optimization --mode both`
+- Part 3 / Part 4 入口页：检查对应 `intro.md` 与 `docs/` 镜像页的链接可用性
 
 ### 4. 再做提交
 
@@ -197,36 +217,38 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - Part 0：优先保证入口清晰、练习闭环完整
 - Part 1：优先保证理论文档准确，练习资产与导学一致
 - Part 2：主定位是算法验证层，优先保证题目链接、站内导学、参考答案和 `.md` 页面一致
-- Part 3：主定位是工程实现层，优先保证 GPU 环境说明、Triton/CUDA 路径、导学页跳转和站内链接一致
-- Part 2 / 3 的软件环境分层属于教程主体的一部分，环境文件、依赖拆分和部分内容要同步维护
-- Part 2 / 3 的 GPU 等级标注应尽量基于 notebook 代码审计结果；新增题目时要明确它是 CPU-first、GPU-recommended 还是 GPU-required
-- Part 2 / 3 的测试脚本若在当前环境没有 GPU，应输出 `skip` 而不是 `pass`；结构检查只说明骨架可读，不代表运行级验证完成
-- Part 2 / 3 后续维护要统一到同一套“页面契约”：角色、GPU 策略、测试语义、题目区边界都要先写清楚；但历史页面不强制一次性重写成同一种哨兵写法，尽量保持现有内容少动
+- Part 3：主定位是 Triton 实现层，优先保证 GPU 环境说明、导学页跳转和站内链接一致
+- Part 4：主定位是 CUDA / 系统优化层，优先保证 kernel / module 链路闭合、导学页跳转和站内链接一致
+- Part 2 / 3 / 4 的软件环境分层属于教程主体的一部分，环境文件、依赖拆分和部分内容要同步维护
+- Part 2 / 3 / 4 的 GPU 等级标注应尽量基于 notebook 代码审计结果；新增题目时要明确它是 CPU-first、GPU-recommended 还是 GPU-required
+- Part 2 / 3 / 4 的测试脚本若在当前环境没有 GPU，应输出 `skip` 而不是 `pass`；结构检查只说明骨架可读，不代表运行级验证完成
+- Part 2 / 3 / 4 后续维护要统一到同一套“页面契约”：角色、GPU 策略、测试语义、题目区边界都要先写清楚；但历史页面不强制一次性重写成同一种哨兵写法，尽量保持现有内容少动
 - 新增或重做的页面应优先采用统一契约，测试脚本只认 `pass` / `skip` / `expected_fail` / `fail` 这些结果语义，不猜页面作者意图
-- Part 2 后续维护以补桥、收紧少量提示、补少量边界测试为主，避免大范围重写；Part 3 当前则优先推进主线小节的收口和测试一致性
+- Part 2 后续维护以补桥、收紧少量提示、补少量边界测试为主，避免大范围重写；Part 3 当前优先推进 Triton 主线的收口和测试一致性，Part 4 则优先推进 CUDA / 系统骨架搭建
 
-## Part 2 / 3 分工约定
+## Part 2 / 3 / 4 分工约定
 
 - Part 2 以算法验证为主：重点检查实现是否正确、参考答案是否一致、边界 case 是否覆盖、测试是否足够强
-- Part 3 以工程实现为主：重点检查 GPU 路径是否完整、kernel / module 链路是否闭合、导学页和镜像页的相对路径是否正确
-- Part 0 / 1 可以提及 CUDA / Triton 作为后续预告，但不承担 Part 3 的工程执行责任
+- Part 3 以 Triton 实现为主：重点检查 GPU 路径是否完整、kernel / module 链路是否闭合、导学页和镜像页的相对路径是否正确
+- Part 4 以 CUDA / 系统优化为主：重点检查 GPU 路径、通信与系统页面的链接边界
+- Part 0 / 1 可以提及 CUDA / Triton 作为后续预告，但不承担 Part 3 / Part 4 的工程执行责任
 - Part 2 中允许存在 GPU 特例页，例如单独的 GPU-required 小节；此类页面应单独标注并按特例验证，不应推导出整章默认规则
-- 无 GPU 时，Part 2 / 3 的 GPU 依赖页应视为 `skip`；题目区的 `NotImplementedError` 仍然表示练习态正确，不应被结构检查覆盖为“运行通过”
+- 无 GPU 时，Part 2 / 3 / 4 的 GPU 依赖页应视为 `skip`；题目区的 `NotImplementedError` 仍然表示练习态正确，不应被结构检查覆盖为“运行通过”
 - 长期统一的目标是“契约统一”，不是“旧页面写法统一”；后续维护优先收敛规则、角色和测试语义，旧页面只做必要修补
 
 ## Part 1 桥接约定
 
-- Part 1 是 Part 2 和 Part 3 的共同前置，不只是 Part 3 的前置
-- 如果一个概念同时服务 Part 2 和 Part 3，优先在 Part 1 补强，而不是在后续章节重复堆叠
-- Part 1 的职责是建立硬件、系统、内存、调度和编程模型的认知桥梁，不是提前承担 Part 3 的代码实现责任
+- Part 1 是 Part 2、Part 3 和 Part 4 的共同前置，不只是 Part 3 的前置
+- 如果一个概念同时服务 Part 2 和 Part 3 / Part 4，优先在 Part 1 补强，而不是在后续章节重复堆叠
+- Part 1 的职责是建立硬件、系统、内存、调度和编程模型的认知桥梁，不是提前承担 Part 3 / Part 4 的代码实现责任
 - Part 1 的内容组织应优先形成一条可执行的前导导读链，明确告诉读者先看什么、解决什么问题、再进入哪一部分
-- 如果某个概念只服务少数 Part 3 页面，则保留为 Part 3 的局部桥接或支撑小节，不必上移到 Part 1
+- 如果某个概念只服务少数 Part 3 / Part 4 页面，则保留为局部桥接或支撑小节，不必上移到 Part 1
 
-### Part 3 入口页补充约束
+### Part 3 / Part 4 入口页补充约束
 
-- Part 3 的 `intro.md` 属于高风险入口页，既要检查源文件，也要检查 `docs/` 镜像页
+- Part 3 / Part 4 的 `intro.md` 都属于高风险入口页，既要检查源文件，也要检查 `docs/` 镜像页
 - 入口页中的 Task 链接、前置页、后续页和环境说明必须在镜像环境里保持可用
-- 任何涉及 Part 3 导学页结构或路径的改动，除了常规 notebook 验证外，还应补做一次链接可用性检查
+- 任何涉及 Part 3 / Part 4 导学页结构或路径的改动，除了常规 notebook 验证外，还应补做一次链接可用性检查
 
 ### 小节链接入口规范
 
@@ -236,7 +258,7 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - `相关阅读` 只放可选补充、同主题扩展或外部 URL；判断标准是“跳过它也能继续，但看了更完整”
 - 正文中尽量不要散插大量链接；如果必须引用，优先先把入口收敛到这三块
 - Part 1 的组页可以继续保留现有的 `前置关系 / 桥接 / 扩展` 结构；如果后续重写入口页，也应尽量迁移到同一套口径
-- Part 3 的 notebook 导入页、桥接页和总结页应优先使用这套口径，保证源文件和 `docs/` 镜像页一致可读
+- Part 3 / Part 4 的 notebook 导入页、桥接页和总结页应优先使用这套口径，保证源文件和 `docs/` 镜像页一致可读
 
 ## 分组原则
 
@@ -257,13 +279,12 @@ python convert_notebook.py --dry-run --dir 03_CUDA_and_Triton_Kernels
 - **2.7 高级推理优化**：Speculative Decoding、RadixAttention、推理量化
 - **2.8 分布式与扩展**：Checkpointing、QLoRA、ZeRO、并行扩展
 
-### Part 3 的子方向说明
+### Part 3 / Part 4 的子方向说明
 
 - **3.1 Triton 基础**：Triton 编程模型与基础 kernel
-- **3.2 Triton 进阶**：融合算子、Softmax、RoPE、FlashAttention
+- **3.2 Triton 进阶**：融合算子、Softmax、RoPE、PagedAttention、Quantization、Multi-LoRA
 - **3.3 Triton 项目**：调试、内存模型和综合项目
-- **3.4 CUDA 内核与显存优化**：CUDA C++、Stream、Shared Memory 和 kernel 优化
-- **3.5 CUDA 系统扩展**：通信原语、ZeRO 和技术选型
+- **4.1~4.4**：CUDA C++、系统优化、分布式工程和架构视野
 
 ## Notebook 写作约定
 
