@@ -87,6 +87,18 @@ def normalize_markdown_links(source_text):
 def process_markdown_file(md_path, out_path):
     """处理纯 Markdown 文件，主要是合并双语标题"""
     filename = os.path.basename(md_path)
+    # Group pages like 2_1.md / 3_1.md / 4_1.md should keep their
+    # hand-written section titles instead of being rewritten as "2. 1 | ...".
+    if re.fullmatch(r"\d+_\d+\.md", filename):
+        with open(md_path, "r", encoding="utf-8") as f:
+            source_text = f.read()
+
+        source_text = normalize_markdown_links(source_text)
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(source_text)
+        return
+
     # 对于 md 文件，提取方式和 ipynb 略有不同（后缀不同）
     name = filename.replace('.md', '')
     parts = name.split('_')
