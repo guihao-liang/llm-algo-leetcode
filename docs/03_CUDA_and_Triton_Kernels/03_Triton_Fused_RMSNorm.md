@@ -34,7 +34,7 @@
 > “算子融合 (Operator Fusion)”。我们写一个底层的 GPU Kernel，让一个线程块（Block）把一行数据一次性读到超高速的片上内存（SRAM）中，在 SRAM 里算完均方根和缩放，最后只把结果写回一次显存。这极大地节约了访存时间。
 
 ### Step 2: 归约 代码框架
-内核沿着隐藏层维度（特征维度）分配指针。读取一整行的特征数据后，利用 `tl.sum(x * x, axis=0)` 快速求出平方和。接着除以维度长度得到方差，算出 `rsqrt`，再用它将原特征标准化。最后乘以来自 HBM 的可学习参数 `weight` 块，并写回结果。
+内核沿着隐藏层维度（特征维度）分配指针。读取一整行的特征数据后，利用 `tl.sum(x * x, axis=0)` 快速求出平方和。这里的 `axis=0` 只是因为 `x_sq` 在该页里是一维向量，表示对整行做一次全归约。接着除以维度长度得到方差，算出 `rsqrt`，再用它将原特征标准化。最后乘以来自 HBM 的可学习参数 `weight` 块，并写回结果。当前实现采用单行一次性装载的简化版，如果 `N` 超过 `BLOCK_SIZE`，应当扩展成分块版本。
 
 ###  Step 3: 核心公式与 Triton 编程模型
 
@@ -145,6 +145,7 @@ def triton_rmsnorm(x: torch.Tensor, weight: torch.Tensor, eps: float = 1e-6):
         BLOCK_SIZE=BLOCK_SIZE,
     )
     return y
+raise NotImplementedError("请先完成 TODO 代码！")
 
 ```
 
@@ -206,7 +207,7 @@ def test_triton_rmsnorm():
             if provider == 'triton':
                 ms, min_ms, max_ms = triton.testing.do_bench(lambda: triton_rmsnorm(x, weight, eps), quantiles=quantiles)
             
-            gbps = lambda ms: 2 * x.numel() * x.element_size() / ms * 1e-6 # 读写两次显存
+            gbps = lambda ms: 3 * x.numel() * x.element_size() / ms * 1e-6 # x 读 + weight 读 + y 写
             return gbps(ms), gbps(max_ms), gbps(min_ms)
         
         print("正在运行 Benchmark，请稍候...")

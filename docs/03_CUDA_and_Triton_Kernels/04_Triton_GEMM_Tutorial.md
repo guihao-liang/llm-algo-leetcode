@@ -37,7 +37,7 @@
 > 但是，到底切多大块最好？
 > - 块太大：SRAM 塞不下，或者需要的寄存器 (Registers) 太多导致 Spilling (溢出到显存)。
 > - 块太小：无法充分利用 Tensor Core 计算阵列。
-> 因此，必须使用 `@triton.autotune` 搜索最佳配置。
+> 因此，通常需要使用 `@triton.autotune` 搜索更合适的配置。
 
 ### Step 2: 2D 分块与 SRAM 调度原理
 相比于逐元素的加法，GEMM 是极度 Compute Bound 的。为了最大化利用 GPU Tensor Core，我们不仅要在网格（Grid）上按二维划分为 M_BLOCK 和 N_BLOCK，还要在内核内部循环遍历 K 维度。每次加载一小块 (M_BLOCK, K_BLOCK) 和 (K_BLOCK, N_BLOCK) 的矩阵到 SRAM，执行点积累加到相同的累加寄存器中。这保证了数据复用率最高。
@@ -47,7 +47,13 @@ Triton 的核心是装饰器 `@triton.autotune`。你可以在上方定义一组
 
 ###  Step 4: 动手实战
 
-**要求**：请补全下方 `gemm_kernel` 中双重循环和 `tl.dot` 的累加逻辑。并且观察 `@triton.autotune` 中提供的搜索空间。
+**要求**：请补全下方 `matmul_kernel` 中的 3 个关键位置。
+
+1. 在 K 维循环里加载 `a` 和 `b` 块，并用 mask 处理边界。
+2. 执行 `accumulator += tl.dot(a, b)`。
+3. 推进 `a_ptrs` 和 `b_ptrs` 到下一个 K 块。
+
+这是一个典型的 GEMM（矩阵乘法）实现，代码里的函数名保持为 `matmul_kernel` 和 `triton_gemm`，请以它们为准，并观察 `@triton.autotune` 中提供的搜索空间。
 
 
 ```python
@@ -113,8 +119,9 @@ def matmul_kernel(
     pid_n = (pid % num_pid_in_group) // group_size_m
 
     # 2. 定位当前 Program 处理的 A, B, C 块的数据指针
-    offs_am = (pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)) % M
-    offs_bn = (pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)) % N
+    # 注意：这里不使用取模回绕，边界通过 mask 显式处理。
+    offs_am = pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)
+    offs_bn = pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)
     offs_k = tl.arange(0, BLOCK_SIZE_K)
     
     a_ptrs = a_ptr + (offs_am[:, None] * stride_am + offs_k[None, :] * stride_ak)
@@ -125,23 +132,26 @@ def matmul_kernel(
 
     # 4. 循环 K 维度，每次加载 BLOCK_SIZE_K 大小的块到 SRAM
     for k in range(0, tl.cdiv(K, BLOCK_SIZE_K)):
+        k_offset = k * BLOCK_SIZE_K
+        k_remaining = K - k_offset
+        k_mask = offs_k < k_remaining
+
         # ==========================================
         # TODO 1: 加载 a 和 b 块，并用 0 填充越界的地方
         # ==========================================
-        # a = ???
-        # b = ???
-        
+        a = tl.load(a_ptrs, mask=(offs_am[:, None] < M) & k_mask[None, :], other=0.0)
+        b = tl.load(b_ptrs, mask=k_mask[:, None] & (offs_bn[None, :] < N), other=0.0)
+
         # ==========================================
         # TODO 2: 矩阵乘加 (底层调用 Tensor Core)
         # ==========================================
-        # accumulator += ???
-        
+        accumulator += tl.dot(a, b)
+
         # ==========================================
         # TODO 3: 推进指针到下一个 K 块
         # ==========================================
-        # a_ptrs += ???
-        # b_ptrs += ???
-        pass
+        a_ptrs += BLOCK_SIZE_K * stride_ak
+        b_ptrs += BLOCK_SIZE_K * stride_bk
 
     # 5. 写入 C 矩阵 (HBM)
     c_ptrs = c_ptr + stride_cm * offs_am[:, None] + stride_cn * offs_bn[None, :]
@@ -169,6 +179,7 @@ def triton_gemm(a: torch.Tensor, b: torch.Tensor):
         c.stride(0), c.stride(1),
     )
     return c
+raise NotImplementedError("请先完成 TODO 代码！")
 
 ```
 
@@ -177,8 +188,11 @@ def triton_gemm(a: torch.Tensor, b: torch.Tensor):
 # 运行测试并进行 Benchmark 性能对比
 def test_fused_gemm():
     if not torch.cuda.is_available():
-        print("⏭️ 忽略测试：无 GPU。")
-        return
+        print("⏭️ 无 GPU，完成结构检查；运行级验证需要 GPU。")
+        assert "matmul_kernel" in globals(), "缺少 matmul_kernel"
+        assert "triton_gemm" in globals(), "缺少 triton_gemm"
+        print("✅ Triton GEMM 结构检查通过")
+        return True
         
     try:
         torch.manual_seed(42)
@@ -240,10 +254,6 @@ test_fused_gemm()
 ### 代码
 
 ```python
-# ==========================================
-# 💡 参考答案
-# ==========================================
-
 import torch
 import triton
 import triton.language as tl
@@ -284,8 +294,9 @@ def matmul_kernel(
     pid_n = (pid % num_pid_in_group) // group_size_m
 
     # 2. 定位当前 Program 处理的 A, B, C 块的数据指针
-    offs_am = (pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)) % M
-    offs_bn = (pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)) % N
+    # 注意：这里不使用取模回绕，边界通过 mask 显式处理。
+    offs_am = pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)
+    offs_bn = pid_n * BLOCK_SIZE_N + tl.arange(0, BLOCK_SIZE_N)
     offs_k = tl.arange(0, BLOCK_SIZE_K)
     
     a_ptrs = a_ptr + (offs_am[:, None] * stride_am + offs_k[None, :] * stride_ak)
@@ -296,11 +307,15 @@ def matmul_kernel(
 
     # 4. 循环 K 维度，每次加载 BLOCK_SIZE_K 大小的块到 SRAM
     for k in range(0, tl.cdiv(K, BLOCK_SIZE_K)):
+        k_offset = k * BLOCK_SIZE_K
+        k_remaining = K - k_offset
+        k_mask = offs_k < k_remaining
+
         # ==========================================
         # TODO 1: 加载 a 和 b 块，并用 0 填充越界的地方
         # ==========================================
-        a = tl.load(a_ptrs, mask=offs_k[None, :] < K - k * BLOCK_SIZE_K, other=0.0)
-        b = tl.load(b_ptrs, mask=offs_k[:, None] < K - k * BLOCK_SIZE_K, other=0.0)
+        a = tl.load(a_ptrs, mask=(offs_am[:, None] < M) & k_mask[None, :], other=0.0)
+        b = tl.load(b_ptrs, mask=k_mask[:, None] & (offs_bn[None, :] < N), other=0.0)
         
         # ==========================================
         # TODO 2: 矩阵乘加 (底层调用 Tensor Core)
@@ -345,13 +360,13 @@ def triton_gemm(a: torch.Tensor, b: torch.Tensor):
 ### 解析
 
 **1. TODO 1: 加载 a 和 b 块到SRAM**
-- **实现方式**：使用 `tl.load` 加载矩阵块，使用mask防止K维度越界
-- **关键点**：mask机制确保不会读取超出K维度的数据，other=0.0填充越界位置
+- **实现方式**：使用 `tl.load` 加载矩阵块，边界通过 `mask` 显式处理
+- **关键点**：K 维尾块、M/N 边界都要单独保护，避免回绕读取或越界访问
 - **技术细节**：
-  - `a = tl.load(a_ptrs, mask=offs_k[None, :] < K - k * BLOCK_SIZE_K, other=0.0)` 加载A矩阵的一个块（BLOCK_M × BLOCK_K）
-  - `b = tl.load(b_ptrs, mask=offs_k[:, None] < K - k * BLOCK_SIZE_K, other=0.0)` 加载B矩阵的一个块（BLOCK_K × BLOCK_N）
-  - mask计算剩余的K长度，防止最后一个块越界
-  - 越界位置填充0.0，不会影响矩阵乘法的累加结果
+  - `k_mask = offs_k < (K - k * BLOCK_SIZE_K)` 用来处理 K 维尾块
+  - `a = tl.load(a_ptrs, mask=(offs_am[:, None] < M) & k_mask[None, :], other=0.0)` 加载 A 矩阵块
+  - `b = tl.load(b_ptrs, mask=k_mask[:, None] & (offs_bn[None, :] < N), other=0.0)` 加载 B 矩阵块
+  - 越界位置填充 0.0，不会影响矩阵乘法的累加结果
 
 **2. TODO 2: 矩阵乘加（调用Tensor Core）**
 - **实现方式**：`accumulator += tl.dot(a, b)` 执行矩阵乘法并累加到accumulator

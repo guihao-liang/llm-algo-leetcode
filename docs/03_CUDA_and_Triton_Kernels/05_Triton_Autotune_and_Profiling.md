@@ -10,9 +10,9 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-在工业界，实现结果正确的算子只是第一步。真正的核心竞争力在于**如何证明算子的性能优势**，以及**如何压榨出硬件的极限性能**。
+在工业界，实现结果正确的算子只是第一步。后续通常重点在于**如何证明算子的性能优势**，以及**如何更接近硬件的高效区间**。
 不同大小的张量、不同的 GPU 架构（A100 vs H100）对最佳的 `BLOCK_SIZE` 和 `num_warps` (线程束数量) 的要求是不同的。Triton 提供了 `@triton.autotune` 装饰器来实现**启发式搜索**，以及 `triton.testing.perf_report` 来绘制专业的性能吞吐量曲线图。
-本节我们将以一个 Element-wise 操作为例，展示如何自动化搜索最优配置并生成 Profiling 报告。
+本节我们将以一个 Element-wise 操作为例，展示如何自动化搜索更合适的配置，并生成 Profiling 报告。
 
 ## 前置
 
@@ -40,7 +40,7 @@
 在优化算子时，我们需要衡量它离硬件物理极限还有多远。对于 Memory Bound 算子，我们的评价指标是带宽 (GB/s)，即算法处理数据的字节数除以耗时。对于 Compute Bound 算子 (如 GEMM)，指标是算力 (TFLOPS)。通过 `triton.testing.perf_report`，我们可以可视化展示不同尺寸下的性能。
 
 ### Step 3: Profiling 代码框架
-定义一个 `triton.testing.Benchmark` 实例，指明 X 轴测试变量的区间范围、图表的标题等。然后编写一个 `benchmark` 函数，在内部使用 `do_bench` 获得精确的毫秒级执行时间，最后转换换算并返回。
+定义一个 `triton.testing.Benchmark` 实例，指明 X 轴测试变量的区间范围、图表的标题等。然后编写一个 `benchmark` 函数，在内部使用 `do_bench` 获得精确的毫秒级执行时间，再把时间换算成 GB/s 返回给 `perf_report`。
 
 ###  Step 4: 动手实战
 
@@ -113,6 +113,8 @@ def add_triton(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         x, y, out, n_elements
     )
     return out
+raise NotImplementedError("请先完成 TODO 代码！")
+
 ```
 
 
@@ -128,7 +130,7 @@ def test_autotune_correctness():
     print()
     print("--- 测试开始 ---")
     try:
-        for size in [10000, 257]:
+        for size in [10000, 257, 1]:
             x = torch.randn(size, device='cuda')
             y = torch.randn(size, device='cuda')
             z = add_triton(x, y)
@@ -147,12 +149,39 @@ test_autotune_correctness()
 # 运行基准测试并打印结果
 # 请在带有 NVIDIA GPU 的机器上运行
 import torch
+import triton
+
+@triton.testing.perf_report(
+    triton.testing.Benchmark(
+        x_names=['n_elements'],
+        x_vals=[2**i for i in range(12, 26)],
+        x_log=True,
+        line_arg='provider',
+        line_vals=['triton', 'torch'],
+        line_names=['Triton', 'PyTorch'],
+        styles=[('blue', '-'), ('green', '-')],
+        ylabel='GB/s',
+        plot_name='vector-add-performance',
+        args={},
+    )
+)
+def benchmark(n_elements, provider):
+    x = torch.randn(n_elements, device='cuda', dtype=torch.float32)
+    y = torch.randn(n_elements, device='cuda', dtype=torch.float32)
+    quantiles = [0.5, 0.2, 0.8]
+
+    if provider == 'triton':
+        ms, _, _ = triton.testing.do_bench(lambda: add_triton(x, y), quantiles=quantiles)
+    else:
+        ms, _, _ = triton.testing.do_bench(lambda: x + y, quantiles=quantiles)
+
+    gbps = (3 * n_elements * x.element_size()) / (ms * 1e-3) / 1e9
+    return gbps
 
 if not torch.cuda.is_available():
     print("⏭️ 忽略测试：此环境没有 NVIDIA GPU，无法运行 Triton 基准测试。")
 else:
     print("开始运行性能分析 (Profiling)... 这可能需要十几秒钟。")
-    # 运行 benchmark 并打印结果 (不保存图片，直接打印 pandas dataframe 格式)
     benchmark.run(print_data=True, show_plots=False)
 
 ```

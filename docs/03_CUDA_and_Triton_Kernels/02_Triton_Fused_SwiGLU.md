@@ -45,7 +45,7 @@ SwiGLU 激活函数由两个线性层输出的非线性组合构成：$SwiGLU(x,
 如果使用纯 PyTorch：执行 `F.silu(x) * y` 需要读两次 HBM，写两次 HBM。但在 GPU 架构中，HBM 带宽是非常昂贵的。通过 Triton 算子融合，我们将 `x` 和 `y` 各自从 HBM 读入 SRAM 一次，在寄存器极速完成激活和乘法，直接把结果写回 HBM，从而省去了所有中间结果的存取开销。
 
 ### Step 3: 算子融合代码框架
-我们设计一个接收三个指针（输入 X 的指针、输入 Y 的指针、输出指针）的内核。在每个 Program 内，并行地读取 `BLOCK` 长度的 `x` 块和 `y` 块，在 Triton 内执行 `x * tl.sigmoid(x) * y`，然后覆盖写入输出地址。
+我们设计一个接收三个指针（输入 X 的指针、输入 Y 的指针、输出指针）的内核。在每个 Program 内，并行地读取 `BLOCK` 长度的 `x` 块和 `y` 块，在 Triton 内执行 `x * tl.sigmoid(x) * y`，然后覆盖写入输出地址。这里先用固定的 `BLOCK_SIZE=1024` 作为经验值，后续章节会再介绍如何用 autotune 去搜索更合适的块大小。
 
 ###  Step 4: 动手实战
 
@@ -126,6 +126,7 @@ def triton_fused_swiglu(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     out = torch.empty_like(x)
     
     # 设置网格维度 (Grid) 和块大小 (Block Size)
+    # 这里先用经验值 1024；后续可以用 @triton.autotune 自动搜索
     # 对于简单的逐元素操作，通常 BLOCK_SIZE 设为 1024 或更大的 2 的幂次方
     BLOCK_SIZE = 1024
     
@@ -139,6 +140,7 @@ def triton_fused_swiglu(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         BLOCK_SIZE=BLOCK_SIZE,
     )
     return out
+raise NotImplementedError("请先完成 TODO 代码！")
 
 ```
 
@@ -162,7 +164,7 @@ def test_fused_swiglu():
         y = torch.randn(n, device='cuda', dtype=torch.float16)
         
         # 1. PyTorch 官方基准计算
-        # 注意: SiLU 就是 beta=1 时的 Swish 函数
+        # 注意: SiLU 就是 beta=1 时的 Swish 函数；fp16/fp32/fp16 的往返会带来微小误差，所以这里使用 rtol=5e-3
         out_ref = F.silu(x) * y
         
         # 2. Triton 算子计算
@@ -305,6 +307,7 @@ def triton_fused_swiglu(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 - **关键点**：在SRAM中完成所有计算，避免中间结果写回HBM。这是算子融合的核心收益
 - **技术细节**：
   - Triton的`tl.sigmoid`函数只支持fp32/fp64，不支持fp16。需要先将输入转换为fp32，计算后再转回原始精度
+  - 这里使用的是 `beta=1` 的简化版 SwiGLU，也就是和 SiLU 很接近的写法；如果后续引入可学习 `beta`，公式会更一般化
   - Swish(x) = x * sigmoid(x)，也称为SiLU激活函数
   - SwiGLU = Swish(x) * y，门控机制允许网络动态控制信息流
   - 类型转换在SRAM中进行，开销很小，不会影响融合算子的性能优势
@@ -319,5 +322,5 @@ def triton_fused_swiglu(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 - **Memory Bound突破**：Element-wise操作的计算速度远快于内存带宽，算子融合可实现2-3倍加速。在A100上，HBM带宽约2TB/s，而计算吞吐可达312 TFLOPS
 - **SRAM利用**：片上内存（SRAM）的带宽是HBM的10-100倍，延迟也低得多。在SRAM中完成计算是性能优化的关键
 - **适用场景**：激活函数（SwiGLU、GELU、ReLU）、归一化（LayerNorm、RMSNorm）、element-wise操作等Memory Bound算子都适合融合
-- **Kernel融合策略**：通常将连续的element-wise操作融合在一起。过度融合会增加寄存器压力，需要权衡
+- **Kernel融合策略**：通常将连续的 element-wise 操作融合在一起。融合边界一般优先围绕一段连续的激活/门控链来划分；过度融合会增加寄存器压力，需要权衡
 - **工业实践**：vLLM、TensorRT-LLM、FlashAttention等高性能推理引擎大量使用算子融合。LLaMA等模型的FFN层使用SwiGLU，融合实现可显著提升推理速度
