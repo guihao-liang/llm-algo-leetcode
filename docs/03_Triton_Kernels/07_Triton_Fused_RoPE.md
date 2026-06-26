@@ -1,4 +1,4 @@
-# 07. Triton Fused RoPE | Triton 进阶：融合旋转位置编码 (Fused RoPE)
+# 07. Triton Fused RoPE | 融合旋转位置编码
 
 **难度：** Hard | **标签：** `Triton`, `RoPE`, `Llama` | **目标人群：** 核心 Infra 与算子开发
 
@@ -47,7 +47,7 @@
 ### Step 3: 动手实战前的接口边界
 当前主线只覆盖 `(seq_len, n_heads, head_dim)` 的连续输入。内核会为每个 Token/Head 申请一个 Program，并使用 `cos` / `sin` 的预计算块做逐元素旋转。如果上层输入带有 `batch` 维度，通常先展平为 `(batch * seq_len, n_heads, head_dim)` 再调用这个 kernel。
 
-###  Step 4: 动手实战
+### Step 4: 动手实战
 
 **要求**：请补全下方 `fused_rope_kernel`，实现底层的旋转逻辑。
 

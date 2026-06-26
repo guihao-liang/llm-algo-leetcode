@@ -1,4 +1,4 @@
-# 08. Triton Flash Attention | Triton Flash Attention：编写真正的 Flash Attention 前向算子
+# 08. Triton Flash Attention | 真正的 Flash Attention 前向算子
 
 **难度：** Hard | **标签：** `Triton`, `FlashAttention`, `Memory Bound` | **目标人群：** 核心 Infra 与算子开发
 
@@ -48,7 +48,7 @@
 ### Step 3: 内核基本框架
 本节先实现 2D per-head 版本：输入已经整理成 `(seqlen, head_dim)`。batch / multi-head 的 flatten 与 reshape 交给外层 wrapper；如果要支持任意长度，还需要在 load / store 处补 mask。然后建立 1D Grid 架构，每个程序固定加载一个 $Q$ 块和累加器。遍历 $K$ 和 $V$ 的序列长度：加载 $K_j$ 计算局部点积，提取局部最大值，修正历史累加的 $L$ 和 $Acc$ 变量，累加当前的 $P_j \times V_j$，然后继续读取下一个块。最后归一化并写入 HBM。
 
-###  Step 4: 动手实战
+### Step 4: 动手实战
 
 **要求**：请补全下方 `flash_attn_fwd_kernel`，补全最核心的 SRAM 内部矩阵乘法与 Softmax 状态更新逻辑。当前主线仍是 2D 简化版，不在这一页里展开完整 4D batch / multi-head wrapper。
 
@@ -73,9 +73,6 @@ import triton.language as tl
 
 
 ```python
-import torch
-import triton
-import triton.language as tl
 
 @triton.jit
 def flash_attn_fwd_kernel(
@@ -210,13 +207,13 @@ def test_triton_flash_attention():
             print(f"[{seqlen_q}x{seqlen_k}x{head_dim}] 最大误差: {diff.item():.6e}")
             assert diff < 1e-3, f"Triton Flash Attention 结果不正确！(seqlen_q={seqlen_q}, seqlen_k={seqlen_k}, head_dim={head_dim})"
         
-        print("Triton Flash Attention 前向计算内核实现成功！")
+        print("✅ Triton Flash Attention 前向计算内核实现成功！")
         print(" 实现了 SRAM 中块与块之间的局部最大值归约更新，进一步理解了 Online Softmax 的核心机制。")
         
         print()
         print("--- 性能基准测试 (Benchmark) ---")
-        seqlen_q = 4096
-        seqlen_k = 4096
+        seqlen_q = 2048
+        seqlen_k = 2048
         head_dim = 64
         q_l = torch.randn(seqlen_q, head_dim, device='cuda', dtype=torch.float16)
         k_l = torch.randn(seqlen_k, head_dim, device='cuda', dtype=torch.float16)
@@ -235,8 +232,8 @@ def test_triton_flash_attention():
             print(f"PyTorch Time (O(N^2) memory): {ms_pt:.4f} ms")
             print(f"Triton Time (O(N) memory):    {ms_tr:.4f} ms")
             print(f"Speedup:                      {ms_pt / ms_tr:.2f}x")
-        except torch.cuda.OutOfMemoryError:
-            print("PyTorch OOM! 序列太长导致显存溢出，Flash Attention 仍可运行。")
+        except Exception as e:
+            print(f"Benchmark 跳过或失败：{e}")
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         raise

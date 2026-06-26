@@ -378,60 +378,33 @@ def triton_w8a16_gemm(x: torch.Tensor, w_int8: torch.Tensor, scales: torch.Tenso
   scales = tl.load(scale_ptrs)
   w_fp16 = w_fp16 * scales[None, :]
   ```
-- **关键点**：这是 W8A16 量化算子的核心，实现了即时反量化（On-the-fly Dequantization）
+- **关键点**：先把 INT8 权重转回 FP16，再乘上每列对应的 scale，完成即时反量化。
 - **技术细节**：
-  - `w_int8.to(x.dtype)`：将 INT8 权重转换为 FP16（与输入 x 的数据类型一致）
-  - 类型转换发生在 SRAM/寄存器中，不产生额外的 HBM 访问
-  - `tl.load(scale_ptrs)`：加载当前块对应的缩放因子，形状为 `(BLOCK_N,)`
-  - `scales[None, :]`：将一维 scales 扩展为 `(1, BLOCK_N)`，用于广播
-  - `w_fp16 * scales[None, :]`：对权重矩阵的每一列应用对应的缩放因子
-  - 广播机制：`(BLOCK_K, BLOCK_N) * (1, BLOCK_N)` → `(BLOCK_K, BLOCK_N)`
-  - 整个反量化过程在 SRAM 内完成，避免了传统方法中将完整 FP16 权重写回 HBM 的开销
+  - `w_int8.to(x.dtype)` 只负责类型转换，不会改变数值分布。
+  - `scales[None, :]` 通过广播与权重矩阵逐列相乘。
+  - 反量化在 SRAM / 寄存器内完成，不需要先写回完整 FP16 权重到 HBM。
 
 **2. TODO 2: 执行点积并累加**
 - **实现方式**：
   ```python
   acc += tl.dot(x, w_fp16)
   ```
-- **关键点**：使用 Triton 的高性能矩阵乘法原语，直接对反量化后的权重进行计算
+- **关键点**：把反量化后的权重直接送入 `tl.dot`，在同一轮 kernel 内完成 GEMM 累加。
 - **技术细节**：
-  - `tl.dot(x, w_fp16)`：计算 `(BLOCK_M, BLOCK_K) @ (BLOCK_K, BLOCK_N)` → `(BLOCK_M, BLOCK_N)`
-  - `acc` 使用 FP32 累加器，避免精度损失
-  - 反量化后的 `w_fp16` 直接参与矩阵乘法，无需写回 HBM
-  - 循环归约：沿 K 维度分块计算，每次迭代累加一个子块的结果
-  - 最终写回时转换为 FP16：`acc.to(tl.float16)`
+  - `acc` 使用更高精度的累加器保存中间结果，避免 FP16 的数值误差。
+  - `tl.dot` 是这个算子的主计算路径，尽量让反量化和乘加都留在片上完成。
+  - 当前实现的收益重点不是减少计算量，而是降低 HBM 访存压力。
 
 **工程优化要点**
+- **显存带宽优化**：读取 INT8 权重只需 FP16 的一半带宽，在 Memory Bound 场景下更容易体现收益。
+- **即时反量化**：避免先生成完整 FP16 权重矩阵，再把它搬到显存里做第二次计算。
+- **FP32 累加器**：保留中间累加精度，减少量化和矩阵乘法叠加带来的误差。
+- **Per-channel 量化**：每列独立 scale，通常比 per-tensor 更稳，也更接近工程实践。
+- **适用场景**：LLM 的 Linear / Projection 层，尤其是显存受限或带宽受限的推理环境。
 
-- **显存带宽优化**：读取 INT8 权重只需 FP16 的一半带宽，在 Memory Bound 场景下显著提升性能
-- **即时反量化**：反量化操作在 SRAM/寄存器中完成，避免了传统方法中生成完整 FP16 权重矩阵的 HBM 开销
-- **计算与访存重叠**：类型转换和缩放操作的计算开销被 HBM 访存延迟隐藏
-- **Per-channel 量化**：每列使用独立的缩放因子，保持较高的量化精度
-- **FP32 累加器**：使用 FP32 进行中间累加，避免 FP16 的精度损失和数值溢出
-- **分块计算**：使用 2D Grid 并行处理输出矩阵的不同块，充分利用 GPU 并行性
-- **工业应用**：该算子是 GPTQ、AWQ 等量化框架的核心组件，广泛应用于大模型推理加速
-- **适用场景**：
-  - Memory Bound 的 Linear 层（如 LLM 的 FFN 和 Attention 投影层）
-  - 显存受限的部署环境（边缘设备、多租户推理服务）
-  - 需要在推理速度和模型精度之间取得平衡的场景
-- **性能收益**：
-  - 显存占用减半（INT8 vs FP16）
-  - 在 Memory Bound 场景下可获得 1.5-2x 的加速
-  - 相比预先反量化的方法，避免了额外的显存分配和数据传输
-### 扩展说明：Group-wise 量化
-
-当 `N` 很大时，per-channel 量化会让 `scales` 数组也跟着变大。
-Group-wise 量化（例如 `group_size=128`）会把 `N` 维切成多个 group，每个 group 共享一个 scale。
-这样可以：
-- 减少 scale 的存储开销
-- 提供比纯 per-tensor 量化更细的粒度
-- 让指针计算稍微复杂一些，但更贴近 GPTQ / AWQ 的工程常见做法
-
-### 扩展说明：对称 / 非对称量化
-
-本节代码使用的是对称量化：`w_fp16 = w_int8 * scale`。
-如果后续要支持非对称量化，则需要在公式里再引入 `zero_point`：`w_fp16 = (w_int8 - zero_point) * scale`。
-这类扩展会让读取 `scales` 的逻辑再增加一组指针，但不会改变‘在 SRAM 内即时反量化并参与 GEMM’这个主干。
+**扩展说明**
+- **Group-wise 量化**：当 `N` 很大时，可让多个列共享同一个 scale，减少 scale 的存储与加载开销。
+- **对称 / 非对称量化**：当前实现是对称量化；如果引入 `zero_point`，则可以扩展为非对称量化。
 
 ### 下一步：从显存压缩到多租户服务
 
