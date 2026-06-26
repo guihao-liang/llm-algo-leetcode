@@ -6,6 +6,13 @@
 
 这条主线可以概括为 `CUDA Kernel -> System Optimization -> Distributed Engineering -> Architecture Trade-off`。
 
+### 环境边界
+
+- **整体定位：GPU-required**
+- **完整体验**：需要 NVIDIA GPU，推荐 Linux + CUDA
+- **代码审计结果**：本章直接面向 CUDA kernel、通信、系统优化和架构选型
+- **阅读说明**：可以先阅读文本，但完整验收需要 GPU 会话
+
 ### 学习组划分
 
 | 学习组 | 题目范围 | 主题 | 难度 |

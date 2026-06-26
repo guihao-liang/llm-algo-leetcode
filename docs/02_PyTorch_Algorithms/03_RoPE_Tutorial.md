@@ -126,7 +126,7 @@ def test_rope():
         assert xk_out.shape == xk.shape, f"Key 输出形状错误: 期望 {xk.shape}, 实际 {xk_out.shape}"
         assert freqs_cis.shape == (seq_len, head_dim // 2), f"频率张量形状错误"
         
-        # 🚀 核心修复：防止占位符作弊，输出绝不能等于输入
+        # 核心修复：防止占位符作弊，输出绝不能等于输入
         assert not torch.allclose(xq, xq_out, atol=1e-5), "TODO 3 未完成: 输出与输入完全相同，RoPE 旋转未生效！"
         
         print("  ✅ 输出形状测试通过")

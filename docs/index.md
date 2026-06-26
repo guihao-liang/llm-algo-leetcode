@@ -50,7 +50,7 @@
 | 第一部分 | 硬件、算力推导与系统级理论。 | [`1A 数值基础与算力估算`](./01_Hardware_Math_and_Systems/1A.md) / [`1B 单卡硬件与访存优化`](./01_Hardware_Math_and_Systems/1B.md) / [`1C 多卡通信与显存共享`](./01_Hardware_Math_and_Systems/1C.md) / [`1D 异构调度与算子编程`](./01_Hardware_Math_and_Systems/1D.md) / [`1E 编译优化与算力生态`](./01_Hardware_Math_and_Systems/1E.md) | 🚧 理论完成 |
 | 第二部分 | PyTorch 算法实战。 | [`2.1 基础算子`](./02_PyTorch_Algorithms/intro.md) / [`2.2 模型架构`](./02_PyTorch_Algorithms/intro.md) / [`2.3 微调与训练技术`](./02_PyTorch_Algorithms/intro.md) / [`2.4 对齐技术`](./02_PyTorch_Algorithms/intro.md) / [`2.5 反向传播与显存优化`](./02_PyTorch_Algorithms/intro.md) / [`2.6 核心推理优化`](./02_PyTorch_Algorithms/intro.md) / [`2.7 高级推理优化`](./02_PyTorch_Algorithms/intro.md) / [`2.8 分布式与扩展`](./02_PyTorch_Algorithms/intro.md) | ✅ 完成 |
 | 第三部分 | Triton 算子开发。 | [`3.1 基础篇`](./03_Triton_Kernels/intro.md) / [`3.2 过渡篇`](./03_Triton_Kernels/intro.md) / [`3.3 进阶A：Attention优化`](./03_Triton_Kernels/intro.md) / [`3.4 进阶B：推理优化`](./03_Triton_Kernels/intro.md) / [`3.5 项目篇`](./03_Triton_Kernels/intro.md) | ✅ 完成 |
-| 第四部分 | CUDA C++ 与系统优化。 | [`4.1 CUDA 编程基础`](./04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./04_CUDA_and_System_Optimization/intro.md) | 🚧 规划中 |
+| 第四部分 | CUDA C++ 与系统优化。 | [`4.1 CUDA 编程基础`](./04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./04_CUDA_and_System_Optimization/intro.md) | 🚧 结构已建立，内容待扩展 |
 
 ## 🚀 快速开始
 
@@ -72,7 +72,8 @@
 适合：
 - 先看目录
 - 先读部分导学
-- 先用 Colab 跑练习
+- Part 0 / 1 / 2 可以直接用 Colab CPU 跑练习
+- Part 3 / 4 需要 Colab GPU runtime
 
 ### 方式 2：本地学习
 
@@ -84,7 +85,20 @@ conda activate llm_algo
 jupyter lab
 ```
 
-更完整的环境分层、GPU/CUDA、CNB 和 Docker 说明请见 [使用指南](./guide.md)。
+更完整的环境规则、GPU/CUDA、CNB 和 Docker 说明请见 [使用指南](./guide.md)。
+
+### 方式 3：CNB 统一交付
+
+如果你希望和仓库当前推荐环境保持一致，可以使用 CNB 统一环境入口。
+
+适合：
+- 团队协作
+- 统一实验镜像
+- 需要减少本地环境差异
+- Part 0 / 1 / 2 可以用 CNB CPU
+- Part 3 / 4 需要 CNB GPU 会话
+
+CNB 的具体使用方式和适用范围见 [使用指南](./guide.md)。
 
 ## 📖 更多资源
 
@@ -131,4 +145,4 @@ This project is strictly limited to the Large Language Model (LLM) domain, exclu
 | Part 1 | [`1A 数值基础与算力估算`](./01_Hardware_Math_and_Systems/1A.md) / [`1B 单卡硬件与访存优化`](./01_Hardware_Math_and_Systems/1B.md) / [`1C 多卡通信与显存共享`](./01_Hardware_Math_and_Systems/1C.md) / [`1D 异构调度与算子编程`](./01_Hardware_Math_and_Systems/1D.md) / [`1E 编译优化与算力生态`](./01_Hardware_Math_and_Systems/1E.md) | Hardware, compute estimation, and system-level theory. | 🚧 Theory complete | [Guide](./01_Hardware_Math_and_Systems/intro.md) |
 | Part 2 | [`2.1 基础算子`](./02_PyTorch_Algorithms/intro.md) / [`2.2 模型架构`](./02_PyTorch_Algorithms/intro.md) / [`2.3 微调与训练技术`](./02_PyTorch_Algorithms/intro.md) / [`2.4 对齐技术`](./02_PyTorch_Algorithms/intro.md) / [`2.5 反向传播与显存优化`](./02_PyTorch_Algorithms/intro.md) / [`2.6 核心推理优化`](./02_PyTorch_Algorithms/intro.md) / [`2.7 高级推理优化`](./02_PyTorch_Algorithms/intro.md) / [`2.8 分布式与扩展`](./02_PyTorch_Algorithms/intro.md) | PyTorch algorithm practice. | ✅ Complete | [Guide](./02_PyTorch_Algorithms/intro.md) |
 | Part 3 | [`3.1 Foundations`](./03_Triton_Kernels/intro.md) / [`3.2 Transition`](./03_Triton_Kernels/intro.md) / [`3.3 Advanced A: Attention Optimization`](./03_Triton_Kernels/intro.md) / [`3.4 Advanced B: Inference Optimization`](./03_Triton_Kernels/intro.md) / [`3.5 Projects`](./03_Triton_Kernels/intro.md) | Triton kernel development. | ✅ Complete | [Guide](./03_Triton_Kernels/intro.md) |
-| Part 4 | [`4.1 CUDA 编程基础`](./04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./04_CUDA_and_System_Optimization/intro.md) | CUDA C++ and system optimization. | 🚧 Planned | [Guide](./04_CUDA_and_System_Optimization/intro.md) |
+| Part 4 | [`4.1 CUDA Programming Basics`](./04_CUDA_and_System_Optimization/intro.md) / [`4.2 System-Level Performance Optimization`](./04_CUDA_and_System_Optimization/intro.md) / [`4.3 Distributed Training Engineering`](./04_CUDA_and_System_Optimization/intro.md) / [`4.4 Architecture Perspective`](./04_CUDA_and_System_Optimization/intro.md) | CUDA C++ and system optimization. | 🚧 Structure and guides ready, content to be expanded | [Guide](./04_CUDA_and_System_Optimization/intro.md) |

@@ -35,12 +35,15 @@
 
 ## 🆕 更新时间线
 
-- **2026-06-15**：[最新更新点]推进第零部分 / 第一部分的分组与导读收口，统一部分级导航，并完成网页底部评论区接入 GitHub Discussions，同时持续扩展第一部分的正文、桥接页与 Notebook 结构。
+- **2026-06-26**：[最新更新点]重组第三部分为 Triton 算子开发主线，将 CUDA C++、系统优化、分布式训练工程与架构视野拆分为第四部分；第三部分目录更名为 `03_Triton_Kernels`，并为旧网页路径保留迁移入口。
+- **2026-06-15**：推进第零部分 / 第一部分的分组与导读收口，统一部分级导航，并完成网页底部评论区接入 GitHub Discussions，同时持续扩展第一部分的正文、桥接页与 Notebook 结构。
 - **2026-06-13**：修复 dead link，并为未完成页面补充占位页，避免学习入口出现 404。
 - **2026-04-21**：更新 Colab 徽章链接，统一指向官方 `datawhalechina` 仓库。
 - **2026-04-20**：上线站点首页与部分导学；新增第零部分前置知识与第一部分练习内容，完善在线阅读入口与学习路径。
 - **2026-04-18 ~ 2026-04-19**：集中重构第二部分 / 第三部分内容，优化 Notebook、答案区与算子实现说明。
 - **2026-04-02**：完成教程核心 Notebook、文档与测试脚本的初始搭建。
+
+> 路径兼容说明：第三部分已从 `03_CUDA_and_Triton_Kernels` 更名为 `03_Triton_Kernels`，CUDA / 系统优化内容拆分到第四部分。旧网页路径会保留迁移入口，建议新链接统一使用 `03_Triton_Kernels`。
 
 ## 📚 部分总览
 
@@ -49,12 +52,12 @@
 | 第零部分 | 前置知识与环境准备。| [`0A Python 基础`](./00_Prerequisites/0A.md) / [`0B PyTorch 基础`](./00_Prerequisites/0B.md) / [`0C 深度学习基础`](./00_Prerequisites/0C.md) / [`0D 工具与调试`](./00_Prerequisites/0D.md)  | 🚧 主线完成，待后续补充 |
 | 第一部分 | 硬件、算力推导与系统级理论。| [`1A 数值基础与算力估算`](./01_Hardware_Math_and_Systems/1A.md) / [`1B 单卡硬件与访存优化`](./01_Hardware_Math_and_Systems/1B.md) / [`1C 多卡通信与显存共享`](./01_Hardware_Math_and_Systems/1C.md) / [`1D 异构调度与算子编程`](./01_Hardware_Math_and_Systems/1D.md) / [`1E 编译优化与算力生态`](./01_Hardware_Math_and_Systems/1E.md) | 🚧 主体完成，扩展部分完成 |
 | 第二部分 | PyTorch 算法实战。| [`2.1 基础算子`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.2 模型架构`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.3 微调与训练技术`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.4 对齐技术`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.5 反向传播与显存优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.6 核心推理优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.7 高级推理优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.8 分布式与扩展`](./docs/02_PyTorch_Algorithms/intro.md) | ✅ 基本完成，后续会扩展 |
-| 第三部分 | Triton 算子开发。 | [`3.1 Triton 基础`](./docs/03_Triton_Kernels/intro.md) / [`3.2 Triton 进阶`](./docs/03_Triton_Kernels/intro.md) / [`3.3 Triton 项目`](./docs/03_Triton_Kernels/intro.md) / [`06.5 Triton 设计模式`](./docs/03_Triton_Kernels/06_5_Triton_Design_Patterns.md) | ✅ 基本完成，后续会扩展 |
-| 第四部分 | CUDA C++ 与系统优化。 | [`4.1 CUDA 编程基础`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./docs/04_CUDA_and_System_Optimization/intro.md) | 🚧 规划中 |
+| 第三部分 | Triton 算子开发。 | [`3.1 基础篇`](./docs/03_Triton_Kernels/intro.md) / [`3.2 过渡篇`](./docs/03_Triton_Kernels/intro.md) / [`3.3 进阶A：Attention优化`](./docs/03_Triton_Kernels/intro.md) / [`3.4 进阶B：推理优化`](./docs/03_Triton_Kernels/intro.md) / [`3.5 项目篇`](./docs/03_Triton_Kernels/intro.md) | ✅ 基本完成，后续会扩展 |
+| 第四部分 | CUDA C++ 与系统优化。 | [`4.1 CUDA 编程基础`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./docs/04_CUDA_and_System_Optimization/intro.md) | 🚧 结构已建立，内容待扩展 |
 
 ## 🚀 快速开始
 
-如果你想开始学习，直接从在线站点或左侧部分目录进入即可。环境与平台差异见 [使用指南](./docs/guide.md)。
+如果你想开始学习，先从在线站点阅读导学和目录；需要运行 Notebook 时，Part 0 / 1 / 2 可以优先走 CPU-first，Part 3 / 4 需要 GPU 环境。环境与平台差异见 [使用指南](./docs/guide.md)。
 
 ### 学习路径
 
@@ -72,7 +75,8 @@
 适合：
 - 先看目录
 - 先读部分导学
-- 先用 Colab 跑练习
+- Part 0 / 1 / 2 可以直接用 Colab CPU 跑练习
+- Part 3 / 4 需要 Colab GPU runtime
 
 ### 方式 2：本地学习
 
@@ -83,6 +87,25 @@ conda env create -f environment.yml
 conda activate llm_algo
 jupyter lab
 ```
+
+适合：
+- 想在本地完整跑 Part 0 / 1 / 2 的 Notebook
+- 想自己控制 Python / PyTorch / CUDA 版本
+- 想做更稳定的离线调试
+- Part 3 / 4 需要本地 NVIDIA GPU
+
+### 方式 3：CNB 统一环境
+
+如果你希望和仓库当前推荐环境保持一致，可以使用 CNB 统一环境入口。
+
+适合：
+- 团队协作
+- 统一实验镜像
+- 需要减少本地环境差异
+- Part 0 / 1 / 2 可以用 CNB CPU
+- Part 3 / 4 需要 CNB GPU 会话
+
+CNB 的具体使用方式和适用范围见 [使用指南](./docs/guide.md)。
 
 ## 📖 更多资源
 
@@ -126,22 +149,25 @@ This project is strictly limited to the Large Language Model (LLM) domain, exclu
 
 ## Update Timeline
 
-- **2026-06-15**: [Latest update] finalized the Part 0 / 1 grouping and guide cleanup, unified the part-level navigation, connected the page comments to GitHub Discussions, and continued expanding Part 1 content, bridge pages, and notebook structure.
-- **2026-06-13**: [Latest update] fixed dead links and added placeholder pages for unfinished content to prevent 404s in learning entry points.
+- **2026-06-26**: [Latest update] reorganized Part 3 into a Triton-only kernel development track, split CUDA C++, system optimization, distributed training engineering, and architecture overview into Part 4, renamed the Part 3 directory to `03_Triton_Kernels`, and kept compatibility redirects for old web paths.
+- **2026-06-15**: Finalized the Part 0 / 1 grouping and guide cleanup, unified the part-level navigation, connected the page comments to GitHub Discussions, and continued expanding Part 1 content, bridge pages, and notebook structure.
+- **2026-06-13**: Fixed dead links and added placeholder pages for unfinished content to prevent 404s in learning entry points.
 - **2026-04-21**: Updated Colab badges to point to the official `datawhalechina` repository.
 - **2026-04-20**: Launched the site homepage and part guides; added Part 0 prerequisites and Part 1 practice content to unify the learning path.
 - **2026-04-18 ~ 2026-04-19**: Refactored Part 2 / 3 content, polishing notebooks, answer sections, and operator implementation notes.
 - **2026-04-02**: Completed the initial tutorial notebooks, docs, and test scripts.
 
+> Path compatibility note: Part 3 has been renamed from `03_CUDA_and_Triton_Kernels` to `03_Triton_Kernels`, and CUDA / system optimization content has moved to Part 4. Old web paths keep migration pages, but new links should use `03_Triton_Kernels`.
+
 ## Part Overview
 
 | Part | Groups | Summary | Status | Entry |
 | ---- | ---- | ------- | ---- | ---- |
-| Part 0 | [`0A Python 基础`](./00_Prerequisites/0A.md) / [`0B PyTorch 基础`](./00_Prerequisites/0B.md) / [`0C 深度学习基础`](./00_Prerequisites/0C.md) / [`0D 工具与调试`](./00_Prerequisites/0D.md) | Prerequisites and environment setup. | 🚧 Partial | [Guide](./00_Prerequisites/intro.md) |
-| Part 1 | [`1A 数值基础与算力估算`](./01_Hardware_Math_and_Systems/1A.md) / [`1B 单卡硬件与访存优化`](./01_Hardware_Math_and_Systems/1B.md) / [`1C 多卡通信与显存共享`](./01_Hardware_Math_and_Systems/1C.md) / [`1D 异构调度与算子编程`](./01_Hardware_Math_and_Systems/1D.md) / [`1E 编译优化与算力生态`](./01_Hardware_Math_and_Systems/1E.md) | Hardware, compute estimation, and system-level theory. | 🚧 Theory complete | [Guide](./01_Hardware_Math_and_Systems/intro.md) |
-| Part 2 | [`2.1 基础算子`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.2 模型架构`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.3 微调与训练技术`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.4 对齐技术`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.5 反向传播与显存优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.6 核心推理优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.7 高级推理优化`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.8 分布式与扩展`](./docs/02_PyTorch_Algorithms/intro.md) | PyTorch algorithm practice. | ✅ Complete | [Guide](./02_PyTorch_Algorithms/intro.md) |
-| Part 3 | [`3.1 Triton 基础`](./docs/03_Triton_Kernels/intro.md) / [`3.2 Triton 进阶`](./docs/03_Triton_Kernels/intro.md) / [`3.3 Triton 项目`](./docs/03_Triton_Kernels/intro.md) / [`06.5 Triton 设计模式`](./docs/03_Triton_Kernels/06_5_Triton_Design_Patterns.md) | Triton kernel development. | ✅ Complete | [Guide](./03_Triton_Kernels/intro.md) |
-| Part 4 | [`4.1 CUDA 编程基础`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.2 系统级性能优化`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.3 分布式训练工程`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.4 架构视野`](./docs/04_CUDA_and_System_Optimization/intro.md) | CUDA C++ and system optimization. | 🚧 Planned | [Guide](./docs/04_CUDA_and_System_Optimization/intro.md) |
+| Part 0 | [`0A Python Basics`](./00_Prerequisites/0A.md) / [`0B PyTorch Basics`](./00_Prerequisites/0B.md) / [`0C Deep Learning Basics`](./00_Prerequisites/0C.md) / [`0D Tools and Debugging`](./00_Prerequisites/0D.md) | Prerequisites and environment setup. | 🚧 Partial | [Guide](./00_Prerequisites/intro.md) |
+| Part 1 | [`1A Numerics and Compute Estimation`](./01_Hardware_Math_and_Systems/1A.md) / [`1B Single-GPU Memory and Access`](./01_Hardware_Math_and_Systems/1B.md) / [`1C Multi-GPU Communication and VRAM`](./01_Hardware_Math_and_Systems/1C.md) / [`1D Heterogeneous Scheduling and Operators`](./01_Hardware_Math_and_Systems/1D.md) / [`1E Compiler Optimization and Compute Ecosystem`](./01_Hardware_Math_and_Systems/1E.md) | Hardware, compute estimation, and system-level theory. | 🚧 Theory complete | [Guide](./01_Hardware_Math_and_Systems/intro.md) |
+| Part 2 | [`2.1 Basic Operators`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.2 Model Architecture`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.3 Fine-Tuning and Training`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.4 Alignment Methods`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.5 Backpropagation and VRAM Optimization`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.6 Core Inference Optimization`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.7 Advanced Inference Optimization`](./docs/02_PyTorch_Algorithms/intro.md) / [`2.8 Distributed and Scaling`](./docs/02_PyTorch_Algorithms/intro.md) | PyTorch algorithm practice. | ✅ Complete | [Guide](./docs/02_PyTorch_Algorithms/intro.md) |
+| Part 3 | [`3.1 Foundations`](./docs/03_Triton_Kernels/intro.md) / [`3.2 Transition`](./docs/03_Triton_Kernels/intro.md) / [`3.3 Advanced A: Attention Optimization`](./docs/03_Triton_Kernels/intro.md) / [`3.4 Advanced B: Inference Optimization`](./docs/03_Triton_Kernels/intro.md) / [`3.5 Projects`](./docs/03_Triton_Kernels/intro.md) | Triton kernel development. | ✅ Complete | [Guide](./docs/03_Triton_Kernels/intro.md) |
+| Part 4 | [`4.1 CUDA Programming Basics`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.2 System-Level Performance Optimization`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.3 Distributed Training Engineering`](./docs/04_CUDA_and_System_Optimization/intro.md) / [`4.4 Architecture Perspective`](./docs/04_CUDA_and_System_Optimization/intro.md) | CUDA C++ and system optimization. | 🚧 Structure and guides ready, content to be expanded | [Guide](./docs/04_CUDA_and_System_Optimization/intro.md) |
 
 ## Quick Start
 
@@ -150,6 +176,12 @@ This project is strictly limited to the Large Language Model (LLM) domain, exclu
 Visit the online platform:
 
 [https://datawhalechina.github.io/llm-algo-leetcode/](https://datawhalechina.github.io/llm-algo-leetcode/)
+
+Suitable for:
+- Reading the table of contents first
+- Reading the part guides first
+- Part 0 / 1 / 2 can run on Colab CPU
+- Part 3 / 4 need a Colab GPU runtime
 
 ### Option 2: Local Development
 
@@ -161,4 +193,23 @@ conda activate llm_algo
 jupyter lab
 ```
 
+Suitable for:
+- Running Part 0 / 1 / 2 locally on CPU
+- Controlling your own Python / PyTorch / CUDA versions
+- More stable offline debugging
+- Part 3 / 4 require a local NVIDIA GPU
+
 For environment details and platform differences, see the Chinese guide section or [docs/guide.md](./docs/guide.md).
+
+### Option 3: CNB Unified Delivery
+
+If you want the same runtime style used by the repository, use the CNB unified environment.
+
+Suitable for:
+- Team collaboration
+- Consistent experiment images
+- Lower local environment drift
+- Part 0 / 1 / 2 can use CNB CPU
+- Part 3 / 4 need a CNB GPU session
+
+See [docs/guide.md](./docs/guide.md) for the exact environment rules and scope.
