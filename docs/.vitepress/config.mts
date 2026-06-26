@@ -5,7 +5,7 @@ const baseConfig = isEdgeOne ? '/' : '/llm-algo-leetcode/'
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: "大模型算法实战教程 / LLM Algorithm Practice Lab",
+  title: "大模型算法实战教程",
   description: "面向大模型入门到进阶的算法实战教程",
   base: baseConfig,
   ignoreDeadLinks: true,
@@ -20,15 +20,14 @@ export default defineConfig({
       { text: '第二部分\nPyTorch 核心算法', link: '/02_PyTorch_Algorithms/intro' },
       { text: '第三部分\nTriton 算子开发', link: '/03_Triton_Kernels/intro' },
       { text: '第四部分\nCUDA C++ 与系统优化', link: '/04_CUDA_and_System_Optimization/intro' },
-      { text: 'GitHub 仓库', link: 'https://github.com/datawhalechina/llm-algo-leetcode' },
     ],
     search: {
       provider: 'local',
       options: {
         translations: {
           button: {
-            buttonText: '搜索文档',
-            buttonAriaLabel: '搜索文档'
+            buttonText: '搜索',
+            buttonAriaLabel: '搜索'
           },
           modal: {
             noResultsText: '无法找到相关结果',
