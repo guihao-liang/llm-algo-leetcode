@@ -1,80 +1,52 @@
-# 第二部分：PyTorch 算法实战
+# Part 02: PyTorch Algorithm Practice | 第二部分：PyTorch 算法实战
 
-## 🎯 本部分概览
+## Part Overview | Part 概览
 
-本部分聚焦 PyTorch 级别的大模型实现，按“基础算子 -> 模型架构 -> 微调与训练技术 -> 对齐技术 -> 反向传播与显存优化 -> 核心推理优化 -> 高级推理与压缩优化 -> 分布式并行策略 -> 项目实战”组织。
+本部分聚焦 PyTorch 级别的大模型实现，位于 Part 0 / Part 1 之后、Part 3 之前，目标是把基础算子、模型组装、训练与对齐、显存优化、推理优化、并行策略和项目实战串成一条可运行的工程链。正文默认 notebook-first，组页负责组级资产与阅读路径，Part 级导学只管组间关系和阅读顺序，不下沉到具体节号。
 
-### Part 0 先修
+Part 2 更像一张多入口学习地图：不同基础和目标的读者可以从不同组切入，最后都汇到项目实战，再按需要回补前面的训练、推理和并行内容。
 
-如果你对下面这些内容还不熟，建议先补对应的 Part 0 页面，再进入 Part 2：
+## Part Asset Overview | Part 资产总览
 
-- [Part 0: 02 PyTorch Tensor Fundamentals](../00_Prerequisites/02_PyTorch_Tensor_Fundamentals.md)
-- [Part 0: 03 PyTorch Autograd and Backward](../00_Prerequisites/03_PyTorch_Autograd_and_Backward.md)
-- [Part 0: 04 PyTorch nn.Module Basics](../00_Prerequisites/04_PyTorch_nn_Module_Basics.md)
-- [Part 0: 05 PyTorch Optimizers and Loss](../00_Prerequisites/05_PyTorch_Optimizers_and_Loss.md)
-- [Part 0: 06 Simple Neural Network Training](../00_Prerequisites/06_Simple_Neural_Network_Training.md)
-- [Part 0: 09 Attention Mechanism Intro](../00_Prerequisites/09_Attention_Mechanism_Intro.md)
-- [Part 0: 10 PyTorch Profiling Basics](../00_Prerequisites/10_PyTorch_Profiling_Basics.md)
-- [Part 0: 11 Memory Profiling and Optimization](../00_Prerequisites/11_Memory_Profiling_and_Optimization.md)
+本章内容按 9 个主题组组织，后续页面也沿该结构继续扩展。
 
-### 学习组划分
+> 导航说明：先看总览，再进入具体组页。
+> 组页负责组内阅读顺序与资产收口，不需要一次性读完全部页面。
+> Part 2 既是工程实战目录，也是 Part 0 / Part 1 之后、Part 3 之前的共同衔接层。
 
-| 学习组 | 题目范围 | 主题 | 难度 |
+| 学习组 | 职责作用 | 当前内容映射 | 每组多少节 |
 |:---|:---|:---|:---|
-| **2.1: 基础算子** | 00-04 | Transformer 组件 | Easy-Medium |
-| **2.2: 模型架构** | 05-08 | 模型组装 | Medium |
-| **2.3: 微调与训练技术** | 09-13 | SFT / LoRA / WSD / Grad Accumulation / FT 实验 | Medium |
-| **2.4: 对齐技术** | 14-16 | RLHF / DPO / GRPO | Medium-Hard |
-| **2.5: 反向传播与显存优化** | 17-19 | Autograd / Backward / Checkpointing / Offload | Hard |
-| **2.6: 核心推理优化** | 20-22 | FlashAttention / Decoding / PagedAttention | Hard |
-| **2.7: 高级推理与压缩优化** | 23-26 | Speculative / Radix / Quantization / QLoRA | Hard |
-| **2.8: 分布式并行策略** | 27-29 | ZeRO / Pipeline / Tensor Parallelism | Hard |
-| **2.9: 项目实战** | 30-32 | LoRA Project / Inference Profiling / Training Profiling | Hard |
+| [2.1](./2_1.md) | 建立基础算子和组件直觉 | [00](./00_PyTorch_Warmup.ipynb)、[01](./01_RMSNorm_Tutorial.ipynb)、[02](./02_SwiGLU_Activation.ipynb)、[03](./03_RoPE_Tutorial.ipynb)、[04](./04_Attention_MHA_GQA.ipynb) | 5 |
+| [2.2](./2_2.md) | 组装模型结构并理解 MoE 组件 | [05](./05_LLaMA3_Block_Tutorial.ipynb)、[06](./06_MoE_Router.ipynb)、[07](./07_MoE_Load_Balancing_Loss.ipynb)、[08](./08_Architecture_Tricks.ipynb) | 4 |
+| [2.3](./2_3.md) | 搭起微调、调度器和训练闭环 | [09](./09_SFT_Training_Loop.ipynb)、[10](./10_LoRA_Tutorial.ipynb)、[11](./11_LR_Schedulers_WSD_Cosine.ipynb)、[12](./12_Gradient_Accumulation.ipynb)、[13](./13_End_to_End_Fine_Tuning_Experiment.ipynb) | 5 |
+| [2.4](./2_4.md) | 理解偏好优化与对齐链路 | [14](./14_RLHF_PPO_Memory.ipynb)、[15](./15_DPO_Loss_Tutorial.ipynb)、[16](./16_GRPO_Loss_Tutorial.ipynb) | 3 |
+| [2.5](./2_5.md) | 追踪反向传播和显存优化 | [17](./17_Autograd_Basics.ipynb)、[18](./18_Activation_and_Loss_Backward.ipynb)、[19](./19_Activation_Checkpointing_and_Activation_Offload.ipynb) | 3 |
+| [2.6](./2_6.md) | 建立推理加速和缓存直觉 | [20](./20_FlashAttention_Sim.ipynb)、[21](./21_Decoding_Strategies.ipynb)、[22](./22_vLLM_PagedAttention.ipynb) | 3 |
+| [2.7](./2_7.md) | 补充压缩与高级推理策略 | [23](./23_Speculative_Decoding.ipynb)、[24](./24_SGLang_RadixAttention.ipynb)、[25](./25_Quantization_W8A16.ipynb)、[26](./26_QLoRA_and_4bit_Quantization.ipynb) | 4 |
+| [2.8](./2_8.md) | 形成并行策略和通信边界判断 | [27](./27_ZeRO_Optimizer_Sim.ipynb)、[28](./28_Pipeline_Parallelism_MicroBatch.ipynb)、[29](./29_Tensor_Parallelism_Sim.ipynb) | 3 |
+| [2.9](./2_9.md) | 汇总项目验证和工程闭环 | [30](./30_LoRA_Fine_Tuning_Project.ipynb)、[31](./31_Inference_Performance_Comparison.ipynb)、[32](./32_Training_Performance_Analysis.ipynb) | 3 |
 
-### 零基础入门 6 Task
+## Learning Path | 学习路径
 
-| Task | 覆盖小节 | 学习重点 | 预期收获 |
-|:---|:---|:---|:---|
-| Task 1 | 2.1 | PyTorch 入门与基础算子 | 熟悉张量、模块、前向与 RMSNorm 的基本写法 |
-| Task 2 | 2.1 | 激活函数与位置编码 | 理解 SwiGLU 与 RoPE 的作用和实现方式 |
-| Task 3 | 2.1 | Attention 核心实现 | 能串起 MHA / GQA，并理解 KV cache 的动机 |
-| Task 4 | 2.2 | 模型块组装 | 能把基础算子组装成 LLaMA3 Block，并认识 MoE Router |
-| Task 5 | 2.2 | MoE 与结构技巧 | 理解负载均衡损失和常见架构技巧 |
-| Task 6 | 2.3 | 训练、微调与学习率策略 | 看懂 SFT、LoRA、WSD 和训练闭环 |
+Part 2 可以按多条入口理解：零基础入口先把算子、组装、训练与项目闭环串起来；训练优先、推理优先和并行优先入口则可以从不同工程目标切入，最后都回到项目实战。
 
-### 环境边界（代码审计版）
+### Recommended Order | 推荐顺序
 
-- **整体定位：CPU-first**
-- **大多数 notebook**：可在 CPU 环境下完成学习和 correctness 验证
-- **已确认需要 GPU 的 notebook**：`19_Activation_Checkpointing_and_Activation_Offload`，其测试会读取真实 CUDA 显存峰值
-- **学习建议**：为了保持体验一致，建议所有学习者使用同一套 Python 环境；GPU 作为后段实验和真实性能验证的增强条件，而不是第二部分的统一门槛
+- 零基础入口：先看 [2.1](./2_1.md) -> [2.2](./2_2.md) -> [2.3](./2_3.md) -> [2.5](./2_5.md) -> [2.9](./2_9.md)
+- 训练优先入口：先看 [2.3](./2_3.md) -> [2.4](./2_4.md) -> [2.5](./2_5.md) -> [2.9](./2_9.md)
+- 推理优先入口：先看 [2.6](./2_6.md) -> [2.7](./2_7.md) -> [2.9](./2_9.md)
+- 并行优先入口：先看 [2.8](./2_8.md) -> [2.9](./2_9.md)
+- 系统学习：按 [2.1](./2_1.md) -> [2.2](./2_2.md) -> [2.3](./2_3.md) -> [2.4](./2_4.md) -> [2.5](./2_5.md) -> [2.6](./2_6.md) -> [2.7](./2_7.md) -> [2.8](./2_8.md) -> [2.9](./2_9.md) 顺序推进
 
-### 学习建议
+### Next Steps | 后续衔接
 
-- 新手先看 **2.1 -> 2.2 -> 2.3**
-- 关注训练与对齐的同学看 **2.3 -> 2.4 -> 2.5**
-- 关注推理与规模化的同学看 **2.6 -> 2.7 -> 2.8**
-- 关注综合验证与性能分析的同学看 **2.9**
+- 基础认知层：先看 [2.1](./2_1.md)、[2.2](./2_2.md)，把基础算子和模型组装先立住，再按需要进入 [2.5](./2_5.md)。
+- 训练与对齐层：先看 [2.3](./2_3.md)、[2.4](./2_4.md)、[2.5](./2_5.md)，把训练、对齐和显存优化的链路理顺，主要衔接后续实现页和项目页。
+- 推理与并行层：先看 [2.6](./2_6.md)、[2.7](./2_7.md)、[2.8](./2_8.md)，把推理、压缩和并行策略串起来，主要衔接项目实战与后续实现页。
+- 项目收口：最后看 [2.9](./2_9.md)，把前面的知识点放回真实项目里验证和收束。
 
-### 前置页面
+## Environment Notes | 环境说明
 
-- [1A 基础数学](../01_Hardware_Math_and_Systems/01_Data_Types_and_Precision.md)
-- [1B 硬件架构](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
-- [1C 系统与编译](../01_Hardware_Math_and_Systems/08_Programming_Models_CUDA_Triton.md)
-
-### 后续页面
-
-- [2.1 基础算子](./2_1.md)
-- [2.2 模型架构](./2_2.md)
-- [2.3 微调与训练技术](./2_3.md)
-- [2.4 对齐技术](./2_4.md)
-- [2.5 反向传播与显存优化](./2_5.md)
-- [2.6 核心推理优化](./2_6.md)
-- [2.7 高级推理与压缩优化](./2_7.md)
-- [2.8 分布式并行策略](./2_8.md)
-- [2.9 项目实战](./2_9.md)
-- [3.1 Triton 基础](../03_Triton_Kernels/intro.md)
-
-### 题目与测试
-
-部分题目的占位初始化、答案验证和本地测试方式，统一以 [维护与发布手册](../maintenance.md) 和 [使用指南](../guide.md) 为准。Part 2 的新增内容优先进入 `2.9`，其次是 `2.5`，再其次是 `2.3`。
+- 默认按 `CPU-first` 设计
+- 这里只写 Part 级统一前提，不点到具体节号
+- 少数 notebook 如需 `GPU optional`、`GPU required` 或多卡/完整工具链，以单页说明为准，不在导学页重复展开
