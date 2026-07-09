@@ -1,10 +1,34 @@
 # 29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度
 
-**难度：** Hard | **标签：** `CUDA`, `Stream`, `异步调度` | **目标人群：** 想把推理和训练流程调得更细的学习者
+**难度：** Hard | **环境：** GPU optional | **标签：** `CUDA`, `Stream`, `异步调度` | **目标人群：** 想把推理和训练流程调得更细的学习者
+
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/29_CUDA_Stream_Advanced_Scheduling.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
+
 
 这一页是在基础 Stream 概念之上的进一步延伸。重点不是“什么是 Stream”，而是“怎么让多个任务更合理地并行、同步、回放和控制优先级”。
 
-前置阅读建议先看 `1D-01 CPU/GPU 异构调度`，先把 Host / Device、PCIe 传输和基础异步概念建立起来，再看这页会更顺。
+**关键词：** `stream`, `event`, `graph`, `priority`, `pipeline`
+
+## 前置
+
+**导语：** 先把 CPU/GPU 异构调度、异步传输和基础 Stream 概念接上，再看这一页的高级调度，会更容易把“怎么排任务”这件事讲清楚。
+
+- [Part 1: 07. CPU GPU Heterogeneous Scheduling | CPU/GPU 异构调度](./07_CPU_GPU_Heterogeneous_Scheduling.md)
+- [Part 1: 17. CUDA Stream and Asynchrony | CUDA Stream 与异步](./17_CUDA_Stream_and_Asynchrony.md)
+- [Part 1: 18. Triton Block Model | Triton Block 模型](./18_Triton_Block_Model.md)
+
+## 相关阅读
+
+**导语：** 如果还想把调度和实现细节连起来，可以继续看图编译、动态形状和执行模型，把调度和代码落地一起理解。
+
+- [Part 1: 19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)
+- [Part 1: 30. Dynamic Shape Handling | 动态 Shape 处理](./30_Dynamic_Shape_Handling.md)
+- [Part 1: 31. GPU Virtualization and MIG | GPU 虚拟化与 MIG](./31_GPU_Virtualization_and_MIG.md)
 
 ## Q1：CUDA Stream 为什么能做并行调度？
 
@@ -34,6 +58,39 @@ CUDA Stream 可以看成一条命令队列：
 所以，Stream / Graph 的价值并不是“让 GPU 变魔法一样更强”，而是尽量少浪费在调度和启动上。
 </details>
 
+### Q1小验证：Stream 流水线与重叠收益
+
+
+```python
+from dataclasses import dataclass
+from typing import List, Dict, Tuple
+
+@dataclass
+class TaskStage:
+    name: str
+    duration_us: float
+    stream: str
+    depends_on: Tuple[str, ...] = ()
+
+def sequential_time_us(stages: List[TaskStage]) -> float:
+    """假设所有阶段串行执行的总时间。"""
+    return sum(stage.duration_us for stage in stages)
+
+def pipelined_time_us(stages: List[TaskStage]) -> float:
+    """非常粗略地估算流水线调度后的总时间。"""
+    stream_totals: Dict[str, float] = {}
+    for stage in stages:
+        stream_totals.setdefault(stage.stream, 0.0)
+        stream_totals[stage.stream] += stage.duration_us
+    return max(stream_totals.values()) if stream_totals else 0.0
+
+def overlap_ratio(sequential_us: float, pipelined_us: float) -> float:
+    if sequential_us == 0:
+        return 0.0
+    return 1 - pipelined_us / sequential_us
+
+```
+
 ## Q2：CUDA Event 为什么重要？
 
 <details>
@@ -52,6 +109,48 @@ Event 的作用是跨 Stream 做同步点。
 
 Event 的开销通常很小，但它不是“零成本”；工程上常见的用法是只在真正有依赖关系的地方插入 Event，避免把同步点铺得太密。
 </details>
+
+### Q2小验证：Event 依赖关系
+
+
+```python
+def build_dependency_edges(stages: List[TaskStage]) -> List[Tuple[str, str]]:
+    edges = []
+    for stage in stages:
+        for dep in stage.depends_on:
+            edges.append((dep, stage.name))
+    return edges
+
+def has_cross_stream_dependency(stages: List[TaskStage]) -> bool:
+    name_to_stage = {s.name: s for s in stages}
+    for stage in stages:
+        for dep in stage.depends_on:
+            if name_to_stage[dep].stream != stage.stream:
+                return True
+    return False
+
+```
+
+
+```python
+def test_event_dependencies():
+    stages = [
+        TaskStage('H2D', 12, 'copy'),
+        TaskStage('Kernel', 40, 'compute', depends_on=('H2D',)),
+        TaskStage('D2H', 10, 'copy', depends_on=('Kernel',)),
+        TaskStage('Post', 8, 'post', depends_on=('D2H',)),
+    ]
+
+    edges = build_dependency_edges(stages)
+    assert ('H2D', 'Kernel') in edges
+    assert ('Kernel', 'D2H') in edges
+    assert ('D2H', 'Post') in edges
+    assert has_cross_stream_dependency(stages) is True
+    print('✅ Event 依赖测试通过')
+
+test_event_dependencies()
+
+```
 
 ## Q3：CUDA Graph 和 Stream 调度是什么关系？
 
@@ -82,6 +181,35 @@ CUDA Graph 更像是把一整段稳定的执行路径捕获下来，再在后续
 可以把它记成一句话：Graph 适合“路径稳定”，不适合“形状经常跳”。
 </details>
 
+### Q3小验证：Graph 适用性判断
+
+
+```python
+def graph_suitability(is_fixed_shape: bool, is_repeated_path: bool, has_many_branches: bool) -> bool:
+    """非常简化的 CUDA Graph 适用性判断。"""
+    return is_fixed_shape and is_repeated_path and not has_many_branches
+
+assert graph_suitability(True, True, False) is True
+assert graph_suitability(True, False, False) is False
+assert graph_suitability(False, True, False) is False
+assert graph_suitability(True, True, True) is False
+print('✅ Graph 适用性测试通过')
+
+```
+
+
+```python
+cases = [
+    ('离线批处理推理', True, True, False),
+    ('变长在线推理', False, True, False),
+    ('动态分支很多的控制流', True, True, True),
+]
+
+for name, fixed_shape, repeated_path, many_branches in cases:
+    print(f'{name:<18s}:', '适合 Graph' if graph_suitability(fixed_shape, repeated_path, many_branches) else '不太适合 Graph')
+
+```
+
 ## Q4：Stream 优先级和典型流水线怎么理解？
 
 <details>
@@ -105,6 +233,33 @@ Stream C: D2H + 后处理
 再用 Event 连接依赖关系，这样更容易让搬运和计算重叠。
 </details>
 
+### Q4小验证：优先级与流水线
+
+
+```python
+def should_split_stream(copy_us: float, compute_us: float, post_us: float) -> bool:
+    # 只有当搬运 / 计算 / 收尾三段都有可分离职责时，拆 Stream 才更有意义。
+    total = copy_us + compute_us + post_us
+    if total <= 0:
+        return False
+    copy_ratio = copy_us / total
+    compute_ratio = compute_us / total
+    return copy_ratio >= 0.1 and compute_ratio >= 0.3
+
+
+def recommended_pipeline(copy_us: float, compute_us: float, post_us: float) -> Dict[str, str]:
+    if not should_split_stream(copy_us, compute_us, post_us):
+        return {'decision': 'single_stream', 'reason': '重叠收益有限'}
+    return {
+        'decision': 'split_streams',
+        'reason': '搬运 / 计算 / 收尾职责可分离，适合用 Event 串依赖',
+    }
+
+print(recommended_pipeline(12, 40, 10))
+print(recommended_pipeline(2, 60, 1))
+
+```
+
 ## Q5：高级调度最常见的误区是什么？
 
 <details>
@@ -122,29 +277,3 @@ Stream C: D2H + 后处理
 - **“CUDA Graph 适合所有推理”**  
   不对。动态 shape 很多时，Graph 的收益会下降。
 </details>
-
-## 小结
-
-这一页的核心判断是：
-
-> **Stream 解决并行调度，Event 解决局部同步，Graph 解决稳定路径回放。**
-
-## 关联阅读
-
-这一页和 1D-01 的异构调度、1D-02 的 CUDA / Triton 编程模型是连着的，建议一起看：
-
-- `1D-01` CPU/GPU 异构调度
-- `1D-02` CUDA/Triton 编程模型
-- `1D-04` 动态 Shape 处理
-
-## 配合练习
-
-这一页建议和后面的 [练习页](./29_CUDA_Stream_Advanced_Scheduling_Practice.md) 一起看。这页的练习可以围绕下面三步展开：
-
-- 先做一个 Stream 优先级的小实验，看高 / 低优先级任务的调度差异
-- 再做 Event 同步，观察不同 Stream 之间的依赖是怎么被串起来的
-- 最后尝试 CUDA Graph 捕获和回放，比较捕获与回放的耗时差异
-
-对应的 Notebook 练习可以看这里：
-
-- [练习页](./29_CUDA_Stream_Advanced_Scheduling_Practice.md)
