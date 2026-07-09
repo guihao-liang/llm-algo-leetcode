@@ -1,85 +1,134 @@
-# 14. FlashAttention Memory Model | FlashAttention Memory Model
+# 14. FlashAttention Memory Model | FlashAttention 显存模型
 
-**难度：** Medium | **标签：** `Attention`, `FlashAttention`, `Memory Model` | **目标人群：** 准备进入 Chapter 2 的学习者
+**难度：** Medium | **环境：** CPU-first | **标签：** `Attention`, `FlashAttention`, `Memory Model` | **目标人群：** Attention 优化入门者
 
-这一页把 Chapter 1 的 Attention 和显存直觉，接到 Chapter 2 的 FlashAttention 实现上。重点是它如何减少中间计算和显存访问。
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/14_FlashAttention_Memory_Model.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-## 前置关系
 
-- Chapter 1 已经讲过 Attention 为什么会吃显存
-- Chapter 2 会直接进入 Attention 实现、FlashAttention 和 PagedAttention
-- 先把“它到底省了什么”讲清楚
+这一页把 Attention 的显存压力推进到 FlashAttention 的分块、在线归约和 SRAM 利用上，重点解释为什么这种改法能把访存瓶颈压下去。
 
-## 你应该先建立的直觉
+**关键词：** `FlashAttention`, `tiling`, `SRAM`, `online softmax`, `HBM`
+## 前置
 
-### 1. 标准 Attention 的问题不只是算得多
+**导语：** 先确认显存模型和 Attention 访存直觉，再看 FlashAttention 的分块改法会更顺。
 
-标准 Attention 的麻烦有两层：
-- 计算本身很重
-- 中间矩阵会占用大量显存
+- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
+- [Part 1: 1C 通信与并行基础](./1C.md)
 
-也就是说，问题不只是“算慢”，而是“算完以后还要保存很多东西”。
+## 相关阅读
 
-### 2. FlashAttention 的核心不是改公式，而是改组织方式
+**导语：** 把 FlashAttention 放到 Triton kernel 实现里看，能更好理解分块与在线归约。
 
-FlashAttention 的直觉可以先记成一句话：
+- [Chapter 2: 20 FlashAttention Sim](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
+- [Part 3: 06 Triton Fused Softmax](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
+- [Part 3: 08 Triton Flash Attention](../03_Triton_Kernels/08_Triton_Flash_Attention.md)
 
-```text
-把大矩阵切成小块，在更快的片上存储里分块处理，尽量减少不必要的中间显存读写
+## Q1：为什么标准 Attention 会在长序列下迅速变成显存瓶颈？
+
+<details>
+<summary>点击展开查看解析</summary>
+
+标准 Attention 的问题，不是“算不动”，而是中间结果太大。
+
+在长序列场景里，$QK^T$ 会生成一个接近 $N 	imes N$ 的注意力矩阵。如果这个矩阵要频繁写回 HBM，再读出来做 Softmax 和后续乘法，显存访问次数就会非常多。
+
+这意味着两件事：
+- 中间结果占用的显存会迅速膨胀；
+- 数据搬运会比计算本身更容易成为瓶颈。
+
+所以 FlashAttention 要解决的，不是“让矩阵更小”，而是“不要让大矩阵长期落到 HBM 上”。
+</details>
+### Q1小验证：大矩阵为什么危险
+
+先从 $N 	imes N$ 的规模直觉开始，记住中间矩阵一旦落到 HBM，代价就会很高。
+
+```python
+def attention_score_bytes(seq_len, dtype_bytes=2):
+    # 只估算 attention score 矩阵的体积，便于和 tile 的工作集做对比。
+    return seq_len * seq_len * dtype_bytes
+
+for n in [1024, 2048, 4096]:
+    naive_gb = attention_score_bytes(n) / 1024 / 1024 / 1024
+    print(f'seq_len={n:4d} -> score matrix ≈ {naive_gb:6.2f} GB')
+
 ```
 
-它不是单纯换了一个数学公式，而是换了处理数据的方式。
+## Q2：FlashAttention 为什么要用 tiling 和 online softmax？
 
-### 3. 显存访问方式会决定实际性能
+<details>
+<summary>点击展开查看解析</summary>
 
-在 GPU 上，很多时候真正慢的不是算，而是：
-- 反复访问慢内存
-- 中间结果太多
-- 数据搬来搬去
+FlashAttention 的核心是把大问题拆成小块处理。
 
-FlashAttention 的价值，就是尽量让计算和存储更贴近硬件实际。
+- **Tiling**：把 $Q$、$K$、$V$ 切成能放进片上 SRAM 的小块。
+- **Online softmax**：在处理每个块时，就把局部最大值和指数和更新掉，避免把完整注意力矩阵写回 HBM。
 
-## 一个最常见的理解路径
+这样做的本质是把“先生成完整矩阵，再统一做归约”的流程，改成“边算边归约”。
 
-你可以先按下面这条线理解 FlashAttention：
+好处有两个：
+1. 中间结果不需要长期停留在 HBM；
+2. 计算和归约可以在更近的存储层完成，减少大规模搬运。
 
-```text
-标准 Attention -> 中间矩阵太大 -> 显存压力高 -> 分块处理 -> 减少中间显存 -> 性能提升
+所以 FlashAttention 的关键不是算法名，而是它把处理顺序和存储层级重新安排了一遍。
+</details>
+### Q2小验证：分块之后为什么更稳
+
+把一个大矩阵拆成多个小块，再看每一步需要保留的中间状态会变少多少。
+
+```python
+def num_tiles(seq_len, tile_size):
+    return (seq_len + tile_size - 1) // tile_size
+
+def tile_working_set(tile_size, dtype_bytes=2):
+    # 一个 tile 的局部工作集，便于和完整 attention matrix 对比。
+    return tile_size * tile_size * dtype_bytes
+
+seq_len = 4096
+for tile in [64, 128, 256]:
+    tiles = num_tiles(seq_len, tile)
+    working_set_kb = tile_working_set(tile) / 1024
+    print(f'tile={tile:3d} -> tiles={tiles:3d}, tile working set ≈ {working_set_kb:6.1f} KB')
+
 ```
 
-这条线比直接背实现细节更重要。  
-后面 Chapter 2 的代码实现，基本都建立在这个直觉上。
+## Q3：为什么说 FlashAttention 是在把压力从 HBM 挪到 SRAM？
 
-## 常见误区
+<details>
+<summary>点击展开查看解析</summary>
 
-- 以为 FlashAttention 只是“更快的 softmax”
-- 只关注算法表达，忽略显存访问方式
-- 把 FlashAttention 和 PagedAttention 混为一谈
-- 认为它解决了所有推理显存问题，其实它主要解决的是 Attention 的中间计算和访问模式
+HBM 容量大，但访问代价高；SRAM 容量小，但离计算更近、访问更快。
 
-## 这一页学完后，你应该能回答
+FlashAttention 的设计就是尽量让中间数据停留在 SRAM 里，把 HBM 主要留给必要的输入输出。这样一来，虽然计算量没有本质减少，但大规模中间矩阵反复读写 HBM 的情况被明显压缩了。
 
-- 为什么标准 Attention 会很吃显存
-- FlashAttention 到底省了什么
-- 为什么分块处理能改善性能
-- 为什么 Chapter 2 的 Attention 相关内容要连着学
+这就是为什么 FlashAttention 常常被描述为“IO-aware”的实现：它不是单纯追求更多算术，而是通过更好的存储层级利用，减少最贵的数据搬运。
 
-## 和后续章节的联系
+理解这一点之后，后面看 Triton 或更底层实现时，就能明白为什么 tile size、block 组织和 shared memory 这么重要。
+</details>
+### Q3小验证：存储层级的直觉
 
-- **Chapter 2: Attention MHA/GQA**  
-  你会看到注意力计算本身如何组织
+把“HBM 负责大容量，SRAM 负责局部复用”这条链记住，再看优化思路会更顺。
 
-- **Chapter 2: FlashAttention**  
-  你会看到分块、在线 softmax 和 memory-friendly 的实现思路
+```python
+def io_pressure(seq_len, tile_size, dtype_bytes=2):
+    # 粗略比较：完整矩阵的 HBM 压力 vs tile 级工作集的峰值压力。
+    full = attention_score_bytes(seq_len, dtype_bytes)
+    tile = tile_working_set(tile_size, dtype_bytes)
+    return full / tile
 
-- **Chapter 2: vLLM PagedAttention**  
-  你会看到 Attention 之外，KV cache 的组织方式也会影响推理显存
+for tile in [64, 128, 256]:
+    print(f'tile={tile:3d} -> IO pressure reduction ≈ {io_pressure(4096, tile):.0f}x')
+print('smaller tile => smaller working set, but more tiles to schedule')
 
-## 小结
+```
 
-这一页的作用也很简单：
-- 先让你知道标准 Attention 为什么贵
-- 再让你知道 FlashAttention 为什么有效
-- 最后让你知道 Chapter 2 里为什么要把它单独讲
+## ⚠️ 常见误区
 
-如果你能把“计算方式”和“显存访问方式”联系起来，这一页的目标基本达成，后面再看 Chapter 2 的 Attention 章节会更顺。
+- FlashAttention 不是把计算量消掉了，而是减少了中间结果落到 HBM 的次数。
+- `tiling` 不是为了形式更复杂，而是为了让中间状态能留在更合适的存储层。
+- `online softmax` 不是额外技巧，而是把归约过程前移到块内处理。
+- 如果只盯着 FLOPs，不看数据搬运，通常会误判 FlashAttention 的收益。
