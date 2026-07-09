@@ -1,119 +1,156 @@
-# 23. TensorCore Deep Dive | Tensor Core 深度剖析 (Tensor Core Deep Dive)
+# 23. TensorCore Deep Dive | Tensor Core 深度剖析
 
-**难度：** Hard | **标签：** `GPU`, `矩阵乘法`, `混合精度` | **目标人群：** 想把“Tensor Core 很快”理解到能做性能判断的学习者
+**难度：** Hard | **环境：** GPU optional | **标签：** `Tensor Core`, `MMA`, `Mixed Precision` | **目标人群：** 核心算子开发者
 
-这一页不打算把 GPU ISA 讲到汇编级别，而是想把 Tensor Core 的核心问题说清楚：
-- 它到底加速了什么
-- 为什么对 GEMM 特别有效
-- 为什么输入形状、数据类型和 tile 切分会影响利用率
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/23_TensorCore_Deep_Dive.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-前置阅读建议先看 `1B-01 单卡硬件与访存优化`，先把 SM、Warp、Shared Memory 和 HBM 的基本层级关系搞清楚，再看这页会更顺。
+
+这一页讲的是 Tensor Core 为什么能把矩阵乘加做得更快，以及为什么它和精度、tile 和寄存器组织绑得这么紧。
+
+**关键词：** `MMA`, `tile`, `throughput`, `precision`, `register`
+## 前置
+
+**导语：** 这一页先把矩阵乘加和混合精度的底层直觉接上，再看 Tensor Core 为什么会把 tile、精度和吞吐绑在一起。
+
+- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [Part 1: 16 Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
+- [Part 1: 12 TensorCore 与混合精度](./12_TensorCore_and_Mixed_Precision.md)
+
+## 相关阅读
+
+**导语：** 如果想继续把 TensorCore 和更高层的 kernel / 编译优化串起来，可以接着看这些页。
+
+- [Part 1: 08 Programming Models and CUDA/Triton](./08_Programming_Models_CUDA_Triton.md)
+- [Part 1: 14 FlashAttention 显存模型](./14_FlashAttention_Memory_Model.md)
+- [Part 1: 25 稀疏计算与稀疏注意力](./25_Sparse_Computation_and_Sparse_Attention.md)
 
 ## Q1：Tensor Core 本质上是什么？
 
-<details>
-<summary>点击展开查看解析</summary>
+<details><summary>点击展开查看解析</summary>
 
-Tensor Core 可以理解成专门为矩阵乘加设计的硬件单元。
+Tensor Core 不是普通 CUDA Core 的更快版本，而是一条专门面向矩阵乘加（MMA）的硬件路径。
 
-普通 CUDA Core 更像标量计算单元，而 Tensor Core 更像“矩阵乘法加速器”。它的核心价值不是“更快做一个标量运算”，而是用更大的粒度一次完成更多矩阵乘加。
+它的关键变化有三点：
+- 计算对象从标量 FMA 变成了小块矩阵乘加；
+- 调度粒度从逐元素运算变成了可打包的 tile；
+- 数据路径从“多次标量访存”转成“先聚成块，再一次性做矩阵累加”。
 
-这意味着：
-- 当任务是 GEMM 或 Attention 中的大量矩阵乘法时，Tensor Core 很有优势
-- 当任务是碎片化、分支多、复用低的算子时，Tensor Core 的优势会下降
+```mermaid
+flowchart LR
+    A[Scalar FMA / CUDA Core] --> B[Many small ops]
+    C[Tensor Core] --> D[MMA tile]
+    D --> E[Matrix accumulate]
+    B -. lower efficiency .-> E
+```
 
-一个数量级直觉表可以帮助你判断它到底快在哪里：
-
-| 架构 | CUDA Core FP32 | Tensor Core FP16 | Tensor Core FP8 | 直觉 |
-| --- | --- | --- | --- | --- |
-| V100 | 15.7 TFLOPs | 125 TFLOPs | - | 引入 Tensor Core 后，训练开始明显受益 |
-| A100 | 19.5 TFLOPs | 312 TFLOPs | - | Tensor Core 已经成为主力算力来源 |
-| H100 | 67 TFLOPs | 989 TFLOPs | 1979 TFLOPs | FP8 进一步把吞吐拉高 |
-
-如果再看代际演进，Tensor Core 的功能也在变：
-
-| 架构 | Tensor Core 代际 | 新增精度 / 特性 | 说明 |
-| --- | --- | --- | --- |
-| Volta (V100) | 1st Gen | FP16 | 首次引入 Tensor Core |
-| Turing (T4 / RTX) | 2nd Gen | INT8 / INT4 | 推理侧更受益 |
-| Ampere (A100) | 3rd Gen | BF16 / TF32 | 稀疏性支持增强 |
-| Hopper (H100) | 4th Gen | FP8 | 引入 Transformer Engine、WGMMA、TMA |
-| Blackwell (B100) | 5th Gen | FP4 | 更低位宽继续下探 |
-
-所以 Tensor Core 快，不是因为它“神秘”，而是因为它匹配了深度学习里最常见的计算形态。
+所以 Tensor Core 更像是矩阵计算的专用引擎：它不是把同样的工作做得更快一点，而是把工作重新组织成更适合硬件吞吐的形状。
 </details>
+### Q1小验证：为什么打包计算更重要
+
+先把“矩阵乘加”和“标量 FMA”区分开。
+
+```python
+def mma_flops(m, n, k):
+    return 2 * m * n * k
+
+print(mma_flops(16, 16, 16) / 1e3, 'KFLOPs for one 16x16x16 MMA')
+```
 
 ## Q2：为什么精度和吞吐可以同时受益？
 
-<details>
-<summary>点击展开查看解析</summary>
+<details><summary>点击展开查看解析</summary>
 
-Tensor Core 常见的工作方式是：
-- 输入使用较低精度，如 FP16 / BF16 / TF32 / FP8
-- 累加使用更高精度
+混合精度之所以有效，是因为“输入 / 累加 / 输出”这三段不必使用同一种位宽。
 
-这样做的原因是：
-- 低精度输入能减少搬运压力、提高吞吐
-- 高精度累加能保住结果稳定性
+常见做法是：
+- 输入和权重用较低精度，减少搬运和打包成本；
+- 累加保留更高精度，避免误差快速放大；
+- 某些中间结果再按需要回到更低精度或保持高精度。
 
-Hopper 之后还有两个值得记住的新特性：
-- **WGMMA**：Warpgroup MMA，允许更多线程协同完成矩阵乘法，减少同步开销
-- **TMA**：Tensor Memory Accelerator，负责更高效的异步数据搬运，让计算和传输更容易重叠
+```mermaid
+flowchart LR
+    A[FP32 / BF16 accumulation] --> B[Low-bit input / weight]
+    B --> C[Tensor Core throughput]
+    C --> D[Stable accumulation]
+    D --> E[Better bandwidth / latency balance]
+```
 
-这也是为什么 Tensor Core 经常和混合精度训练一起出现。它不是简单把精度压低，而是把“足够低的输入精度”和“足够稳的累加精度”组合起来。
+所以混合精度不是单纯“降精度”，而是在精度和吞吐之间拆分职责：把最贵的搬运和最需要吞吐的部分放到更合适的位宽和硬件路径上。
 </details>
+### Q2小验证：不同 dtype 占多少空间
+
+先看数据类型切换对内存的直接影响。
+
+```python
+numel = 4096 * 4096
+for name, bytes_per_elem in [('FP32', 4), ('FP16/BF16', 2), ('FP8', 1)]:
+    print(name, '->', numel * bytes_per_elem / 1024 / 1024, 'MB')
+```
 
 ## Q3：为什么 Tensor Core 利用率不是随便就能跑满？
 
-<details>
-<summary>点击展开查看解析</summary>
+<details><summary>点击展开查看解析</summary>
 
-Tensor Core 的高吞吐通常依赖几个条件：
-- 矩阵形状要适合 tile 切分
-- 数据布局要尽量规整
-- 输入维度要够大，才能摊薄调度和搬运开销
-- 上层 kernel 要避免频繁的中间写回
+Tensor Core 的利用率受三个层面约束：
+- **tile 是否对齐**：shape 不合适时，硬件难以把工作完整打包；
+- **layout 是否连续**：布局不连续会让打包前后的访存变碎；
+- **register / occupancy 是否允许**：临时变量太多时，算力单元未必能持续喂满。
 
-更具体一点，Tensor Core 友好的矩阵通常需要：
-- `M / N / K` 至少达到较规整的 tile 尺寸，太小会回退到 CUDA Core
-- 常见 tile 尺寸包括 `16×16×16`、`32×8×16`、`64×32×16`
-- 从经验上看，很多实现会要求维度至少是 `8` 或 `16` 的倍数，才能更稳定地触发高效 MMA 路径
+```mermaid
+flowchart TD
+    Shape[Matrix shape] --> Tile[Tile alignment]
+    Layout[Memory layout] --> Tile
+    Tile --> Util[Tensor Core utilization]
+    Reg[Register pressure] --> Util
+    Occ[Occupancy] --> Util
+```
 
-如果矩阵太小、形状太碎，或者数据布局不适合，Tensor Core 就可能“有硬件，但吃不满”。
-
-这也是为什么性能优化常常不是“换一个更快的算子名”这么简单，而是要把形状、layout、fusion 和 memory access 一起考虑。
+因此，Tensor Core 利用率不是“用了就有”，而是要看输入尺寸、布局、同步方式和临时变量是否都允许它进入高吞吐路径。
 </details>
+### Q3小验证：对齐和打包为什么重要
+
+适合的 shape 更容易进入高吞吐路径。
+
+```python
+def tensorcore_ready(m, n, k, tile=16):
+    return all(x % tile == 0 for x in (m, n, k))
+
+print(tensorcore_ready(128, 128, 128))
+```
 
 ## Q4：这页最该避免的误区是什么？
 
-<details>
-<summary>点击展开查看解析</summary>
+<details><summary>点击展开查看解析</summary>
 
-- **“Tensor Core 就是更快的 CUDA Core”**  
-  不对。它是不同粒度的硬件设计。
+最常见的误区是把 Tensor Core 当成“只要启用就一定快”。
 
-- **“只要用上 Tensor Core 就一定快”**  
-  不对。输入形状、内存布局和 kernel 组织方式都会影响利用率。
+实际是否有收益，要同时看：
+- 数据是否能按合适 tile 打包；
+- 精度路径是否真的符合 Tensor Core 支持的 MMA 形式；
+- kernel 是否因为布局或寄存器压力而掉回慢路径。
 
-- **“Tensor Core 只和训练有关”**  
-  不对。推理中的 GEMM、投影层、Attention 相关矩阵乘法也会受益。
-
-- **“低精度一定差”**  
-  不对。对很多深度学习任务，合理的低精度配合更高效的累加反而更实用。
+所以 Tensor Core 的核心不是“存在”，而是“是否被正确地喂满并持续喂满”。
 </details>
+### Q4小验证：什么时候才算真的用上了
 
-## 小结
+先判断是否进入适合打包的 shape。
 
-如果你能回答下面两句话，这页就算抓住了：
+```python
+def tensorcore_speedup(m, n, k, tile=16, align_ok=True, reuse=1):
+    # 能不能吃满 Tensor Core，不只看有没有 MMA，而是看 tile、对齐和复用。
+    if not align_ok:
+        return {'speedup': 0.0, 'reason': 'misaligned'}
+    tile_score = (m // tile) * (n // tile) * (k // tile)
+    return {'speedup': round(max(tile_score, 1) * reuse / 10, 2), 'reason': 'aligned'}
 
-- Tensor Core 是专门加速矩阵乘加的硬件，不是普通标量 ALU
-- Tensor Core 利用率取决于矩阵形状、数据布局和算子组织方式
+cases = [(128, 128, 128, 16, True, 1), (130, 128, 128, 16, True, 1), (128, 128, 128, 16, False, 1), (128, 128, 128, 16, True, 3)]
+for case in cases:
+    print(case, '->', tensorcore_speedup(*case))
+print('Tensor Core wins only when tile alignment and reuse both cooperate')
 
-## 配合练习
-
-这一页建议和后面的 `1B-03` 练习一起做。这页的练习可以围绕下面两个目标展开：
-
-- 用 Triton 测 Tensor Core 利用率，比较不同矩阵形状下的吞吐变化
-- 对比 FP16 和 FP8 的利用率差异，观察吞吐和精度的权衡
-
-先把“矩阵形状是否触发 Tensor Core”和“不同精度下的吞吐差异”这两个方向做顺，再看更复杂的实现会更容易建立直觉。
+```
