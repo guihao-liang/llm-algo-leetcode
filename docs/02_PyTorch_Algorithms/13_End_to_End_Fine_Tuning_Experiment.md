@@ -1,6 +1,6 @@
 # 13. End to End Fine Tuning Experiment | 端到端微调实验
 
-**难度：** Medium | **标签：** `训练闭环`, `SFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `训练闭环`, `SFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -12,20 +12,20 @@
 
 这一页把前面的训练要素串起来：数据构造、SFT Loss、梯度累积和参数更新。目标不是造一个大而全的框架，而是搭一个最小但完整的微调闭环，让你能把 2.3 组学到的内容真正跑通。
 
-## 前置
+**关键词：** `end-to-end`, `fine-tuning`, `loop`, `experiment`
+
+## 前置阅读
 
 **导语：** 先把 SFT、LoRA、WSD 和梯度累积都看过，再做端到端微调实验最顺。
-- [Part 2: 09 SFT Training Loop](./09_SFT_Training_Loop.md)
-- [Part 2: 10 LoRA Tutorial](./10_LoRA_Tutorial.md)
-- [Part 2: 12 Gradient Accumulation](./12_Gradient_Accumulation.md)
+- [09. SFT Training Loop | SFT 训练循环](./09_SFT_Training_Loop.md)
+- [10. LoRA Tutorial | LoRA 教程](./10_LoRA_Tutorial.md)
+- [12. Gradient Accumulation | 梯度累积](./12_Gradient_Accumulation.md)
 
 ## 相关阅读
 
 **导语：** 完成训练收束后，可以继续进入对齐章节。
-- [Part 2: 14 RLHF PPO Memory](./14_RLHF_PPO_Memory.md)
-- [Part 2: 15 DPO Loss Tutorial](./15_DPO_Loss_Tutorial.md)
-
-
+- [14. RLHF PPO Memory | RLHF PPO 内存](./14_RLHF_PPO_Memory.md)
+- [15. DPO Loss Tutorial | DPO 损失教程](./15_DPO_Loss_Tutorial.md)
 ### Step 1: 端到端训练闭环长什么样
 
 一个完整的微调实验通常包含四层：

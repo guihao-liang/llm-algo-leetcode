@@ -1,6 +1,6 @@
 # 12. Gradient Accumulation | 梯度累积
 
-**难度：** Medium | **标签：** `训练技巧`, `显存优化`, `PyTorch` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `训练技巧`, `显存优化`, `PyTorch` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -12,19 +12,19 @@
 
 在做大模型微调时，显存通常先被 batch size 吃满。梯度累积的核心思路是：把一个大 batch 拆成多个 micro-batch，分多次 backward，最后只 step 一次，从而在不增加峰值显存的前提下，模拟更大的有效 batch。
 
-## 前置
+**关键词：** `gradient accumulation`, `micro-batch`, `effective batch`, `memory`
+
+## 前置阅读
 
 **导语：** 先看 SFT、LoRA 和学习率调度，再进入梯度累积会更容易理解它的用途。
-- [Part 2: 09 SFT Training Loop](./09_SFT_Training_Loop.md)
-- [Part 2: 11 Warmup-Stable-Decay Scheduler](./11_LR_Schedulers_WSD_Cosine.md)
+- [09. SFT Training Loop | SFT 训练循环](./09_SFT_Training_Loop.md)
+- [11. LR Schedulers WSD Cosine | WSD 调度器](./11_LR_Schedulers_WSD_Cosine.md)
 
 ## 相关阅读
 
 **导语：** 梯度累积之后，最自然的收口就是端到端微调实验。
-- [Part 2: 13 End-to-End Fine-Tuning Experiment](./13_End_to_End_Fine_Tuning_Experiment.md)
-- [Part 2: 14 RLHF PPO Memory](./14_RLHF_PPO_Memory.md)
-
-
+- [13. End-to-End Fine-Tuning Experiment | 端到端微调实验](./13_End_to_End_Fine_Tuning_Experiment.md)
+- [14. RLHF PPO Memory | RLHF PPO 内存](./14_RLHF_PPO_Memory.md)
 ### Step 1: 为什么需要梯度累积
 
 > **大 batch 的好处**：梯度更稳定，更新方向更平滑。

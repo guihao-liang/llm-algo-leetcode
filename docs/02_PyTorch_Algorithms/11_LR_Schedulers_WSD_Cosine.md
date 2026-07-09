@@ -1,4 +1,6 @@
-# 11. LR Schedulers WSD Cosine | WSD 学习率调度器
+# 11. LR Schedulers WSD Cosine | WSD 余弦学习率调度器
+
+**难度：** Medium | **环境：** CPU-first | **标签：** `训练技巧`, `LR Schedule`, `WSD` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -8,19 +10,18 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-## 前置
+**关键词：** `warmup`, `stable`, `decay`, `scheduler`
+## 前置阅读
 
 **导语：** 先看 SFT 和 LoRA 的训练主线，再理解为什么需要 WSD 调度器。
-- [Part 2: 09 SFT Training Loop](./09_SFT_Training_Loop.md)
-- [Part 2: 10 LoRA Tutorial](./10_LoRA_Tutorial.md)
+- [09. SFT Training Loop | SFT 训练循环](./09_SFT_Training_Loop.md)
+- [10. LoRA Tutorial | LoRA 教程](./10_LoRA_Tutorial.md)
 
 ## 相关阅读
 
 **导语：** 学完学习率调度后，可以继续看梯度累积和端到端微调实验。
-- [Part 2: 12 Gradient Accumulation](./12_Gradient_Accumulation.md)
-- [Part 2: 13 End-to-End Fine-Tuning Experiment](./13_End_to_End_Fine_Tuning_Experiment.md)
-
-
+- [12. Gradient Accumulation | 梯度累积](./12_Gradient_Accumulation.md)
+- [13. End-to-End Fine-Tuning Experiment | 端到端微调实验](./13_End_to_End_Fine_Tuning_Experiment.md)
 ### Step 1: 核心机制剖析
 
 > **为什么一定要有 Warmup (预热)？**

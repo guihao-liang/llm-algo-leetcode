@@ -1,6 +1,6 @@
-# 09. SFT Training Loop | 监督微调训练框架: 数据构造与 Loss Masking (SFT Training Loop)
+# 09. SFT Training Loop | 监督微调训练循环
 
-**难度：** Medium | **标签：** `训练框架`, `SFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `训练框架`, `SFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -13,19 +13,18 @@
 在面试大模型算法工程师时，面试官极大概率会问：“在做 SFT（监督微调）时，你是怎么构造 `input_ids` 和 `labels` 的？”、“为什么要 `shift logits`？”
 本节我们将实现 SFT 训练中最容易写错的代码：**Prompt Masking**（忽略提问部分的 Loss）和 **交叉熵对齐**。
 
-## 前置
+**关键词：** `SFT`, `masking`, `shift logits`, `labels`
+## 前置阅读
 
 **导语：** 先把前面的模型结构和数据流看清，再读 SFT 的训练框架会更顺。
-- [Part 2: 08 Architecture Tricks](./08_Architecture_Tricks.md)
-- [Part 1: 13 Profiling and Bottleneck Analysis](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
+- [08. Architecture Tricks | 架构技巧](./08_Architecture_Tricks.md)
+- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
 
 ## 相关阅读
 
 **导语：** 读完 SFT 后，建议继续看 LoRA 和 WSD 调度器。
-- [Part 2: 10 LoRA Tutorial](./10_LoRA_Tutorial.md)
-- [Part 2: 11 Warmup-Stable-Decay Scheduler](./11_LR_Schedulers_WSD_Cosine.md)
-
-
+- [10. LoRA Tutorial | LoRA 教程](./10_LoRA_Tutorial.md)
+- [11. LR Schedulers WSD Cosine | WSD 调度器](./11_LR_Schedulers_WSD_Cosine.md)
 ### Step 1: 核心思想与痛点
 
 > **预训练 (Pre-training) vs 微调 (SFT)**
