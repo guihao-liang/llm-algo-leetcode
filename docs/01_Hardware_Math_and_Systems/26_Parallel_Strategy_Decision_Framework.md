@@ -1,118 +1,249 @@
-# 26. Parallel Strategy Decision Framework | Parallel Strategy Decision Framework
+# 26. Parallel Strategy Decision Framework | 并行策略决策框架
 
-**难度：** Hard | **标签：** `DP`, `TP`, `PP`, `EP`, `并行策略` | **目标人群：** 需要在多卡训练中做策略判断的学习者
+**难度：** Hard | **环境：** CPU-first | **标签：** `DP`, `TP`, `PP`, `EP`, `并行策略` | **目标人群：** 多卡并行学习者
+
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/26_Parallel_Strategy_Decision_Framework.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
+
 
 这一页的目标不是重复介绍 DP / TP / PP / EP 的定义，而是回答更实用的问题：给定模型和硬件，应该怎么选并行策略，先选什么，再补什么。
 
-前置阅读建议先看 `1C-01 通信拓扑与互连技术` 和 `1C-02 ZeRO 优化器深度`，先建立 NVLink / PCIe / IB 和显存切分的基础直觉，再看这页会更顺。
+**关键词：** `DP`, `TP`, `PP`, `EP`, `communication`
+
+## 前置
+
+**导语：** 先把通信拓扑和显存切分的基础直觉接上，再看这页的并行策略选择，会更容易把“能不能放下”和“怎么切”连起来。
+
+- [Part 1: 05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [Part 1: 06. VRAM Calculation and ZeRO | VRAM 计算与 ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
+
+## 相关阅读
+
+**导语：** 如果还想把并行策略放回系统语境里看，可以接着看并行调度和通信优化，把它和实际多卡训练一起理解。
+
+- [Part 1: 20. NCCL and AllReduce Basics | NCCL 与 All-Reduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [Part 1: 27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
+- [Part 1: 28. Fault Tolerance and Checkpointing | 容错与 Checkpoint](./28_Fault_Tolerance_and_Checkpointing.md)
 
 ## Q1：什么时候优先考虑 DP、TP、PP、EP？
 
 <details>
 <summary>点击展开查看解析</summary>
 
-可以先记一个很实用的经验顺序：
+并行策略不要先背名字，先过三个门：
 
-- **DP（数据并行）**：模型单卡能放下或接近能放下时，通常是最自然的起点
-- **TP（张量并行）**：单卡放得下但算子过重、激活/参数很大、且机内互连较强时很有用
-- **PP（流水线并行）**：模型层数多、单卡显存更紧时，常用来切层
-- **EP（专家并行）**：MoE 模型里最常见，专家本身可以分散到不同设备
+1. **Fit gate**：单卡显存能不能装下模型主体、梯度和优化器状态
+2. **Interconnect gate**：互连带宽能不能承受切分后的高频同步
+3. **Structure gate**：模型结构是不是天然支持层内、层间或专家级切分
 
-更直白一点：
-- 想先把训练跑起来，先看 DP
-- 想把单层算得更快，先看 TP
-- 想把大模型拆开装下，先看 PP
-- 想把 MoE 扩展到多卡，先看 EP
+从这个角度看，四种策略的职责并不一样：
+- **DP** 解决“数据怎么铺开”，前提是模型至少接近能放下
+- **TP** 解决“单层怎么拆算”，前提是机内互连足够强
+- **PP** 解决“层怎么分段”，前提是模型足够深或单卡显存偏紧
+- **EP** 解决“专家怎么分发”，前提是路由和 token 交换能承受
 
-现实中它们通常不是单独使用，而是组合使用。
+更准确地说，策略选择不是“谁更高级”，而是“哪个门先卡住，哪个切分层级就先上”。
 
-一个更直观的对比表可以帮助你快速选型：
-
-| 策略 | 通信频率 | 单次通信量 | 通信模式 | 适合互连 |
+| 维度 | DP | TP | PP | EP |
 | --- | --- | --- | --- | --- |
-| DP | 每 iteration | `~2 × P` | All-Reduce | 任意，可 overlap |
-| TP | 每层每 micro-batch | `~2 × b × s × d` | All-Reduce | NVLink 更合适 |
-| PP | 每 micro-batch 边界 | `~2 × b × s × d` | P2P | PCIe / IB 可容忍 |
-| EP | 每层 | `~b × s × d × (E / 设备数)` | All-to-All | NVLink 或高速网络 |
-
-其中：
-- `P` 是参数量
-- `b` 是 batch size
-- `s` 是 sequence length
-- `d` 是 hidden size
-- `E` 是专家数
+| 主要切分对象 | batch / data | tensor / layer 内维度 | layers / stages | experts |
+| 主要压力 | 梯度同步 | 层内 collective | pipeline bubble | dispatch / gather |
+| 最关键前提 | 模型能放下或接近能放下 | 机内互连强 | 模型太深或显存紧 | MoE 路由可承受 |
 
 粗略判断时可以把它理解为：
-- DP 的通信最“全局”，但频率最低
-- TP 的通信最“频繁”，但单次量通常不大
-- PP 的通信发生在层边界，频率较低
-- EP 的通信最依赖路由和设备切分
+- DP 先解决“数据怎么分散”
+- TP 先解决“单层怎么拆算”
+- PP 先解决“层怎么分段”
+- EP 先解决“专家怎么分发”
 </details>
+
+
+```python
+def rank_parallel_strategies(model_gb, gpu_gb, interconnect_bw_gbps, is_moe=False):
+    can_fit = model_gb <= gpu_gb * 0.8
+    strong_link = interconnect_bw_gbps >= 600
+    scores = {'DP': 0, 'TP': 0, 'PP': 0, 'EP': 0}
+
+    # fit gate: 放不下时，PP/ZeRO 先上；能放下时，DP 才有基础。
+    if can_fit:
+        scores['DP'] += 3
+    else:
+        scores['PP'] += 4
+        scores['DP'] -= 3
+
+    # interconnect gate: 高带宽强互连更支持 TP / EP 这类高频通信。
+    if strong_link:
+        scores['TP'] += 3
+        scores['EP'] += 1
+    else:
+        scores['TP'] -= 1
+        scores['PP'] += 1
+
+    # structure gate: MoE 直接抬高 EP 的权重。
+    if is_moe:
+        scores['EP'] += 4
+        scores['TP'] += 1
+    else:
+        scores['TP'] += 1 if can_fit else 0
+
+    ranking = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+    return {
+        'can_fit': can_fit,
+        'strong_link': strong_link,
+        'ranking': ranking,
+    }
+
+cases = [
+    (18, 24, 200, False),
+    (40, 24, 200, False),
+    (18, 24, 900, False),
+    (18, 24, 900, True),
+]
+for case in cases:
+    print(case, '->', rank_parallel_strategies(*case))
+print('strategy choice should be ranked by fit, interconnect and structure gates')
+
+```
 
 ## Q2：通信成本应该怎么判断？
 
 <details>
 <summary>点击展开查看解析</summary>
 
-并行策略最核心的不是“名字”，而是通信模式：
+通信成本不要只看“总量”，要同时看两个维度：
 
-- **DP**：通常是梯度同步，通信对象偏全局
-- **TP**：通常是层内通信，频繁但粒度更小
-- **PP**：通常是阶段边界通信，频率相对低
-- **EP**：通常涉及 token 到 expert 的分发和回收，通信模式更复杂
+- **带宽项**：单次搬运的数据有多大
+- **频率项**：这个搬运动作在整个训练路径里重复多少次
 
-做判断时可以先问三个问题：
-- 通信频率高不高
-- 单次通信量大不大
-- 互连带宽够不够
+可以把它粗略写成：
+$$	ext{cost} pprox 	ext{latency} 	imes 	ext{次数} + rac{	ext{data volume}}{	ext{bandwidth}}$$
 
-如果一个策略要求很高频的跨节点通信，通常就要非常谨慎；如果通信发生在机内高速互连上，容忍度会高很多。
+这也是为什么同样叫“通信”，不同策略的脆弱点完全不同：
+- **DP** 的梯度同步偏全局，频率低，但每次同步面更完整
+- **TP** 的层内通信频率高，单次量通常不大，但每层都要碰一次
+- **PP** 的通信发生在 stage 边界，频率低一些，但切不好就会放大气泡和等待
+- **EP** 不只看 volume，还要看 token 路由和负载均衡是否稳定
 
-如果你要进一步量化，可以先记住几个常见带宽锚点：
-- PCIe 4.0 x16：约 `64 GB/s` 双向
-- PCIe 5.0 x16：约 `128 GB/s` 双向
-- NVLink 3 / 4：大约 `600-900 GB/s` 级别
-- InfiniBand NDR：约 `50 GB/s` 量级
+所以，判断并行策略时，真正要问的是：
+- 这个通信是不是高频出现
+- 它能不能被机内互连吃掉
+- 它是不是会卡在同步点上，压掉计算重叠
 
-所以，判断并行策略时，往往先看“通信是不是必须跨机”，而不是先看“策略名字是不是高级”。
+如果频率高、带宽弱，策略再“高级”，最后也会被通信拖回去。
 </details>
+
+
+```python
+def comm_time(freq, size_mb, bw_gbps, latency_us=2.0):
+    # 把通信代价拆成固定延迟项和带宽项，才能看出为什么高频策略更脆弱。
+    latency_ms = freq * latency_us / 1000.0
+    bandwidth_ms = freq * size_mb * 8 / bw_gbps
+    total_ms = latency_ms + bandwidth_ms
+    return {
+        'latency_ms': round(latency_ms, 2),
+        'bandwidth_ms': round(bandwidth_ms, 2),
+        'total_ms': round(total_ms, 2),
+    }
+
+cases = [
+    ('DP', 1, 256, 900),
+    ('TP', 24, 32, 900),
+    ('PP', 8, 64, 64),
+    ('EP', 16, 48, 900),
+]
+for name, freq, size_mb, bw in cases:
+    print(name, '->', comm_time(freq, size_mb, bw))
+print('high frequency amplifies latency, weak bandwidth amplifies payload cost')
+
+```
 
 ## Q3：一个简单的决策框架是什么？
 
 <details>
 <summary>点击展开查看解析</summary>
 
-可以用下面的顺序判断：
+更实用的决策框架不是“选一个单点策略”，而是按三个 gate 依次排除：
 
-1. **先看单卡能否装下**
-   - 能装下：优先从 DP / 小规模 TP 开始
-   - 装不下：继续看 PP / ZeRO / 更细分片
+1. **Fit gate**：先看单卡能不能把模型主体放下
+   - 放得下，DP 才有基础；放不下，PP / ZeRO 先进入候选
+2. **Interconnect gate**：再看机内互连能不能支撑高频通信
+   - 强互连更支持 TP / EP；弱互连更偏向降低同步频率
+3. **Structure gate**：最后看模型是不是 dense 还是 MoE
+   - dense 常见组合是 DP / TP / PP
+   - MoE 需要把 EP 纳入主决策
 
-2. **再看互连是否足够强**
-   - NVLink 强：更适合 TP 和一些更紧密的层内协同
-   - 只有 PCIe / 弱互连：尽量减少高频跨卡通信
+```mermaid
+flowchart TD
+    A[模型 + 硬件] --> B{能否放下?}
+    B -->|否| C[PP / ZeRO 进入候选]
+    B -->|是| D{互连是否足够强?}
+    D -->|强| E[TP / DP 组合]
+    D -->|弱| F[优先降低同步频率]
+    C --> G{是否 MoE?}
+    E --> G
+    F --> G
+    G -->|是| H[EP + 负载均衡]
+    G -->|否| I[DP / TP / PP 组合]
+```
 
-3. **最后看模型结构**
-   - Dense 模型：DP / TP / PP 的组合更常见
-   - MoE 模型：EP 常常要一起考虑
+这意味着并行策略通常不是单选题，而是先通过约束门，再决定切分层级和组合方式。
 
-它不是一个全局最优算法，更像一个足够实用的判断框架，能帮助你先排除明显不合适的方案。
-
-如果要把“能不能装下”说得更实用一点，可以记成：
-- 模型参数、梯度、优化器状态大致按 `16 bytes / 参数` 估算
-- 再加上激活值和临时 workspace
-- 如果显存使用已经接近满载，通常要预留 `20%-30%` 余量
-- 如果单卡使用率长期超过 `80%-90%`，就应该认真考虑 ZeRO、TP 或 PP
-
-现实里常见的组合策略也很重要，例如：
-- `TP=4 + PP=2 + DP=1`
-- `TP=2 + PP=2 + DP=2`
-
-一般来说：
-- TP 最依赖强互连，通常优先放机内
-- PP 可以跨机，但要注意流水线气泡
-- DP 最容易扩展，常常放在最外层
+常见经验可以压成一句话：
+- 先看显存门
+- 再看互连门
+- 最后看结构门
 </details>
+
+
+```python
+def choose_parallel_plan(model_gb, gpu_gb, interconnect_bw_gbps, is_moe=False):
+    # 先过显存门，再过互连门，最后看模型结构。
+    can_fit = model_gb <= gpu_gb * 0.8
+    strong_link = interconnect_bw_gbps >= 600
+
+    if is_moe:
+        if can_fit and strong_link:
+            plan = ['EP', 'TP']
+        elif can_fit:
+            plan = ['EP', 'DP']
+        else:
+            plan = ['EP', 'PP']
+        reason = 'moe gate'
+    else:
+        if not can_fit:
+            plan = ['PP', 'ZeRO']
+            if strong_link:
+                plan.append('TP')
+            reason = 'fit gate'
+        elif strong_link:
+            plan = ['DP', 'TP']
+            reason = 'interconnect gate'
+        else:
+            plan = ['DP']
+            reason = 'weak link gate'
+
+    return {
+        'can_fit': can_fit,
+        'strong_link': strong_link,
+        'plan': plan,
+        'reason': reason,
+    }
+
+cases = [
+    (18, 24, 200, False),
+    (40, 24, 200, False),
+    (18, 24, 900, False),
+    (18, 24, 900, True),
+]
+for case in cases:
+    print(case, '->', choose_parallel_plan(*case))
+print('the plan is a gate sequence, not a single universal answer')
+
+```
 
 ## Q4：这页最容易犯的错是什么？
 
@@ -132,30 +263,28 @@
   不对。TP 更适合放在机内强互连上。
 </details>
 
-## 小结
+```python
+def strategy_risk_summary(parallel_plan):
+    # 把常见误区转成可检查的风险标签，便于把文字判断落到最小模型上。
+    tags = []
+    if 'PP' in parallel_plan and 'DP' not in parallel_plan:
+        tags.append('needs_pipeline_balance')
+    if 'TP' in parallel_plan:
+        tags.append('needs_strong_interconnect')
+    if 'EP' in parallel_plan:
+        tags.append('needs_router_balance')
+    if not tags:
+        tags.append('simple_dpd')
+    return tags
 
-这个框架最重要的不是背定义，而是形成一套判断顺序：
+plans = [
+    ['DP'],
+    ['TP', 'DP'],
+    ['PP', 'ZeRO'],
+    ['EP', 'TP'],
+]
+for plan in plans:
+    print(plan, '->', strategy_risk_summary(plan))
+print('the mistake is not choosing a plan, but ignoring the risk it introduces')
 
-> **先看能不能放下，再看互连够不够，再看模型结构适合什么并行。**
-
-## 关联阅读
-
-这一页和 1C 的通信章节是直接联动的，建议一起看：
-
-- `1C-01` 通信拓扑与互连技术
-- `1C-02` ZeRO 优化器深度
-- `1C-04` 通信调度优化
-
-## 配合练习
-
-这一页建议和后面的练习一起看。这页的练习可以围绕下面三步展开：
-
-- 先写一个通信量计算器，输入模型规模和 batch / seq / hidden size，估算 DP / TP / PP / EP 的通信量
-- 再做一个简单的并行度搜索，给定 8 卡或 16 卡，找出更合理的组合
-- 最后用模拟调度器看看不同策略下通信和计算是否容易 overlap
-
-如果要补 Notebook，优先把这三步做成可运行练习，会比先讲更复杂的分布式细节更有帮助。
-
-## Notebook 口径
-
-这一页当前保留正文草稿和练习建议，不单独挂独立 Notebook。后续如果补练习，会按 Chapter 1 公开 Notebook 的统一模板来做。
+```
