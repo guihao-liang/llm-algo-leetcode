@@ -120,7 +120,7 @@ print('strategy choice should be ranked by fit, interconnect and structure gates
 - **频率项**：这个搬运动作在整个训练路径里重复多少次
 
 可以把它粗略写成：
-$$	ext{cost} pprox 	ext{latency} 	imes 	ext{次数} + rac{	ext{data volume}}{	ext{bandwidth}}$$
+$$\text{cost} \approx \text{latency} \times \text{次数} + \frac{\text{data volume}}{\text{bandwidth}}$$
 
 这也是为什么同样叫“通信”，不同策略的脆弱点完全不同：
 - **DP** 的梯度同步偏全局，频率低，但每次同步面更完整
