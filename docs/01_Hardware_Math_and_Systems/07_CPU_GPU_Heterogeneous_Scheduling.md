@@ -1,137 +1,116 @@
-# 07. CPU GPU Heterogeneous Scheduling | CPU 与 GPU 异构调度 (CPU & GPU Heterogeneous Scheduling)
+# 07. CPU GPU Heterogeneous Scheduling | CPU 与 GPU 异构调度
 
-**难度：** Hard | **标签：** `系统架构`, `异构计算`, `Offload` | **目标人群：** 核心 Infra 与算子开发
+**难度：** Medium | **环境：** GPU optional | **标签：** `CUDA`, `Scheduling`, `Host-Device` | **目标人群：** 异构调度入门者
 
-在深度学习系统中，GPU 并非孤立运行的，它通常需要接受 CPU 的指令和数据投喂。当模型的参数和中间状态庞大到连 GPU 集群的显存（如多张 80GB A100）都难以完全装下时，如何利用廉价但海量的 CPU 内存（Host RAM）参与训练和推理，成为了系统优化的关键。
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/07_CPU_GPU_Heterogeneous_Scheduling.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-本节将从 CPU 与 GPU 的基础交互开始，逐步深入到流水线重叠与更激进的 Offload（卸载）技术。
 
-如果先记一组数量级直觉，可以先抓住下面这个事实：
+这一页把 CPU / GPU 协同、通信延迟和调度重叠讲清楚，重点是知道什么时候该把任务留在 CPU，什么时候该把任务交给 GPU。
 
-| 项目 | 典型量级 | 直觉 |
-| --- | --- | --- |
-| PCIe 4.0 x16 | 64 GB/s（双向） | CPU-GPU 之间的主瓶颈 |
-| A100 HBM | 1.5 - 2.0 TB/s | GPU 侧本地显存带宽远高于 PCIe |
-| 7B FP16 参数 | 14 GB | 单次搬运已经是“整块大对象” |
-| 8 卡 DP 梯度同步 | 约 28 GB / iteration | 很容易把 PCIe/IB 压满 |
+**关键词：** `host`, `device`, `PCIe`, `overlap`, `offload`
+## 前置
+**导语：** 这一页先把 CPU / GPU 协同、通信延迟和调度重叠讲清楚，再决定什么时候该把任务留在 CPU，什么时候该把任务交给 GPU。
+- [Part 1: 1C 多卡通信与显存共享](./1C.md)
+- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [Part 1: 17 CUDA Stream 与异步执行](./17_CUDA_Stream_and_Asynchrony.md)
+## 相关阅读
+**导语：** 如果想继续把异构调度和 launch / graph 的关系补完整，可以接着看这些页。
+- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
+- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [Part 4: 06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
+## Q1：Host 和 Device 分别扮演什么角色？
 
-## 本节如何和实战篇配合
+<details><summary>点击展开查看解析</summary>
 
-这一节不单独配 Notebook，而是和后面的实战页一起学：
+Host 通常负责控制流、数据准备和调度，Device 负责大规模并行计算。
 
-- 先看本文，建立 Host / Device、PCIe、CUDA Streams 和 Offload 的直觉
-- 再去实战篇看数据传输、流式调度和显存卸载的实现
-- 如果后面要做训练加速或推理加速，这一页负责告诉你**为什么 CPU 和 GPU 之间会成为瓶颈**，实战篇负责告诉你**怎么把延迟隐藏起来**
+两者之间的核心瓶颈，往往不是“谁更强”，而是数据在两边之间搬运的成本和频率。
 
-这节的目标不是让你立刻会写复杂的异构调度器，而是让你能判断：问题是在传输、在调度，还是在显存容量。
-
-> **相关阅读**:  
-> 请前往实战篇进行相关代码练习：  
-> [`../04_CUDA_and_System_Optimization/17_PyTorch_CUDA_Streams_and_Transfer.ipynb`](../04_CUDA_and_System_Optimization/17_PyTorch_CUDA_Streams_and_Transfer.md)  
-
----
-
-## Q1：在异构计算中，Host 和 Device 分别扮演什么角色？它们之间的核心物理瓶颈是什么？
-
-<details>
-<summary>点击展开查看解析</summary>
-
-在典型的异构计算（如基于 NVIDIA GPU 的服务器）体系中，存在两个核心的实体：
-1. **Host (宿主机)**：指代 CPU 及其直接挂载的系统内存（RAM）。它负责运行操作系统、网络通信、数据预处理以及向 GPU 下发计算指令，扮演“指挥官”的角色。
-2. **Device (设备)**：指代 GPU 及其自带的显存（HBM）。它拥有极高的并发计算能力，负责执行密集的张量矩阵运算，扮演“执行者”的角色。
-
-**核心物理瓶颈：PCIe 总线带宽**
-Host 与 Device 之间的数据搬运通常通过 PCIe (Peripheral Component Interconnect Express) 总线完成。
-- **带宽悬殊**：以 PCIe 4.0 x16 为例，其双向理论带宽仅约为 64 GB/s（单向 32 GB/s）。相比之下，A100 内部的 HBM 带宽高达 1.5 - 2.0 TB/s。
-- **系统影响**：这意味着，如果频繁地在 CPU 内存和 GPU 显存之间拷贝数据（如反复执行 `tensor.to('cuda')` 和 `tensor.to('cpu')`），极慢的 PCIe 传输将使得 GPU 的计算核心长时间处于饥饿等待状态，导致严重的性能下降。
-
-**一个粗略的时间对比**：
-
-- 以 7B 模型的 FP16 参数为例，权重大小约 `14 GB`
-- 若通过 PCIe 4.0 以约 `32 GB/s` 的单向吞吐搬运，光传输就要约 `0.44 s`
-- 对于单次前向推理来说，真正的计算时间通常远小于这类整块传输的等待时间
-
-所以，很多“看起来只是拷贝一次数据”的代码，实际上会让 GPU 长时间卡在等 PCIe 上。
+所以异构调度的第一件事，是先知道哪个环节适合留在 CPU，哪个环节应该下放到 GPU。
 </details>
+### Q1小验证：谁负责什么
 
----
+先把控制流和并行计算分开。
 
-## Q2：既然跨设备传输 (PCIe) 如此缓慢，底层框架是如何利用 CUDA Streams 隐藏通信延迟的？
+```python
+def role_of(where):
+    return {'host': 'control', 'device': 'parallel compute'}.get(where, 'unknown')
 
-<details>
-<summary>点击展开查看解析</summary>
-
-为了解决 PCIe 带宽瓶颈，大模型训练框架（如 Megatron-LM、DeepSpeed）广泛采用了 **计算与通信重叠 (Overlap Computation and Communication)** 技术。
-
-**核心机制：CUDA Streams 与异步执行**
-在 CUDA 编程模型中，Stream（流）是一个按照顺序执行的指令队列。不同的 Stream 之间可以并行执行。通过 DMA (Direct Memory Access) 控制器，GPU 可以在不占用其计算核心（SM）的情况下，从 CPU 内存中异步拉取数据。
-
-一个更好记的重叠公式是：
-
-```text
-总时间 ≈ max(传输时间, 计算时间)
+for where in ['host', 'device']:
+    print(where, '->', role_of(where))
 ```
 
-只有当传输被计算“盖住”时，Overlap 才真正起作用；否则总时间仍然会被较慢的一边主导。
+## Q2：CUDA Streams 是如何隐藏通信延迟的？
 
-**重叠流水线的实现**：
-假设我们需要处理一大批数据，可以将其切分为多个微块 (Micro-batches)：
-- **阶段 1**：Stream 1 将数据块 A 从 Host 拷贝到 Device。
-- **阶段 2**：Stream 1 开始在 GPU 上计算块 A。**同时**，Stream 2 开始将数据块 B 从 Host 拷贝到 Device。
-- **阶段 3**：当块 A 计算完毕时，块 B 的数据刚好到达显存，Stream 2 可以直接接续开始计算块 B。
+<details><summary>点击展开查看解析</summary>
 
-通过这种精密的异步调度，缓慢的 PCIe 传输时间会被尽可能“隐藏”在 GPU 密集的矩阵乘法计算时间之中，从而提升整体硬件利用率。
+CUDA Streams 的作用，是让数据搬运和计算有机会重叠。
 
-**什么时候无法完美重叠？**
+如果把拷贝和计算放在合适的队列里，GPU 就不必一边等数据一边空转，而是可以在一部分数据搬运时去做另一部分计算。
 
-- 传输时间明显大于计算时间，小模型或超长 KV Cache 搬运时尤其常见
-- 没有正确设置异步拷贝参数，例如未使用 `non_blocking=True`
-- Stream 设计过于复杂，反而引入了额外调度开销
-- 数据预处理、CPU 端准备时间也被忽略，导致“GPU 端看起来重叠了”，实际上整体 pipeline 仍然停顿
+这不是让通信消失，而是把通信藏进了别的工作里。
 </details>
+### Q2小验证：什么时候 overlap 有意义
 
----
+搬运和计算都存在时，才有 overlap 的空间。
 
-## Q3：在资源极度受限的情况下，什么是 CPU Offload (卸载) 技术？它在训练和推理中分别如何应用？
+```python
+def can_overlap(copy_ms, compute_ms):
+    return copy_ms > 0 and compute_ms > 0
 
-<details>
-<summary>点击展开查看解析</summary>
+print(can_overlap(8, 20))
+```
 
-当我们在 06 节提到的 ZeRO-3 切分策略依然无法将模型塞进 GPU 显存时，系统就会采用 **Offload (卸载) 技术**：将部分显存压力转移到廉价且容量庞大的 CPU 内存（甚至 NVMe 固态硬盘）上。这本质上是用 PCIe 带宽换取显存容量。
+## Q3：CPU Offload 在训练和推理中分别怎么用？
 
-1. **训练期的 ZeRO-Offload**：
-   - 优化器状态（如 Adam 的动量和方差）通常占据了最多的显存。ZeRO-Offload 策略会将这部分状态全部转移到 CPU 内存中保存。
-   - **执行流程**：GPU 完成反向传播算出梯度后，将梯度通过 PCIe 传给 CPU。CPU 利用自身的计算能力执行参数更新（Optimizer Step），然后将更新后的权重再通过 PCIe 传回 GPU，准备下一轮前向传播。
-   - **量级直觉**：以 7B 模型为例，单卡梯度大约就是 `14 GB`；如果每次 iteration 都要做这类 GPU→CPU→GPU 的传输，光 PCIe 搬运就可能达到 `0.44 s` 量级，CPU 更新和同步开销还会继续叠加。它本质上是“用时间换显存”。
+<details><summary>点击展开查看解析</summary>
 
-2. **推理期的 KV Cache Offload (如 vLLM 中的实现)**：
-   - 在处理超长上下文或面临极高的并发请求时，GPU 显存可能无法容纳所有用户的 KV Cache。
-   - **执行流程**：推理引擎会将当前暂时不活跃请求的 KV Cache “踢出”显存，保存到 CPU 内存中（换出，Evict）。当该请求再次被调度执行时，再从 CPU 内存拉回显存（换入，Swap-in）。这一机制完美复刻了操作系统中的**虚拟内存分页与缺页中断机制**，极大提升了单机的并发承载上限。
-   - **开销分析**：换出和换入都会再次占用 PCIe 带宽。如果请求频繁切换，CPU RAM 就不再是“额外容量”，PCIe 会迅速变成新的瓶颈。vLLM 这类系统通常会结合预取 (Prefetch) 和缓存策略来降低抖动。
+CPU Offload 的目标，是把一部分暂时不需要常驻 GPU 的状态挪到 CPU，缓解显存压力。
+
+在训练中，常见对象可能是优化器状态、部分参数或激活；在推理中，则可能是权重分层驻留或临时状态管理。
+
+它的核心代价是更频繁的数据搬运，所以通常要和调度策略一起看，而不能只看“显存省了多少”。
 </details>
+### Q3小验证：卸载为什么有代价
 
----
+省显存通常会换来更多搬运。
 
-## Q4：如何判断一套异构调度方案是不是“看起来很并行，但实际上没省多少时间”？
+```python
+def offload_tradeoff(saved_vram, transfer_cost):
+    return saved_vram - transfer_cost
 
-<details>
-<summary>点击展开查看解析</summary>
+print(offload_tradeoff(10, 3))
+```
 
-可以用一个很实用的判断框架来检查：
+## Q4：怎么判断一套异构调度方案是不是“看起来很并行，但实际没省多少时间”？
 
-| 维度 | 无优化 | CUDA Streams Overlap | CPU Offload |
-| --- | --- | --- | --- |
-| 核心策略 | 串行传输 + 计算 | 传输与计算重叠 | 显存压力转移到 CPU |
-| PCIe 利用率 | 低 | 高 | 高，但延迟更大 |
-| 显存节省 | 0 | 0 | 显著 |
-| 速度影响 | 基准 | 可能接近无影响 | 通常变慢 |
-| 适用场景 | 显存充足 | 大多数训练/推理 | 显存极度受限 |
+<details><summary>点击展开查看解析</summary>
+
+判断标准不是“有没有用了很多并行词汇”，而是实际是否把等待时间压下去了。
+
+如果 CPU 和 GPU 之间仍然频繁同步、通信和计算没有重叠、或者某个阶段仍然在卡住整条流水线，那么表面并行并不会带来实际收益。
+
+所以异构调度最终还是要回到吞吐、延迟和重叠效率上看。
+</details>
+### Q4小验证：并行看起来很多，为什么还是慢
+
+先看有没有真正重叠，而不是只看任务数量。
+
+```python
+def fake_parallelism(overlap=False, sync_points=0):
+    return overlap and sync_points < 2
+
+print(fake_parallelism(overlap=False, sync_points=3))
+```
 
 ## ⚠️ 常见误区
 
-- `tensor.to('cuda')` 不是总能自动异步；要正确使用异步拷贝条件，才能获得 overlap。
-- Stream 不是越多越好，太多会增加调度复杂度。
-- Offload 不是“额外扩容”，而是把显存瓶颈换成带宽和延迟瓶颈。
-- CPU Offload 往往会降低吞吐，只是在显存不足时的妥协方案。
-- KV Cache Offload 不能无限扩展并发，最终仍然会受 CPU 内存带宽和 PCIe 带宽限制。
-</details>
+- 并行任务多不等于更快。
+- 异构调度的关键是重叠和边界划分。
+- Offload 省显存，但会带来搬运成本。
+- 先看吞吐和延迟，再看并行标签。
