@@ -12,23 +12,23 @@
 
 这一页把“为什么要融合算子”讲清楚，重点不是编译器名词，而是知道减少中间张量落地为什么能直接影响性能。
 
-**关键词：** `fusion`, `memory traffic`, `intermediate tensor`, `throughput`, `compiler`
-## 前置
+**关键词：** `fusion`, `memory traffic`, `intermediate tensor`
+## 前置阅读
 
 **导语：** 先把执行模型和 block 级编程对齐，再看算子融合为什么能减少中间结果开销会更顺。
 
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 1E 编译优化与算力生态](./1E.md)
-- [Part 1: 18 Triton Block 模型](./18_Triton_Block_Model.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [Group 1E: Compiler Optimization and Hardware Ecosystem | 1E: 编译优化与硬件生态](./1E.md)
+- [18. Triton Block Model | Triton Block 模型](./18_Triton_Block_Model.md)
 
 ## 相关阅读
 
 **导语：** 把算子融合和 Triton kernel 的实现放一起看，能更直观理解优化代价。
 
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
-- [Part 3: 06 Triton Fused Softmax](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
-- [Part 3: 08 Triton Flash Attention](../03_Triton_Kernels/08_Triton_Flash_Attention.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [06. Triton 进阶：跨线程归约与数值稳定 (Safe Softmax)](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
+- [08. Triton Flash Attention | 真正的 Flash Attention 前向算子](../03_Triton_Kernels/08_Triton_Flash_Attention.md)
 
 ## Q1：为什么算子之间的中间结果会这么贵？
 

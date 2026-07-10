@@ -1,6 +1,6 @@
 # 06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化
 
-**难度：** Hard | **环境：** CPU-first
+**难度：** Hard | **环境：** CPU-first | **标签：** `算力评估`, `ZeRO` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -9,27 +9,26 @@
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.ipynb)
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-**标签：** `算力评估`, `ZeRO` | **目标人群：** 模型微调与工程部署
 
 这一页把 DDP、ZeRO 和激活值显存的理论推导落成可运行代码，帮助你从“会算”走到“会验证”。
 
-**关键词：** `VRAM`, `ZeRO`, `AdamW`, `checkpoint`, `activation`
+**关键词：** `VRAM`, `ZeRO`, `AdamW`
 
-## 前置
+## 前置阅读
 
 **导语：** 这一页先把混合精度训练和显存计算的底层推导接上，再进入 DDP / ZeRO 的具体公式。
 
-- [Part 1: 05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
-- [Part 1: 03. GPU Architecture and Memory | GPU 物理架构、内存层级与核心硬件单元](./03_GPU_Architecture_and_Memory.md)
-- [Part 1: 1C 多卡通信与显存共享](./1C.md)
+- [05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [03. GPU Architecture and Memory | GPU 物理架构与内存层级](./03_GPU_Architecture_and_Memory.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把显存估算和训练策略补完整，可以接着看这些页。
 
-- [Part 1: 21. Quantization Theory and INT4/INT8 | 量化理论与 INT4/INT8](./21_Quantization_Theory_and_INT4_INT8.md)
-- [Part 1: 26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
-- [Part 2: 29 Tensor Parallelism Sim](../02_PyTorch_Algorithms/29_Tensor_Parallelism_Sim.md)
+- [21. Quantization Theory and INT4/INT8 | 量化理论与 INT4/INT8](./21_Quantization_Theory_and_INT4_INT8.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [29. Tensor Parallelism Sim | Tensor 并行模拟](../02_PyTorch_Algorithms/29_Tensor_Parallelism_Sim.md)
 
 ## Q1：DDP 显存计算
 

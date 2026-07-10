@@ -12,18 +12,18 @@
 
 在自回归生成过程中，大型语言模型面临严重的访存瓶颈 (Memory Bound)，主要原因之一在于每次生成新 Token 时都需要频繁读取之前所有 Token 的 KV Cache。为了减少显存占用并提升推理吞吐量，业界从**模型架构改进**（如 MQA/GQA/MLA）和**底层系统内存管理**（如 PagedAttention）两个维度提出了多种解决方案。
 
-**关键词：** `MHA`, `MQA`, `GQA`, `MLA`, `PagedAttention`
-## 前置
+**关键词：** `MHA`, `MQA`, `GQA`
+## 前置阅读
 **导语：** 这一页先把单卡硬件、通信和显存推导接上，再进入注意力变体和推理内存优化，方便把 KV Cache 的问题放回整体系统里看。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1C 分布式通信与显存共享](./1C.md)
-- [Part 1: 06 VRAM Calculation and ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
 ## 相关阅读
 **导语：** 如果要继续追到实战实现，可以把下面这些页面串起来看：
-- [Part 2: 04 Attention MHA GQA](../02_PyTorch_Algorithms/04_Attention_MHA_GQA.md)：先把多头到分组注意力的演进补上。
-- [Part 3: 09 Triton PagedAttention](../03_Triton_Kernels/09_Triton_PagedAttention.md)：再看分页注意力如何减少 KV Cache 压力。
-- [Part 3: 08 Triton Flash Attention](../03_Triton_Kernels/08_Triton_Flash_Attention.md)：最后把 IO / 计算融合的优化思路串起来。
+- [04. Attention MHA GQA | 多头注意力](../02_PyTorch_Algorithms/04_Attention_MHA_GQA.md)：先把多头到分组注意力的演进补上。
+- [09. Triton PagedAttention | KV Cache 间接寻址](../03_Triton_Kernels/09_Triton_PagedAttention.md)：再看分页注意力如何减少 KV Cache 压力。
+- [08. Triton Flash Attention | 真正的 Flash Attention 前向算子](../03_Triton_Kernels/08_Triton_Flash_Attention.md)：最后把 IO / 计算融合的优化思路串起来。
 ## Q1：自回归生成中，标准多头注意力 (MHA) 的 KV Cache 显存占用是如何计算的？为什么它是推理的主要瓶颈？
 
 <details>
@@ -163,12 +163,6 @@ MLA (Multi-Head Latent Attention) 是 DeepSeek-V2/V3 模型中首创的核心架
 **收益**：
 MLA 通过计算换显存。虽然在推理时增加了少量的矩阵乘法计算量，但由于大模型推理是 Memory Bound 的，这种权衡极具性价比。它在保持接近 MHA 的表达能力的同时，将 KV Cache 的体积压缩到更低的水平。对于具体能压缩多少，仍取决于 latent 维度、RoPE 处理方式和模型配置。
 </details>
-## ⚠️ 常见误区
-
-- `KV cache` 不是只和 token 数有关，它还和层数、batch size、KV 头数一起增长。
-- `MQA / GQA` 不是单纯改名字，而是在实打实地压低缓存体积。
-- `PagedAttention` 解决的是缓存管理和碎片化，不等于表示压缩。
-- `MLA` 解决的是表示体积，不等于把调度和分配问题也一并解决。
 
 ```python
 def mla_gain(seq_len, kv_heads, compression_ratio=0.5):
@@ -182,3 +176,10 @@ for case in [(1024, 32, 0.5), (4096, 32, 0.25), (4096, 16, 0.25)]:
 print('MLA helps when the compressed representation still preserves useful attention structure')
 
 ```
+
+## ⚠️ 常见误区
+
+- `KV cache` 不是只和 token 数有关，它还和层数、batch size、KV 头数一起增长。
+- `MQA / GQA` 不是单纯改名字，而是在实打实地压低缓存体积。
+- `PagedAttention` 解决的是缓存管理和碎片化，不等于表示压缩。
+- `MLA` 解决的是表示体积，不等于把调度和分配问题也一并解决。

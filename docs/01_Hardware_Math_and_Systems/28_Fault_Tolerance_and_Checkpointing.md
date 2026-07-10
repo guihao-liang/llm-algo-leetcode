@@ -1,4 +1,4 @@
-# 28. Fault Tolerance and Checkpointing | 容错与 Checkpoint
+# 28. Fault Tolerance and Checkpointing | 容错与检查点
 
 **难度：** Medium-Hard | **环境：** CPU-first | **标签：** `容错`, `Checkpoint`, `训练恢复` | **目标人群：** 长训练学习者
 
@@ -12,23 +12,23 @@
 
 这一页关注的是“训练不能总假设一切顺利”。当任务很长、集群很大、资源很贵时，容错和 checkpoint 就不是可选项，而是训练系统的基础能力。
 
-**关键词：** `checkpoint`, `recovery`, `fault tolerance`, `resume`, `stability`
+**关键词：** `checkpoint`, `recovery`, `fault tolerance`
 
-## 前置
+## 前置阅读
 
 **导语：** 先把显存压力、并行决策和通信调度这三件事弄清楚，再看这一页的容错和恢复，会更容易理解为什么 checkpoint 不是一个孤立动作。
 
-- [Part 1: 06. VRAM Calculation and ZeRO | VRAM 计算与 ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
-- [Part 1: 26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
-- [Part 1: 27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
 
 ## 相关阅读
 
 **导语：** 如果还想把容错和工程实现连起来，可以接着看通信原语、异步调度和异构执行，把保存、恢复和调度放在一起理解。
 
-- [Part 1: 20. NCCL and AllReduce Basics | NCCL 与 All-Reduce 基础](./20_NCCL_and_AllReduce_Basics.md)
-- [Part 1: 17. CUDA Stream and Asynchrony | CUDA Stream 与异步](./17_CUDA_Stream_and_Asynchrony.md)
-- [Part 1: 29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [17. CUDA Stream and Asynchrony | CUDA Stream 与异步执行](./17_CUDA_Stream_and_Asynchrony.md)
+- [29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
 
 ## Q1：Checkpoint 保存的到底是什么？
 

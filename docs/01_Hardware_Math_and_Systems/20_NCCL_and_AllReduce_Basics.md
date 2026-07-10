@@ -12,22 +12,22 @@
 
 这一页把多卡通信的底层直觉讲清楚，重点是知道 AllReduce 为什么重要、NCCL 为什么常被放在并行训练和分布式扩展里一起谈。
 
-**关键词：** `NCCL`, `AllReduce`, `DP`, `communication`, `bandwidth`
-## 前置
+**关键词：** `NCCL`, `AllReduce`, `DP`
+## 前置阅读
 
 **导语：** 先把通信和并行层级对齐，再看 AllReduce 与 NCCL 会更顺。
 
-- [Part 1: 1C 多卡通信与显存共享](./1C.md)
-- [Part 1: 1E 编译优化与算力生态](./1E.md)
-- [Part 1: 13 性能分析与瓶颈定位](./13_Profiling_and_Bottleneck_Analysis.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
+- [Group 1E: Compiler Optimization and Hardware Ecosystem | 1E: 编译优化与硬件生态](./1E.md)
+- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](./13_Profiling_and_Bottleneck_Analysis.md)
 
 ## 相关阅读
 
 **导语：** 把多卡通信放进 ZeRO、Pipeline、Tensor Parallelism 里看，能更好判断通信代价。
 
-- [Part 2: 27 ZeRO Optimizer Sim](../02_PyTorch_Algorithms/27_ZeRO_Optimizer_Sim.md)
-- [Part 2: 28 Pipeline Parallelism MicroBatch](../02_PyTorch_Algorithms/28_Pipeline_Parallelism_MicroBatch.md)
-- [Part 3: 09 Triton PagedAttention](../03_Triton_Kernels/09_Triton_PagedAttention.md)
+- [27. ZeRO Optimizer Sim | ZeRO 优化器模拟](../02_PyTorch_Algorithms/27_ZeRO_Optimizer_Sim.md)
+- [28. Pipeline Parallelism MicroBatch | Pipeline 并行微批次](../02_PyTorch_Algorithms/28_Pipeline_Parallelism_MicroBatch.md)
+- [09. Triton PagedAttention | KV Cache 间接寻址](../03_Triton_Kernels/09_Triton_PagedAttention.md)
 
 ## Q1：NCCL 在分布式训练里到底解决什么问题？
 

@@ -1,4 +1,4 @@
-# 03. GPU Architecture and Memory | GPU 物理架构、内存层级与核心硬件单元
+# 03. GPU Architecture and Memory | GPU 物理架构与内存层级
 
 **难度：** Hard | **环境：** GPU optional | **标签：** `硬件架构`, `GPU`, `内存层级` | **目标人群：** 核心 Infra 与算子开发
 
@@ -12,22 +12,22 @@
 
 先抓住 GPU 的物理层级、Tensor Core 和 HBM / SRAM 之间的数量级差异，再去看 Triton/CUDA 算子和 FlashAttention，硬件直觉会更稳。
 
-**关键词：** `Tensor Core`, `SRAM`, `HBM`, `memory hierarchy`, `arithmetic intensity`
+**关键词：** `Tensor Core`, `SRAM`, `HBM`
 
 这一页会进一步拆开 GPU 的物理架构、内存结构 (SRAM vs HBM)，以及它们在现代大模型算法（如 FlashAttention）中的实际应用。
 
-## 前置
+## 前置阅读
 **导语：** 这一页主要承接单卡硬件、访存优化和性能分析，所以最好先把 1B、1D 和 profiling 的直觉接上，再看物理架构细节。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 13 Profiling and Bottleneck Analysis](./13_Profiling_and_Bottleneck_Analysis.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](./13_Profiling_and_Bottleneck_Analysis.md)
 
 ## 相关阅读
 **导语：** 如果想把“硬件层级 -> 访存瓶颈 -> 优化方法”这条线继续往前推，可以接着看：
-- [Part 1: 19 Operator Fusion Introduction](./19_Operator_Fusion_Introduction.md)：先看算子融合怎么减少搬运。
-- [Part 1: 24 SRAM Optimization Techniques](./24_SRAM_Optimization_Techniques.md)：再看片上缓存和 SRAM 如何影响性能。
-- [Part 1: 04 Attention Variants & Memory Optimization](./04_Attention_Memory_Optimization.md)：最后回到注意力变体和显存优化。
+- [19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)：先看算子融合怎么减少搬运。
+- [24. SRAM Optimization Techniques | SRAM 优化技术](./24_SRAM_Optimization_Techniques.md)：再看片上缓存和 SRAM 如何影响性能。
+- [04. Attention Variants and Memory Optimization | 注意力机制变体与显存优化](./04_Attention_Memory_Optimization.md)：最后回到注意力变体和显存优化。
 ## Q1：简述自 V100 以来 NVIDIA GPU 架构的演进，以及为了适应大模型计算做出了哪些核心改变？
 
 <details>
@@ -320,13 +320,6 @@ print(f'IO reduction factor (rough): {reduction:.0f}x')
     *   **NVSwitch**：允许同一台物理机内的 8 张 GPU 实现全互连 (All-to-All) 的无阻塞通信，这是跑满 `All-Reduce` 和 `All-Gather` 极限带宽的硬件基础。
 
 </details>
-## ⚠️ 常见误区
-
-- `Shared Memory` 比 `L2` 快，不代表可以把所有数据都塞进去；它更适合做局部块内复用。
-- `HBM` 带宽已经很高，不代表就不会 `Memory Bound`；在高算力 GPU 上，带宽反而更容易成为瓶颈。
-- `FlashAttention` 主要减少的是 HBM 访问，不是把主要计算量“变没了”。
-- `NVLink` 很快，但仍然需要正确的通信库、拓扑和并行策略配合，否则并不会自动接近跑满。
-
 
 ```python
 def pcie_vs_nvlink(payload_mb, pcie_gbps=64, nvlink_gbps=900):
@@ -340,3 +333,10 @@ for payload in [64, 256, 1024]:
 print('higher bandwidth only matters when the transfer is on the critical path')
 
 ```
+
+## ⚠️ 常见误区
+
+- `Shared Memory` 比 `L2` 快，不代表可以把所有数据都塞进去；它更适合做局部块内复用。
+- `HBM` 带宽已经很高，不代表就不会 `Memory Bound`；在高算力 GPU 上，带宽反而更容易成为瓶颈。
+- `FlashAttention` 主要减少的是 HBM 访问，不是把主要计算量“变没了”。
+- `NVLink` 很快，但仍然需要正确的通信库、拓扑和并行策略配合，否则并不会自动接近跑满。

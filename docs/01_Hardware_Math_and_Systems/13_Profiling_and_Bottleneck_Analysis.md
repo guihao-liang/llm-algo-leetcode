@@ -12,21 +12,21 @@
 
 这一页把“看懂硬件”和“会定位问题”接起来，先建立先测量、再优化的判断习惯。
 
-**关键词：** `profiling`, `bottleneck`, `latency`, `throughput`, `memory`
-## 前置
+**关键词：** `profiling`, `bottleneck`, `latency`
+## 前置阅读
 
 **导语：** 先从单卡硬件与编程模型入手，再看 profiling 的瓶颈定位会更顺。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1D 编程模型与调度](./1D.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
 
 ## 相关阅读
 
 **导语：** 把 profiling 放到推理和训练实战里看，更容易验证结论。
 
-- [Chapter 2: 31 Inference Performance Comparison](../02_PyTorch_Algorithms/31_Inference_Performance_Comparison.md)
-- [Chapter 2: 32 Training Performance Analysis](../02_PyTorch_Algorithms/32_Training_Performance_Analysis.md)
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [31. Inference Performance Comparison | 推理性能对比实验](../02_PyTorch_Algorithms/31_Inference_Performance_Comparison.md)
+- [32. Training Performance Analysis | 训练性能分析](../02_PyTorch_Algorithms/32_Training_Performance_Analysis.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
 
 ## 常用工具链
 

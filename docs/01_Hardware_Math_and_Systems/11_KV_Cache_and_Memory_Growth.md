@@ -14,18 +14,18 @@
 
 **关键词：** `KV cache`, `sequence length`, `memory growth`
 
-## 前置
+## 前置阅读
 
 **导语：** 先把数据格式和显存账本对齐，再看 KV cache 的增长规律会更顺。
-- [Part 1: 1A 数值与计算基础](./1A.md)
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
+- [Group 1A: Numerical Foundations and Scale Estimation | 1A: 数值基础与算力估算](./1A.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
 
 ## 相关阅读
 
 **导语：** 把 KV cache 和 FlashAttention、PagedAttention、MLA 放在一起看，能更快理解不同优化点。
-- [Part 1: 14 FlashAttention 显存模型](./14_FlashAttention_Memory_Model.md)
-- [Part 2: 20 FlashAttention Sim](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
-- [Part 2: 22 vLLM PagedAttention](../02_PyTorch_Algorithms/22_vLLM_PagedAttention.md)
+- [14. FlashAttention Memory Model | FlashAttention 显存模型](./14_FlashAttention_Memory_Model.md)
+- [20. FlashAttention Sim | FlashAttention 模拟](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
+- [22. vLLM PagedAttention | vLLM 分页注意力](../02_PyTorch_Algorithms/22_vLLM_PagedAttention.md)
 
 ## Q1：为什么 KV cache 会随着上下文长度增长？
 

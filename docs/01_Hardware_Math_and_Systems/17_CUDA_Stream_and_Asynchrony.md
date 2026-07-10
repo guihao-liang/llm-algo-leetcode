@@ -12,23 +12,23 @@
 
 这一页把 stream、异步执行和任务重叠讲清楚，重点是知道调度为什么会影响吞吐，而不是把 CUDA API 当成语法清单。
 
-**关键词：** `stream`, `asynchrony`, `overlap`, `pipeline`, `throughput`
-## 前置
+**关键词：** `stream`, `asynchrony`, `overlap`
+## 前置阅读
 
 **导语：** 先把 block 和 shared memory 的关系对齐，再看 stream 和异步重叠会更顺。
 
-- [Part 1: 1C 多卡通信与显存共享](./1C.md)
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
-- [Part 1: 16 Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [16. Warp Block SharedMemory Basics | Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
 
 ## 相关阅读
 
 **导语：** 把 stream 放进调度和 profiling 视角里看，更容易判断吞吐瓶颈。
 
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
-- [Part 3: 09 Triton PagedAttention](../03_Triton_Kernels/09_Triton_PagedAttention.md)
-- [Part 3: 12 Triton Memory Model and Debug](../03_Triton_Kernels/12_Triton_Memory_Model_and_Debug.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [09. Triton PagedAttention | KV Cache 间接寻址](../03_Triton_Kernels/09_Triton_PagedAttention.md)
+- [12. Triton Memory Model and Debug | 内存模型、指针计算与 Debug 避坑指南](../03_Triton_Kernels/12_Triton_Memory_Model_and_Debug.md)
 
 ## Q1：CUDA Stream 到底是什么，为什么它不是“自动加速器”？
 

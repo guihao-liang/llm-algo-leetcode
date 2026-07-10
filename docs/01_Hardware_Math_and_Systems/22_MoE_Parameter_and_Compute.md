@@ -12,24 +12,24 @@
 
 MoE 的核心不是“参数越多越好”，而是把模型容量和每次推理/训练时真正激活的计算量分开。它是一个非常典型的“总参数大，但激活参数不一定大”的设计。
 
-**关键词：** `experts`, `router`, `load balancing`, `top-k`, `activation`
+**关键词：** `experts`, `router`, `load balancing`
 
-## 前置
+## 前置阅读
 
 **导语：** 这一页先接上参数量、显存和分布式通信的基础判断，这样才更容易看清 MoE 为什么会出现“总参数大、活跃计算量没那么大”的现象。
 
-- [Part 1: 01. Data Types and Precision | 大模型的数据格式与混合精度](./01_Data_Types_and_Precision.md)
-- [Part 1: 02. LLM Params and FLOPs | 大模型参数量与算力推导](./02_LLM_Params_and_FLOPs.md)
-- [Part 1: 05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [01. Data Types and Precision | 大模型的数据格式与混合精度](./01_Data_Types_and_Precision.md)
+- [02. LLM Params and FLOPs | 大模型参数量与算力推导](./02_LLM_Params_and_FLOPs.md)
+- [05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
 
 ## 相关阅读
 
 **导语：** 如果还想继续看 MoE 和工程决策、通信成本的关系，可以接着看显存计算、并行策略和成本模型这几页。
 
-- [Part 1: 06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
-- [Part 1: 20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
-- [Part 1: 26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
-- [Part 1: 33. TCO and Cost Model | 总拥有成本与成本模型](./33_TCO_and_Cost_Model.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [33. TCO and Cost Model | 算力评估与 TCO 模型](./33_TCO_and_Cost_Model.md)
 
 ## Q1：MoE 和普通 dense Transformer 的参数量差别在哪里？
 

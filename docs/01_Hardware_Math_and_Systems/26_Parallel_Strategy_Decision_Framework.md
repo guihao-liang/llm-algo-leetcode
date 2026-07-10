@@ -1,6 +1,6 @@
 # 26. Parallel Strategy Decision Framework | 并行策略决策框架
 
-**难度：** Hard | **环境：** CPU-first | **标签：** `DP`, `TP`, `PP`, `EP`, `并行策略` | **目标人群：** 多卡并行学习者
+**难度：** Hard | **环境：** CPU-first | **标签：** `DP`, `TP`, `PP` | **目标人群：** 多卡并行学习者
 
 > 🚀 **云端运行环境**
 >
@@ -12,22 +12,22 @@
 
 这一页的目标不是重复介绍 DP / TP / PP / EP 的定义，而是回答更实用的问题：给定模型和硬件，应该怎么选并行策略，先选什么，再补什么。
 
-**关键词：** `DP`, `TP`, `PP`, `EP`, `communication`
+**关键词：** `DP`, `TP`, `PP`
 
-## 前置
+## 前置阅读
 
 **导语：** 先把通信拓扑和显存切分的基础直觉接上，再看这页的并行策略选择，会更容易把“能不能放下”和“怎么切”连起来。
 
-- [Part 1: 05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
-- [Part 1: 06. VRAM Calculation and ZeRO | VRAM 计算与 ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
+- [05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
 
 ## 相关阅读
 
 **导语：** 如果还想把并行策略放回系统语境里看，可以接着看并行调度和通信优化，把它和实际多卡训练一起理解。
 
-- [Part 1: 20. NCCL and AllReduce Basics | NCCL 与 All-Reduce 基础](./20_NCCL_and_AllReduce_Basics.md)
-- [Part 1: 27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
-- [Part 1: 28. Fault Tolerance and Checkpointing | 容错与 Checkpoint](./28_Fault_Tolerance_and_Checkpointing.md)
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
+- [28. Fault Tolerance and 检查点 | 容错与检查点](./28_Fault_Tolerance_and_检查点.md)
 
 ## Q1：什么时候优先考虑 DP、TP、PP、EP？
 

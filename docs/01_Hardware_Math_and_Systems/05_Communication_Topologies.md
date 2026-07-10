@@ -12,7 +12,19 @@
 
 在大模型训练中，算力不是唯一限制，通信拓扑往往决定多卡并行能否真正扩展。
 
-**关键词：** `DP`, `TP`, `PP`, `bandwidth`, `AllReduce`
+**关键词：** `DP`, `TP`, `PP`
+
+## 前置阅读
+**导语：** 先把硬件拓扑和显存切分的基础接上，再看这页的并行策略，会更容易把通信和计算放到同一张图里。
+- [03. GPU Architecture and Memory | GPU 物理架构与内存层级](./03_GPU_Architecture_and_Memory.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
+
+## 相关阅读
+**导语：** 如果想把通信拓扑继续往并行策略和通信优化里接，可以接着看下面几页。
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [27. Communication Scheduling Optimization | 通信调度优化](./27_Communication_Scheduling_Optimization.md)
+
 ## Q1：什么是大模型训练中的 3D 并行 (3D Parallelism)？
 
 <details><summary>点击展开查看解析</summary>

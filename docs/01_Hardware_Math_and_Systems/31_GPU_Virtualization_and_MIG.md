@@ -12,14 +12,22 @@
 
 这一页讲的是一张 GPU 同时服务多个任务时，底层资源为什么必须被切分和隔离。
 
-**关键词：** `MIG`, `MPS`, `multi-tenancy`, `isolation`, `latency`
-## 前置
+**关键词：** `MIG`, `MPS`, `multi-tenancy`
+## 前置阅读
 
 **导语：** 这一页先把资源隔离、动态 shape 和多租户调度的关系接上，再看为什么 GPU 虚拟化必须先切边界。
+
+- [07. CPU and GPU Heterogeneous Scheduling | CPU 与 GPU 异构调度](./07_CPU_GPU_Heterogeneous_Scheduling.md)
+- [29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
+- [30. Dynamic Shape Handling | 动态 Shape 处理](./30_Dynamic_Shape_Handling.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把隔离、编译和成本判断串起来，可以接着看这些页。
+
+- [19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)
+- [32. TVM / MLIR Deep Practice | TVM / MLIR 深度实践](./32_TVM_MLIR_Deep_Practice.md)
+- [33. TCO and Cost Model | 算力评估与 TCO 模型](./33_TCO_and_Cost_Model.md)
 
 ## Q1：GPU 虚拟化为什么首先是资源隔离问题？
 

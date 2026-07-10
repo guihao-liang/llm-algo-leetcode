@@ -10,24 +10,24 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-**关键词：** `grid`, `block`, `warp`, `thread`, `kernel`
+**关键词：** `grid`, `block`, `warp`
 
 这一页把 GPU 上 kernel 的执行层级讲清楚，先知道程序是怎么被切成 grid / block / warp / thread，再去看 Triton 和 CUDA 实战代码。
-## 前置
+## 前置阅读
 
 **导语：** 先把 GPU 上的执行层级对齐，再看 kernel 为什么要按 block 组织会更顺。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 13 性能分析与瓶颈定位](./13_Profiling_and_Bottleneck_Analysis.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](./13_Profiling_and_Bottleneck_Analysis.md)
 
 ## 相关阅读
 
 **导语：** 把执行模型和 Triton 的 block 思维放一起看，后面写 kernel 会更稳。
 
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 01 Triton Vector Addition](../03_Triton_Kernels/01_Triton_Vector_Addition.md)
-- [Part 3: 04 Triton GEMM Tutorial](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [01. Triton 入门与 Hello World：向量加法 (Vector Addition)](../03_Triton_Kernels/01_Triton_Vector_Addition.md)
+- [04. Triton 矩阵乘法 (GEMM) 与自动调优 (Autotune)](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
 
 ## Q1：GPU 上的 kernel 为什么不是“一个线程在跑”？
 

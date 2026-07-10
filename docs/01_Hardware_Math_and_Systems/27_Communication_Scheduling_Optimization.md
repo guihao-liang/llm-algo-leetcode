@@ -12,23 +12,23 @@
 
 这一页关注的不是“通信协议是什么”，而是“通信怎么排，才能尽量不挡住计算”。它的核心问题是：如何把通信放进计算间隙里。
 
-**关键词：** `overlap`, `all-reduce`, `all-to-all`, `gradient`, `bandwidth`
+**关键词：** `overlap`, `all-reduce`, `all-to-all`
 
-## 前置
+## 前置阅读
 
 **导语：** 这一页先接上通信拓扑、显存切分和并行策略判断，这样更容易理解为什么通信优化首先是调度问题。
 
-- [Part 1: 05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
-- [Part 1: 06. VRAM Calculation and ZeRO | VRAM 计算与 ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
-- [Part 1: 26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
 
 ## 相关阅读
 
 **导语：** 如果还想把通信优化和实现细节连起来，可以接着看通信原语、异步调度和容错，把调度、同步和恢复放在一起理解。
 
-- [Part 1: 20. NCCL and AllReduce Basics | NCCL 与 All-Reduce 基础](./20_NCCL_and_AllReduce_Basics.md)
-- [Part 1: 28. Fault Tolerance and Checkpointing | 容错与 Checkpoint](./28_Fault_Tolerance_and_Checkpointing.md)
-- [Part 1: 17. CUDA Stream and Asynchrony | CUDA Stream 与异步](./17_CUDA_Stream_and_Asynchrony.md)
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [28. Fault Tolerance and 检查点 | 容错与检查点](./28_Fault_Tolerance_and_检查点.md)
+- [17. CUDA Stream and Asynchrony | CUDA Stream 与异步执行](./17_CUDA_Stream_and_Asynchrony.md)
 
 ## Q1：为什么通信优化首先是调度问题？
 

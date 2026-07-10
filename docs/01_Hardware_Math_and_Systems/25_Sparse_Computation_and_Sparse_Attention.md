@@ -12,23 +12,23 @@
 
 这一页讲的是稀疏化为什么不只是“删掉一部分元素”，而是要看结构、实现和硬件是否真的能受益。
 
-**关键词：** `sparsity`, `structure`, `density`, `mask`, `pruning`
-## 前置
+**关键词：** `sparsity`, `structure`, `density`
+## 前置阅读
 
 **导语：** 这一页先把 shared memory、TensorCore 和量化后的执行路径接上，再看稀疏为什么不是单纯删掉几个参数。
 
-- [Part 1: 24 SRAM Optimization Techniques](./24_SRAM_Optimization_Techniques.md)
-- [Part 1: 23 TensorCore Deep Dive](./23_TensorCore_Deep_Dive.md)
-- [Part 1: 21 Quantization Theory and INT4/INT8](./21_Quantization_Theory_and_INT4_INT8.md)
-- [Part 1: 22 MoE Parameter and Compute](./22_MoE_Parameter_and_Compute.md)
+- [24. SRAM Optimization Techniques | SRAM 优化技术](./24_SRAM_Optimization_Techniques.md)
+- [23. TensorCore Deep Dive | Tensor Core 深度剖析](./23_TensorCore_Deep_Dive.md)
+- [21. Quantization Theory and INT4/INT8 | 量化理论与 INT4/INT8](./21_Quantization_Theory_and_INT4_INT8.md)
+- [22. MoE Parameter and Compute | MoE 模型参数量计算](./22_MoE_Parameter_and_Compute.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把稀疏和调度、编译、执行路径的关系补完整，可以接着看这些页。
 
-- [Part 1: 09 AI Compilers and Graph Optimization](./09_AI_Compilers_and_Graph_Optimization.md)
-- [Part 1: 18 Triton Block Model](./18_Triton_Block_Model.md)
-- [Part 1: 19 Operator Fusion Introduction](./19_Operator_Fusion_Introduction.md)
+- [09. AI Compilers and Graph Optimization | AI 编译器与计算图优化](./09_AI_Compilers_and_Graph_Optimization.md)
+- [18. Triton Block Model | Triton Block 模型](./18_Triton_Block_Model.md)
+- [19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)
 
 ## Q1：为什么稀疏不一定只是“删参数”？
 

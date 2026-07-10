@@ -12,17 +12,17 @@
 
 这一页把 CPU / GPU 协同、通信延迟和调度重叠讲清楚，重点是知道什么时候该把任务留在 CPU，什么时候该把任务交给 GPU。
 
-**关键词：** `host`, `device`, `PCIe`, `overlap`, `offload`
-## 前置
+**关键词：** `host`, `device`, `PCIe`
+## 前置阅读
 **导语：** 这一页先把 CPU / GPU 协同、通信延迟和调度重叠讲清楚，再决定什么时候该把任务留在 CPU，什么时候该把任务交给 GPU。
-- [Part 1: 1C 多卡通信与显存共享](./1C.md)
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
-- [Part 1: 17 CUDA Stream 与异步执行](./17_CUDA_Stream_and_Asynchrony.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [17. CUDA Stream and Asynchrony | CUDA Stream 与异步执行](./17_CUDA_Stream_and_Asynchrony.md)
 ## 相关阅读
 **导语：** 如果想继续把异构调度和 launch / graph 的关系补完整，可以接着看这些页。
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
-- [Part 4: 06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
 ## Q1：Host 和 Device 分别扮演什么角色？
 
 <details><summary>点击展开查看解析</summary>

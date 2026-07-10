@@ -1,6 +1,6 @@
 # 09. AI Compilers and Graph Optimization | AI 编译器与计算图优化
 
-**难度：** Hard | **环境：** CPU-first
+**难度：** Hard | **环境：** CPU-first | **标签：** `系统架构`, `AI Compiler` | **目标人群：** 编译优化入门者
 
 > 🚀 **云端运行环境**
 >
@@ -9,21 +9,20 @@
 > [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/09_AI_Compilers_and_Graph_Optimization.ipynb)
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-**标签：** `系统架构`, `AI Compiler` | **目标人群：** 编译优化入门者
 
 这一页把“图怎么被优化成更适合执行的形式”讲清楚，重点是理解编译器为什么会成为推理和部署链路里的关键一环。
 
-**关键词：** `AI Compiler`, `Graph Optimization`, `fusion`, `lowering`
-## 前置
+**关键词：** `AI Compiler`, `Graph Optimization`, `fusion`
+## 前置阅读
 **导语：** 这一页先把图优化、fusion 和 lowering 的关系接上，再理解编译器为什么会成为推理和部署链路里的关键一环。
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 1E 编译优化与算力生态](./1E.md)
-- [Part 2: 04 Attention MHA GQA](../02_PyTorch_Algorithms/04_Attention_MHA_GQA.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [Group 1E: Compiler Optimization and Hardware Ecosystem | 1E: 编译优化与硬件生态](./1E.md)
+- [04. Attention MHA GQA | 多头注意力](../02_PyTorch_Algorithms/04_Attention_MHA_GQA.md)
 ## 相关阅读
 **导语：** 如果想继续把图优化和执行后端的关系补完整，可以接着看这些页。
-- [Part 3: 04 Triton GEMM Tutorial](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
-- [Part 4: 06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
+- [04. Triton 矩阵乘法 (GEMM) 与自动调优 (Autotune)](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
 ## Q1：AI 编译器到底在压缩什么成本向量？
 
 <details><summary>点击展开查看解析</summary>

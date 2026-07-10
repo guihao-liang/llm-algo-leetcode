@@ -13,17 +13,17 @@
 
 这一页把从 PyTorch 到 CUDA / Triton 的编程模型演进讲清楚，重点是知道为什么自定义算子会比原生操作更接近硬件。
 
-**关键词：** `grid`, `block`, `kernel`, `tensor`, `mapping`
-## 前置
+**关键词：** `grid`, `block`, `kernel`
+## 前置阅读
 **导语：** 这一页先把从 PyTorch 到 CUDA / Triton 的编程模型演进接上，再看为什么自定义算子会更接近硬件。
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
-- [Part 1: 16 Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [16. Warp Block SharedMemory Basics | Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
 ## 相关阅读
 **导语：** 如果想继续把编程模型和 kernel 组织方式补完整，可以接着看这些页。
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 01 Triton Vector Addition](../03_Triton_Kernels/01_Triton_Vector_Addition.md)
-- [Part 3: 04 Triton GEMM Tutorial](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [01. Triton 入门与 Hello World：向量加法 (Vector Addition)](../03_Triton_Kernels/01_Triton_Vector_Addition.md)
+- [04. Triton 矩阵乘法 (GEMM) 与自动调优 (Autotune)](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
 ## Q1：为什么我们需要用 CUDA 或 Triton 编写自定义算子？
 
 <details><summary>点击展开查看解析</summary>

@@ -12,19 +12,19 @@
 
 先把参数量的构成拆开，再把前向推理与完整训练的 FLOPs 粗算清楚，这样后面的训练成本、吞吐评估和模型选型才会有统一的底座。
 
-**关键词：** `parameters`, `FLOPs`, `MFU`, `training`, `inference`
+**关键词：** `parameters`, `FLOPs`, `MFU`
 
-## 前置
+## 前置阅读
 **导语：** 这一页要把“参数量 -> FLOPs -> 训练成本”这条线讲完整，所以最好先把数据格式和显存推导的直觉接上，再来看算力公式。
 
-- [Part 0: 0B PyTorch 张量与自动求导](../00_Prerequisites/0B.md)
-- [Part 1: 01 大模型的数据格式与混合精度](./01_Data_Types_and_Precision.md)
+- [Group 0B: PyTorch Tensors and Autograd | 0B: PyTorch 张量与自动求导](../00_Prerequisites/0B.md)
+- [01. Data Types and Precision | 大模型的数据格式与混合精度](./01_Data_Types_and_Precision.md)
 
 ## 相关阅读
 **导语：** 如果想继续把“参数量 -> 显存 -> 训练成本 -> 并行策略”这条线补完整，可以继续看：
-- [Part 1: 06 VRAM Calculation and ZeRO](./06_VRAM_Calculation_and_ZeRO.md)：把训练 / 推理阶段的显存拆分接上。
-- [Part 1: 22 MoE Parameter and Compute](./22_MoE_Parameter_and_Compute.md)：补充 MoE 的参数量和计算量变化。
-- [Part 1: 26 Parallel Strategy Decision Framework](./26_Parallel_Strategy_Decision_Framework.md)：最后看并行策略怎么影响整体成本。
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](./06_VRAM_Calculation_and_ZeRO.md)：把训练 / 推理阶段的显存拆分接上。
+- [22. MoE Parameter and Compute | MoE 模型参数量计算](./22_MoE_Parameter_and_Compute.md)：补充 MoE 的参数量和计算量变化。
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)：最后看并行策略怎么影响整体成本。
 
 ## Q1：假设隐藏层维度为 $d$，词表大小为 $V$。请推导一个包含 $L$ 层的标准 Transformer Decoder 的总参数量。
 

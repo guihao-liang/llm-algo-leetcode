@@ -12,21 +12,21 @@
 
 这一页把 Attention 的显存压力推进到 FlashAttention 的分块、在线归约和 SRAM 利用上，重点解释为什么这种改法能把访存瓶颈压下去。
 
-**关键词：** `FlashAttention`, `tiling`, `SRAM`, `online softmax`, `HBM`
-## 前置
+**关键词：** `FlashAttention`, `tiling`, `SRAM`
+## 前置阅读
 
 **导语：** 先确认显存模型和 Attention 访存直觉，再看 FlashAttention 的分块改法会更顺。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1C 通信与并行基础](./1C.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
 
 ## 相关阅读
 
 **导语：** 把 FlashAttention 放到 Triton kernel 实现里看，能更好理解分块与在线归约。
 
-- [Chapter 2: 20 FlashAttention Sim](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
-- [Part 3: 06 Triton Fused Softmax](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
-- [Part 3: 08 Triton Flash Attention](../03_Triton_Kernels/08_Triton_Flash_Attention.md)
+- [20. FlashAttention Sim | FlashAttention 模拟](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
+- [06. Triton 进阶：跨线程归约与数值稳定 (Safe Softmax)](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
+- [08. Triton Flash Attention | 真正的 Flash Attention 前向算子](../03_Triton_Kernels/08_Triton_Flash_Attention.md)
 
 ## Q1：为什么标准 Attention 会在长序列下迅速变成显存瓶颈？
 

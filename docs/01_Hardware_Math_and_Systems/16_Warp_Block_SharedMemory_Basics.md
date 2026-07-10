@@ -1,6 +1,6 @@
 # 16. Warp Block SharedMemory Basics | Warp、Block 与 Shared Memory 基础
 
-**难度：** Medium | **环境：** GPU optional | **标签：** `CUDA`, `Warp`, `Block`, `Shared Memory` | **目标人群：** CUDA 入门者
+**难度：** Medium | **环境：** GPU optional | **标签：** `CUDA`, `Warp`, `Shared Memory` | **目标人群：** CUDA 入门者
 
 > 🚀 **云端运行环境**
 >
@@ -12,23 +12,23 @@
 
 这一页把 warp、block 和 shared memory 的分工讲清楚，重点是先理解线程组织和片上复用，后面再看 Triton 和 CUDA 的块级实现会更顺。
 
-**关键词：** `warp`, `block`, `shared memory`, `synchronization`, `reuse`
-## 前置
+**关键词：** `CUDA`, `Warp`, `Shared Memory`
+## 前置阅读
 
 **导语：** 先看执行层级，再看 shared memory 分工和片上复用会更顺。
 
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1D 异构调度与算子编程](./1D.md)
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1D: Heterogeneous Scheduling and Operator Programming | 1D: 异构调度与算子编程](./1D.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
 
 ## 相关阅读
 
 **导语：** 把 warp / block / shared memory 放到 Triton kernel 里看，更容易理解 tile 怎么落地。
 
-- [Part 3: Triton 导学](../03_Triton_Kernels/intro.md)
-- [Part 3: 02 Triton Fused SwiGLU](../03_Triton_Kernels/02_Triton_Fused_SwiGLU.md)
-- [Part 3: 03 Triton Fused RMSNorm](../03_Triton_Kernels/03_Triton_Fused_RMSNorm.md)
-- [Part 3: 06 Triton Fused Softmax](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
+- [Part 03: Triton Kernel Development | 第三部分：Triton 算子开发](../03_Triton_Kernels/intro.md)
+- [02. Triton 算子开发：融合门控激活函数 (Fused SwiGLU)](../03_Triton_Kernels/02_Triton_Fused_SwiGLU.md)
+- [03. Triton 算子开发实战：Fused RMSNorm](../03_Triton_Kernels/03_Triton_Fused_RMSNorm.md)
+- [06. Triton 进阶：跨线程归约与数值稳定 (Safe Softmax)](../03_Triton_Kernels/06_Triton_Fused_Softmax.md)
 
 ## Q1：warp、block 和 thread 分别负责什么？
 

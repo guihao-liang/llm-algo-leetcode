@@ -12,14 +12,22 @@
 
 这一页讲的是为什么“从图到可执行 kernel”不是简单翻译，而是一整条优化和 lowering 的链路。
 
-**关键词：** `TVM`, `MLIR`, `Relay`, `autotune`, `backend`
-## 前置
+**关键词：** `TVM`, `MLIR`, `Relay`
+## 前置阅读
 
 **导语：** 这一页先把图优化、算子融合和 lowering 的直觉接上，再看 TVM / MLIR 为什么会在后端链路里占核心位置。
+
+- [09. AI Compilers and Graph Optimization | AI 编译器与计算图优化](./09_AI_Compilers_and_Graph_Optimization.md)
+- [19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)
+- [33. TCO and Cost Model | 算力评估与 TCO 模型](./33_TCO_and_Cost_Model.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把编译后端、调度和成本模型串起来，可以接着看这些页。
+
+- [29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
+- [30. Dynamic Shape Handling | 动态 Shape 处理](./30_Dynamic_Shape_Handling.md)
+- [04. Triton 矩阵乘法 (GEMM) 与自动调优 (Autotune)](../03_Triton_Kernels/04_Triton_GEMM_Tutorial.md)
 
 ## Q1：TVM / MLIR 这类编译器后端在做什么？
 

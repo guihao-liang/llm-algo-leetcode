@@ -12,14 +12,22 @@
 
 这一页的重点不是报一个最低价格，而是把采购、能耗、运维、迁移和风险放进同一个判断框架里。
 
-**关键词：** `TCO`, `cost`, `power`, `migration`, `risk`
-## 前置
+**关键词：** `TCO`, `cost`, `power`
+## 前置阅读
 
 **导语：** 这一页先把编译、选型和成本判断放到同一条判断链里，再看 TCO 为什么不能只看单卡报价。
+
+- [09. AI Compilers and Graph Optimization | AI 编译器与计算图优化](./09_AI_Compilers_and_Graph_Optimization.md)
+- [10. AI Chips Overview and Alternatives | 算力现状与替代方案](./10_Domestic_AI_Chips_Overview.md)
+- [32. TVM / MLIR Deep Practice | TVM / MLIR 深度实践](./32_TVM_MLIR_Deep_Practice.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把成本、动态 shape 和虚拟化带来的长期影响串起来，可以接着看这些页。
+
+- [29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
+- [30. Dynamic Shape Handling | 动态 Shape 处理](./30_Dynamic_Shape_Handling.md)
+- [31. GPU Virtualization and MIG | GPU 虚拟化与 MIG](./31_GPU_Virtualization_and_MIG.md)
 
 ## Q1：TCO 为什么比单卡报价更重要？
 

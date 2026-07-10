@@ -12,22 +12,22 @@
 
 这一页讲的是为什么 shared memory 很快，但也很容易写出效果不好的 kernel。
 
-**关键词：** `shared memory`, `tile`, `bank conflict`, `reuse`, `spill`
-## 前置
+**关键词：** `shared memory`, `tile`, `bank conflict`
+## 前置阅读
 
 **导语：** 这一页先把 shared memory 的复用、访问模式和寄存器预算接上，再看为什么片上优化常常不是“能不能用”，而是“能不能用对”。
 
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
-- [Part 1: 16 Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
-- [Part 1: 23 TensorCore 与 MMA](./23_TensorCore_Deep_Dive.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [16. Warp Block SharedMemory Basics | Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
+- [23. TensorCore Deep Dive | Tensor Core 深度剖析](./23_TensorCore_Deep_Dive.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把片上优化和更高层的 kernel 组织、稀疏和编译优化串起来，可以接着看这些页。
 
-- [Part 1: 08 Programming Models and CUDA/Triton](./08_Programming_Models_CUDA_Triton.md)
-- [Part 1: 18 Triton Block Model](./18_Triton_Block_Model.md)
-- [Part 1: 25 稀疏计算与稀疏注意力](./25_Sparse_Computation_and_Sparse_Attention.md)
+- [08. Programming Models and CUDA/Triton | 编程模型演进](./08_Programming_Models_CUDA_Triton.md)
+- [18. Triton Block Model | Triton Block 模型](./18_Triton_Block_Model.md)
+- [25. Sparse Computation and Sparse Attention | 稀疏计算与稀疏注意力](./25_Sparse_Computation_and_Sparse_Attention.md)
 
 ## Q1：shared memory 的收益为什么必须和同步代价一起看？
 

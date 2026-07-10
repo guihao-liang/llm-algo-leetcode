@@ -12,21 +12,21 @@
 
 这一页把 Chapter 1 的数据格式和显存直觉，推进到混合精度、Tensor Core 和吞吐判断上。
 
-**关键词：** `FP16`, `BF16`, `Tensor Core`, `throughput`
-## 前置
+**关键词：** `FP16`, `BF16`, `Tensor Core`
+## 前置阅读
 
 **导语：** 先把数据格式和显存账本对齐，再去看 Tensor Core 和混合精度会更顺。
 
-- [Part 1: 1A 数值与计算基础](./1A.md)
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
+- [Group 1A: Numerical Foundations and Scale Estimation | 1A: 数值基础与算力估算](./1A.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
 
 ## 相关阅读
 
 **导语：** 把混合精度放回量化和推理链路里看，判断会更稳。
 
-- [Chapter 2: 25 Quantization W8A16](../02_PyTorch_Algorithms/25_Quantization_W8A16.md)
-- [Chapter 2: 26 QLoRA and 4bit Quantization](../02_PyTorch_Algorithms/26_QLoRA_and_4bit_Quantization.md)
-- [Chapter 2: 31 Inference Performance Comparison](../02_PyTorch_Algorithms/31_Inference_Performance_Comparison.md)
+- [25. Quantization W8A16 | W8A16 量化](../02_PyTorch_Algorithms/25_Quantization_W8A16.md)
+- [26. QLoRA and 4bit Quantization | QLoRA 与 4-bit 量化](../02_PyTorch_Algorithms/26_QLoRA_and_4bit_Quantization.md)
+- [31. Inference Performance Comparison | 推理性能对比实验](../02_PyTorch_Algorithms/31_Inference_Performance_Comparison.md)
 
 ## Q1：Tensor Core 到底是什么，为什么它比普通 CUDA Core 更适合矩阵计算？
 

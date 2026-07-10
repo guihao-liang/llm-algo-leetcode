@@ -12,14 +12,22 @@
 
 这一页讲的是输入长度不固定时，为什么 batching、缓存和执行路径会同时变复杂。
 
-**关键词：** `dynamic shape`, `batching`, `padding`, `bucketing`, `graph`
-## 前置
+**关键词：** `dynamic shape`, `batching`, `padding`
+## 前置阅读
 
 **导语：** 这一页先把动态 batching、缓存复用和执行路径的关系接上，再看输入长度变化为什么会让系统更难稳定优化。
+
+- [07. CPU and GPU Heterogeneous Scheduling | CPU 与 GPU 异构调度](./07_CPU_GPU_Heterogeneous_Scheduling.md)
+- [08. Programming Models and CUDA/Triton | 编程模型演进](./08_Programming_Models_CUDA_Triton.md)
+- [29. CUDA Stream Advanced Scheduling | CUDA Stream 高级调度](./29_CUDA_Stream_Advanced_Scheduling.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把动态输入和后续的调度、虚拟化、成本判断串起来，可以接着看这些页。
+
+- [19. Operator Fusion Introduction | 算子融合导论](./19_Operator_Fusion_Introduction.md)
+- [01 CUDA Custom Kernel Intro](../04_CUDA_and_System_Optimization/01_CUDA_Custom_Kernel_Intro.md)
+- [06 CUDA Graph and Launch Optimization](../04_CUDA_and_System_Optimization/06_CUDA_Graph_and_Launch_Optimization.md)
 
 ## Q1：动态 shape 为什么会让复用变差？
 

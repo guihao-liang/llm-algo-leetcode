@@ -12,22 +12,22 @@
 
 这一页讲的是 Tensor Core 为什么能把矩阵乘加做得更快，以及为什么它和精度、tile 和寄存器组织绑得这么紧。
 
-**关键词：** `MMA`, `tile`, `throughput`, `precision`, `register`
-## 前置
+**关键词：** `MMA`, `tile`, `throughput`
+## 前置阅读
 
 **导语：** 这一页先把矩阵乘加和混合精度的底层直觉接上，再看 Tensor Core 为什么会把 tile、精度和吞吐绑在一起。
 
-- [Part 1: 15 CUDA 执行模型](./15_CUDA_Execution_Model.md)
-- [Part 1: 16 Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
-- [Part 1: 12 TensorCore 与混合精度](./12_TensorCore_and_Mixed_Precision.md)
+- [15. CUDA Execution Model | CUDA 执行模型](./15_CUDA_Execution_Model.md)
+- [16. Warp Block SharedMemory Basics | Warp、Block 与 Shared Memory 基础](./16_Warp_Block_SharedMemory_Basics.md)
+- [12. TensorCore and Mixed Precision | Tensor Core 与混合精度](./12_TensorCore_and_Mixed_Precision.md)
 
 ## 相关阅读
 
 **导语：** 如果想继续把 TensorCore 和更高层的 kernel / 编译优化串起来，可以接着看这些页。
 
-- [Part 1: 08 Programming Models and CUDA/Triton](./08_Programming_Models_CUDA_Triton.md)
-- [Part 1: 14 FlashAttention 显存模型](./14_FlashAttention_Memory_Model.md)
-- [Part 1: 25 稀疏计算与稀疏注意力](./25_Sparse_Computation_and_Sparse_Attention.md)
+- [08. Programming Models and CUDA/Triton | 编程模型演进](./08_Programming_Models_CUDA_Triton.md)
+- [14. FlashAttention Memory Model | FlashAttention 显存模型](./14_FlashAttention_Memory_Model.md)
+- [25. Sparse Computation and Sparse Attention | 稀疏计算与稀疏注意力](./25_Sparse_Computation_and_Sparse_Attention.md)
 
 ## Q1：Tensor Core 本质上是什么？
 

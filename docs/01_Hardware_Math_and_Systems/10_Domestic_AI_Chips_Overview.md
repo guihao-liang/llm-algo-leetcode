@@ -12,17 +12,17 @@
 
 这一页把硬件规格、软件栈成熟度和迁移成本放到同一个框架里看，重点不是比纸面峰值，而是判断哪条路线更适合落地。
 
-**关键词：** `GPU ecosystem`, `alternatives`, `software stack`, `migration cost`
-## 前置
+**关键词：** `GPU ecosystem`, `alternatives`, `software stack`
+## 前置阅读
 **导语：** 这一页先把硬件规格、软件栈成熟度和迁移成本放到同一个框架里，再判断哪条路线更适合落地。
-- [Part 1: 1B 单卡硬件与访存优化](./1B.md)
-- [Part 1: 1C 多卡通信与显存共享](./1C.md)
-- [Part 1: 1E 编译优化与算力生态](./1E.md)
+- [Group 1B: Single-GPU Hardware and Memory Optimization | 1B: 单卡硬件与访存优化](./1B.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
+- [Group 1E: Compiler Optimization and Hardware Ecosystem | 1E: 编译优化与硬件生态](./1E.md)
 ## 相关阅读
 **导语：** 如果想继续把选型、编译和通信侧的判断补完整，可以接着看这些页。
-- [Part 3: 05 Triton Autotune and Profiling](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
-- [Part 4: 01 CUDA Custom Kernel Intro](../04_CUDA_and_System_Optimization/01_CUDA_Custom_Kernel_Intro.md)
-- [Part 4: 19 Distributed Communication Primitives](../04_CUDA_and_System_Optimization/19_Distributed_Communication_Primitives.md)
+- [05. Triton 性能调优与基准测试 (Autotune & Profiling)](../03_Triton_Kernels/05_Triton_Autotune_and_Profiling.md)
+- [01 CUDA Custom Kernel Intro](../04_CUDA_and_System_Optimization/01_CUDA_Custom_Kernel_Intro.md)
+- [09. Distributed Communication Primitives | 分布式进阶：多机通信原语实战 (All-Reduce, All-Gather)](../04_CUDA_and_System_Optimization/19_Distributed_Communication_Primitives.md)
 ## Q1：选芯片时为什么不能只看算力峰值？
 
 <details><summary>点击展开查看解析</summary>
