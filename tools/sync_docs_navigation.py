@@ -33,6 +33,13 @@ NAV_FILES = {
     ],
     "03_Triton_Kernels": ["intro.md", "3_1.md", "3_2.md", "3_3.md", "3_4.md", "3_5.md"],
     "04_CUDA_and_System_Optimization": ["intro.md", "4_1.md", "4_2.md", "4_3.md", "4_4.md"],
+    "topic_discussion": ["intro.md", "profiling/intro.md", "ai_compiler/intro.md"],
+    "team_study": [
+        "intro.md",
+        "part2_l1_202606/intro.md",
+        "part2_l1_202607/intro.md",
+        "part2_l2_202607/intro.md",
+    ],
 }
 
 
