@@ -20,6 +20,8 @@ export default defineConfig({
       { text: '第二部分\nPyTorch 核心算法', link: '/02_PyTorch_Algorithms/intro' },
       { text: '第三部分\nTriton 算子开发', link: '/03_Triton_Kernels/intro' },
       { text: '第四部分\nCUDA C++ 与系统优化', link: '/04_CUDA_and_System_Optimization/intro' },
+      { text: '专题讨论', link: '/topic_discussion/intro' },
+      { text: '组队学习', link: '/team_study/intro' },
     ],
     search: {
       provider: 'local',
@@ -50,6 +52,8 @@ export default defineConfig({
           { text: '维护与发布手册', link: '/maintenance' }
         ]
       },
+      { text: '专题讨论', link: '/topic_discussion/intro' },
+      { text: '组队学习', link: '/team_study/intro' },
       {
         text: '第零部分：前置知识与环境准备',
         items: [
