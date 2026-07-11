@@ -35,28 +35,30 @@
 
 ## 🌐 教程总览
 
-这套教程分为纵深主线、横切专题和共学沉淀三层：`Part 0` 和 `Part 1` 是共同前置，`Part 2 -> Part 5` 是主线实战层，`topic_discussion` 承载 profiling、AI compiler 等跨 Part 主题，`team_study` 则单独作为动态共学沉淀层，当前主要对应 Part 2。下面先看整体关系，再看资产总览、专题总览和共学沉淀。
+这套教程分为纵深主线、横切专题和共学沉淀三层：`Part 0` 和 `Part 1` 是共同前置，`Part 2 -> Part 5` 是主线实战层，`topic_discussion` 承载 profiling、AI compiler 等跨 Part 主题，`team_study` 则单独作为动态共学沉淀层，当前主要对应 Part 2。整体关系可以理解为前置打底 -> PyTorch 主线 -> Triton -> CUDA，横切专题和组队学习分别服务于性能分析、编译视野和共学沉淀。
+
+![教程总览保底图](./image-1.png)
 
 ```mermaid
 flowchart LR
-  P0[Part 0 前置知识] --> P1[Part 1 硬件、数学与系统]
-  P1 --> P2[Part 2 PyTorch 算法实战]
-  P2 --> P3[Part 3 Triton 算子开发]
-  P3 --> P4[Part 4 CUDA 与系统优化]
-  P4 -.预留.-> P5[Part 5 预留]
+  P0["Part 0 前置知识"] --> P1["Part 1 硬件、数学与系统"]
+  P1 --> P2["Part 2 PyTorch 算法实战"]
+  P2 --> P3["Part 3 Triton 算子开发"]
+  P3 --> P4["Part 4 CUDA 与系统优化"]
+  P4 --> P5["Part 5 预留"]
 
-  Profiling((Profiling 专题)) -.贯穿.-> P0
-  Profiling -.贯穿.-> P1
-  Profiling -.贯穿.-> P2
-  Profiling -.贯穿.-> P3
-  Profiling -.贯穿.-> P4
+  Profiling["Profiling 专题"] --> P0
+  Profiling --> P1
+  Profiling --> P2
+  Profiling --> P3
+  Profiling --> P4
 
-  Compiler((AI Compiler 专题)) -.贯穿.-> P1
-  Compiler -.贯穿.-> P2
-  Compiler -.贯穿.-> P3
-  Compiler -.贯穿.-> P4
+  Compiler["AI Compiler 专题"] --> P1
+  Compiler --> P2
+  Compiler --> P3
+  Compiler --> P4
 
-  Study((组队学习 / 共学沉淀)) -.当前对应.-> P2
+  Study["组队学习 / 共学沉淀"] --> P2
 ```
 
 ### 📚 资产总览
@@ -195,28 +197,30 @@ This is a practical LLM algorithm tutorial from beginner to advanced, built arou
 
 ## 🌐 Tutorial Overview
 
-This tutorial is organized into a vertical main line and two cross-cutting tracks: the main line connects `Part 0 -> Part 4 (with Part 5 reserved)`, `topic_discussion` covers profiling and AI compiler, and `team_study` is maintained as a separate collaborative-learning lane. The diagram below shows the overall relationship before the asset and topic overviews.
+This tutorial is organized into a vertical main line and two cross-cutting tracks: the main line connects `Part 0 -> Part 4 (with Part 5 reserved)`, `topic_discussion` covers profiling and AI compiler, and `team_study` is maintained as a separate collaborative-learning lane. The overview is summarized in the asset and topic tables below.
+
+![Tutorial overview fallback](./image-1.png)
 
 ```mermaid
 flowchart LR
-  P0[Part 0 Prerequisites] --> P1[Part 1 Hardware, Math, and Systems]
-  P1 --> P2[Part 2 PyTorch Algorithm Practice]
-  P2 --> P3[Part 3 Triton Kernel Development]
-  P3 --> P4[Part 4 CUDA and System Optimization]
-  P4 -.reserved.-> P5[Part 5 Reserved]
+  P0["Part 0 Prerequisites"] --> P1["Part 1 Hardware, Math, and Systems"]
+  P1 --> P2["Part 2 PyTorch Algorithm Practice"]
+  P2 --> P3["Part 3 Triton Kernel Development"]
+  P3 --> P4["Part 4 CUDA and System Optimization"]
+  P4 --> P5["Part 5 Reserved"]
 
-  Profiling((Profiling Topic)) -.spans.-> P0
-  Profiling -.spans.-> P1
-  Profiling -.spans.-> P2
-  Profiling -.spans.-> P3
-  Profiling -.spans.-> P4
+  Profiling["Profiling Topic"] --> P0
+  Profiling --> P1
+  Profiling --> P2
+  Profiling --> P3
+  Profiling --> P4
 
-  Compiler((AI Compiler Topic)) -.spans.-> P1
-  Compiler -.spans.-> P2
-  Compiler -.spans.-> P3
-  Compiler -.spans.-> P4
+  Compiler["AI Compiler Topic"] --> P1
+  Compiler --> P2
+  Compiler --> P3
+  Compiler --> P4
 
-  Team((Team Study Topic)) -.curated.-> P2
+  Study["Team Study / Shared Learning"] --> P2
 ```
 
 ### 📚 Current Asset Overview
@@ -225,10 +229,10 @@ You do not need to start from `00` in strict order. `00` is the prerequisite lan
 
 | Part | Groups | Content Positioning | Suitable For | Status |
 | ---- | ---- | ---- | ---- | ---- |
-| [Part 0: Prerequisites and Environment Setup (5 groups / 20 lessons)](./00_Prerequisites/intro.md) | [0A Python Basics and Data Representation (4 lessons)](./00_Prerequisites/0A.md) / [0B PyTorch Tensors and Autograd (4 lessons)](./00_Prerequisites/0B.md) / [0C PyTorch Model Construction (4 lessons)](./00_Prerequisites/0C.md) / [0D Training and Model Intuition (4 lessons)](./00_Prerequisites/0D.md) / [0E Debugging and Performance (4 lessons)](./00_Prerequisites/0E.md) | Prerequisites, engineering basics, and notebook-first practice. | First-time learners who need prerequisite support. | ✅ Complete, continuously refining |
-| [Part 1: Hardware, Math, and Systems (5 groups / 33 lessons)](./01_Hardware_Math_and_Systems/intro.md) | [1A Numerics and Compute Estimation (4 lessons)](./01_Hardware_Math_and_Systems/1A.md) / [1B Single-GPU Memory and Access (5 lessons)](./01_Hardware_Math_and_Systems/1B.md) / [1C Multi-GPU Communication and VRAM (5 lessons)](./01_Hardware_Math_and_Systems/1C.md) / [1D Heterogeneous Scheduling and Operators (5 lessons)](./01_Hardware_Math_and_Systems/1D.md) / [1E Compiler Optimization and Hardware Ecosystem (4 lessons)](./01_Hardware_Math_and_Systems/1E.md) | Hardware, compute estimation, memory access, communication, and scheduling constraints. | Learners who want to understand why things are written and deployed this way. | ✅ Complete, continuously refining |
-| [Part 2: PyTorch Algorithm Practice (9 groups / 33 lessons)](./docs/02_PyTorch_Algorithms/intro.md) | [2.1 Basic Operators (5 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.2 Model Architecture (4 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.3 Fine-Tuning and Training (5 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.4 Alignment Methods (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.5 Backpropagation and VRAM Optimization (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.6 Core Inference Optimization (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.7 Advanced Inference Optimization (4 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.8 Distributed and Scaling (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [2.9 Projects (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) | PyTorch-level practice for algorithms, models, and inference optimization. | Learners who want to build implementation intuition with familiar tools. | ✅ Complete, continuously refining |
-| [Part 3: Triton Kernel Development (5 groups / 15 lessons)](./docs/03_Triton_Kernels/intro.md) | [3.1 Foundations (5 lessons)](./docs/03_Triton_Kernels/intro.md) / [3.2 Transition (2 lessons)](./docs/03_Triton_Kernels/intro.md) / [3.3 Advanced A: Attention Optimization (3 lessons)](./docs/03_Triton_Kernels/intro.md) / [3.4 Advanced B: Inference Optimization (2 lessons)](./docs/03_Triton_Kernels/intro.md) / [3.5 Projects (3 lessons)](./docs/03_Triton_Kernels/intro.md) | Triton kernel development. | Learners who want to move from PyTorch to Triton. | ✅ Complete, continuously refining |
+| [部分导读：前置知识与环境准备（5 groups / 20 lessons）](./00_Prerequisites/intro.md) | [组内导读：0A Python Basics and Data Representation (4 lessons)](./00_Prerequisites/0A.md) / [组内导读：0B PyTorch Tensors and Autograd (4 lessons)](./00_Prerequisites/0B.md) / [组内导读：0C PyTorch Model Construction (4 lessons)](./00_Prerequisites/0C.md) / [组内导读：0D Training and Model Intuition (4 lessons)](./00_Prerequisites/0D.md) / [组内导读：0E Debugging and Performance (4 lessons)](./00_Prerequisites/0E.md) | Prerequisites, engineering basics, and notebook-first practice. | First-time learners who need prerequisite support. | ✅ Complete, continuously refining |
+| [部分导读：硬件、数学与系统（5 groups / 33 lessons）](./01_Hardware_Math_and_Systems/intro.md) | [组内导读：1A Numerics and Compute Estimation (4 lessons)](./01_Hardware_Math_and_Systems/1A.md) / [组内导读：1B Single-GPU Memory and Access (5 lessons)](./01_Hardware_Math_and_Systems/1B.md) / [组内导读：1C Multi-GPU Communication and VRAM (5 lessons)](./01_Hardware_Math_and_Systems/1C.md) / [组内导读：1D Heterogeneous Scheduling and Operators (5 lessons)](./01_Hardware_Math_and_Systems/1D.md) / [组内导读：1E Compiler Optimization and Hardware Ecosystem (4 lessons)](./01_Hardware_Math_and_Systems/1E.md) | Hardware, compute estimation, memory access, communication, and scheduling constraints. | Learners who want to understand why things are written and deployed this way. | ✅ Complete, continuously refining |
+| [部分导读：PyTorch 算法实战（9 groups / 33 lessons）](./docs/02_PyTorch_Algorithms/intro.md) | [组内导读：2.1 Basic Operators (5 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.2 Model Architecture (4 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.3 Fine-Tuning and Training (5 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.4 Alignment Methods (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.5 Backpropagation and VRAM Optimization (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.6 Core Inference Optimization (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.7 Advanced Inference Optimization (4 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.8 Distributed and Scaling (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) / [组内导读：2.9 Projects (3 lessons)](./docs/02_PyTorch_Algorithms/intro.md) | PyTorch-level practice for algorithms, models, and inference optimization. | Learners who want to build implementation intuition with familiar tools. | ✅ Complete, continuously refining |
+| [部分导读：Triton Kernel Development (5 groups / 15 lessons)](./docs/03_Triton_Kernels/intro.md) | [组内导读：3.1 Foundations (5 lessons)](./docs/03_Triton_Kernels/intro.md) / [组内导读：3.2 Transition (2 lessons)](./docs/03_Triton_Kernels/intro.md) / [组内导读：3.3 Advanced A: Attention Optimization (3 lessons)](./docs/03_Triton_Kernels/intro.md) / [组内导读：3.4 Advanced B: Inference Optimization (2 lessons)](./docs/03_Triton_Kernels/intro.md) / [组内导读：3.5 Projects (3 lessons)](./docs/03_Triton_Kernels/intro.md) | Triton kernel development. | Learners who want to move from PyTorch to Triton. | ✅ Complete, continuously refining |
 | [Part 4: CUDA C++ and System Optimization (4 groups / 16 lessons)](./docs/04_CUDA_and_System_Optimization/intro.md) | [4.1 CUDA Programming Basics (4 lessons)](./docs/04_CUDA_and_System_Optimization/intro.md) / [4.2 System-Level Performance Optimization (4 lessons)](./docs/04_CUDA_and_System_Optimization/intro.md) / [4.3 Distributed Training Engineering (4 lessons)](./docs/04_CUDA_and_System_Optimization/intro.md) / [4.4 Architecture Perspective (4 lessons)](./docs/04_CUDA_and_System_Optimization/intro.md) | CUDA C++ and system optimization. | Learners preparing for low-level performance optimization and engineering deployment. | 🛠 In progress |
 | [Part 5: CUDA Rust (reserved)](./05_CUDA_Rust/intro.md) | Reserved | Reserved | Reserved | 🚧 Reserved |
 
