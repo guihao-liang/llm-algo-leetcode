@@ -82,15 +82,19 @@ class KVCacheManager:
         # TODO 1: 计算需要的 block 数量
         # 提示: 向上取整 (seq_len / block_size)
         # ==========================================
-        # needed_blocks = ???
+        needed_blocks = (req.seq_len + self.block_size - 1) // self.block_size
         
         # ==========================================
         # TODO 2: 从 free_blocks 中弹出对应数量的 block 索引，
         # 并追加到请求的 block_table 中
         # 如果 free_blocks 不够了，抛出 RuntimeError("OOM")
         # ==========================================
-        # ???
-        pass
+        if needed_blocks > len(self.free_blocks):
+            raise RuntimeError("OOM")
+        
+        split = self.free_blocks[-needed_blocks:]
+        self.free_blocks = self.free_blocks[: -needed_blocks]
+        req.block_table = split
 
     def allocate_for_decode(self, req: Request):
         """
@@ -103,13 +107,18 @@ class KVCacheManager:
         # TODO 3: 判断是否刚好需要跨入新的一块 Block？
         # 条件：加 1 后的 seq_len 除以 block_size 余数是多少？
         # ==========================================
-        # is_new_block_needed = ???
-        
+        is_new_block_needed = (req.seq_len % self.block_size) == 1
+        print(req.seq_len, is_new_block_needed)
+              
         # 如果需要，尝试分配 1 个新的物理 Block 放入块表
         # if is_new_block_needed:
         #    if not self.free_blocks: ...
         #    req.block_table.append(???)
-        pass
+        if is_new_block_needed:
+            if not self.free_blocks:
+                raise RuntimeError("OOM")
+            req.block_table.append(self.free_blocks[-1])
+            self.free_blocks.pop(-1)
 
     def get_physical_cache(self, req: Request) -> torch.Tensor:
         """
@@ -119,12 +128,16 @@ class KVCacheManager:
         # ==========================================
         # TODO 4: 根据 req.block_table 的索引，
         # ==========================================
-        # blocks = ???
-        # cat_blocks = ???
+        ## advanced indexing will do concat and copy for me
+        blocks = self.physical_kv_cache[req.block_table]
+        # blocks = self.physical_kv_cache[req.block_table, ...]
+        print(blocks.shape)
+        blocks = blocks.view(-1, self.head_dim)
+        print(blocks.shape)
+        cat_blocks = blocks
         
         # 最后，只截取真实 seq_len 长度返回 (因为最后一个块可能没填满)
-        # return cat_blocks[:req.seq_len]
-        pass
+        return cat_blocks[:req.seq_len]
 
 ```
 
@@ -173,7 +186,7 @@ def test_paged_attention_manager():
     except RuntimeError as e:
         print(f"❌ 运行时错误: {e}")
     except TypeError as e:
-        print("代码可能未完成，导致变量为 NoneType。")
+        print(f"代码可能未完成，导致变量为 NoneType。{e}")
     except Exception as e:
         print(f"❌ 发生未知异常: {e}")
 
@@ -289,3 +302,189 @@ class KVCacheManager:
 - **块大小权衡**：block_size 太小增加管理开销，太大增加内部碎片，通常选择 16-32
 - **共享机制**：vLLM 支持多个请求共享相同的 Prompt 块（如系统提示词），进一步节省显存
 - **工业实现**：真实的 vLLM 使用 CUDA kernel 实现 PagedAttention，支持多头注意力和批处理
+---
+
+## 附录：PyTorch Advanced Indexing 详解
+
+本节 `get_physical_cache` 里的 `self.physical_kv_cache[req.block_table]` 用到了 **advanced indexing（高级索引）**。这是 vLLM 风格「按块表 gather」的核心写法，但它的行为和普通切片**完全不同**，这里彻底讲清楚。
+
+### 一、两套索引规则
+
+PyTorch（继承自 NumPy）有**两套**索引规则，行为不一样：
+
+| 类型 | 用什么索引 | 返回 | 是否共享内存 |
+|------|-----------|------|-------------|
+| **Basic indexing（基础索引）** | 整数、切片 `:`、`...`、`None` | **view（视图）** | ✅ 共享（不 copy） |
+| **Advanced indexing（高级索引）** | 整数列表/张量、bool mask | **copy（拷贝）** | ❌ 新内存 |
+
+以本节的 `physical_kv_cache`，形状 `[num_blocks=10, block_size=4, head_dim=64]` 为例：
+
+```python
+physical_kv_cache[3]           # 基础索引：单个整数     → view，形状 [4, 64]
+physical_kv_cache[[3, 7, 1]]   # 高级索引：整数列表     → copy，形状 [3, 4, 64]
+physical_kv_cache[req.block_table]  # ← 本节用的就是这个，一次 gather 多个块
+```
+
+> ✅ 所以 `self.physical_kv_cache[req.block_table]` 一步就把散落的物理块「聚拢 + 拷贝」成一个新张量 `[num_blocks_of_req, block_size, head_dim]`，等价于参考答案里 `[... for ...]` + `torch.cat` 那两行，但更简洁。这也是它「会帮我 concat and copy」的原因。
+
+### 二、view vs copy 的真正判据（重要，别记错）
+
+**不是「连续的 index 才给 view」。** 真正的判据是——**选出的元素能否用「原 storage 上的某一组 `(offset, strides)`」表达出来**：
+
+- **切片 `start:stop:step`（规则的等差访问）→ 能用一组 stride 表达 → view**
+- **整数列表/张量、bool mask（任意乱序 gather）→ 无法用单组 stride 表达 → copy**
+
+反例：`t[0:6:2]` 取第 0、2、4 个元素，内存上跳着放（**不连续**），但它**仍然是 view**！因为只要把 dim0 的 stride 翻倍（跳一个），一组 `(offset, strides)` 就能描述它。而 `t[[3, 7, 1]]` 这种任意顺序的 gather，没有任何一组统一 stride 能表达，只能新开内存 copy。
+
+> ⚠️ **别把 view 和 contiguous 混为一谈——它们是两个独立的 stride 概念**（`is_contiguous` 本身就是用 stride 定义的，所以「能用 stride 表达」和「连续」不是对立面）：
+> - **view**：能否用「原 storage 上的**某一组** `(offset, strides)`」描述 → 决定是不是 copy。步长多大都行。
+> - **contiguous**（`is_contiguous()`）：这组 stride 是否**恰好等于行优先紧密排布** `stride[i] = ∏_{j>i} shape[j]` → 决定内存里元素是否紧挨、无间隙。
+>
+> `t[0:6:2]` 就是两者分离的活例：它是 view（dim0 的 stride 由 256 变成 512，仍能表达），但 512 ≠ 紧密该有的 256，所以 `is_contiguous() = False`。**「是 view」不代表「contiguous」，反之亦然。** 下方 demo cell 的 [5] 段会把 stride 打印出来给你看。
+
+### 三、只指定部分维度：其他维度会 copy 吗？
+
+**不会 copy，而是被隐式补成 `:`（整片保留）。** 写 `t[i]` 时，PyTorch 自动在尾部补齐剩余维度的 `:`：
+
+```python
+physical_kv_cache[3]        # 等价 physical_kv_cache[3, :, :]  → [4, 64]
+physical_kv_cache[3, 0]     # 等价 physical_kv_cache[3, 0, :]  → [64]
+physical_kv_cache[3, 0, 0]  # 标量（test 里写 999.0 就是这么定位的）
+```
+
+注意：**隐式的 `:` 只补在尾部**。想在中间维度选、前面维度全要，就得靠 `...`。
+
+### 四、`...`（Ellipsis，省略号）
+
+`...` = 「在这里自动填入足够多的 `:`，把剩余维度铺满」，能自适应维度数量，省去数不清的冒号：
+
+```python
+physical_kv_cache[..., 0]     # 等价 [:, :, 0]  → [10, 4]   （每块每位置的第 0 个特征）
+physical_kv_cache[0, ...]     # 等价 [0, :, :]  → [4, 64]   （= physical_kv_cache[0]）
+physical_kv_cache[..., 0, :]  # 等价 [:, 0, :]  → [10, 64]
+```
+
+对比：`t[0]` 选的是**第 0 维**，`t[..., 0]` 选的是**最后一维**，意思完全不同。一个表达式里 `...` 最多出现一次（否则有歧义）。
+
+> 💡 **面试点**：`physical_kv_cache[req.block_table]`（高级索引，copy）和 `physical_kv_cache[3]`（基础索引，view）的 copy/view 差异，直接决定「改了结果会不会污染原 KV Cache 池」——这是推理框架里容易踩的坑。下方 demo cell 会实测给你看。
+
+```python
+# 附录 Demo: 亲手验证 view vs copy / 隐式补 : / Ellipsis
+import torch
+
+pool = torch.arange(10 * 4 * 64, dtype=torch.float32).reshape(10, 4, 64)  # [num_blocks, block_size, head_dim]
+print("pool.shape =", pool.shape)
+
+def shares_storage(a, b):
+    # 正确判据：比底层 storage 地址，而不是 .data_ptr()（后者含 offset，view 会误判为不共享）
+    return a.untyped_storage().data_ptr() == b.untyped_storage().data_ptr()
+
+# --- 1) 形状：只指定部分维度，其余维度隐式补 : ---
+print("\n[1] 隐式补 : (基础索引)")
+print("  pool[3].shape       =", pool[3].shape,       "  # == pool[3, :, :]")
+print("  pool[3, 0].shape    =", pool[3, 0].shape,    "  # == pool[3, 0, :]")
+print("  pool[3, 0, 0]       =", pool[3, 0, 0].item(),"(标量)")
+
+# --- 2) Ellipsis：... 在前面补 : ---
+print("\n[2] Ellipsis ...")
+print("  pool[..., 0].shape    =", pool[..., 0].shape,    "  # == pool[:, :, 0]")
+print("  pool[..., 0, :].shape =", pool[..., 0, :].shape, "  # == pool[:, 0, :]")
+print("  pool[0] 与 pool[..., 0] 选的维度不同：", pool[0].shape, "vs", pool[..., 0].shape)
+
+# --- 3) 基础索引 = view：改视图会污染原张量 ---
+print("\n[3] 基础索引 pool[3] → view（共享 storage，会污染原池！）")
+v = pool[3]                          # 单个整数 → 基础索引
+print("  shares_storage(v, pool) :", shares_storage(v, pool))
+v[0, 0] = -999.0
+print("  改 v 后 pool[3,0,0] =", pool[3, 0, 0].item(), "  <-- 原池被改了（view 铁证）")
+
+# --- 4) 高级索引 = copy：list [1,2,3] 索引，改结果不影响原张量 ---
+print("\n[4] 高级索引 pool[[1, 2, 3]] → copy（新内存，安全）")
+g = pool[[1, 2, 3]]                  # 整数列表 → 高级索引，形状 [3, 4, 64]
+print("  g.shape =", g.shape, " shares_storage(g, pool) :", shares_storage(g, pool))
+before = pool[1, 0, 0].item()
+g[0, 0, 0] = -1.0
+print("  改 g 后 pool[1,0,0] =", pool[1, 0, 0].item(), "(仍为", before, ") <-- 原池没变（copy 铁证）")
+
+# --- 5) view 与 contiguous 是两个独立的 stride 概念 ---
+print("\n[5] 跳步切片 pool[0:6:2]：是 view，但 not contiguous")
+s = pool[0:6:2]                      # 取第 0,2,4 块
+dense_stride = (s.shape[1] * s.shape[2], s.shape[2], 1)   # 行优先紧密排布本应的 stride
+print("  pool.stride()  =", pool.stride())
+print("  s.stride()     =", s.stride(), " (dim0 步长 256 -> 512，跳了一块)")
+print("  紧密排布应为    =", dense_stride)
+print("  shares_storage(s, pool) =", shares_storage(s, pool), " -> 是 view")
+print("  s.is_contiguous()       =", s.is_contiguous(), " -> stride 不是紧密那组")
+print("  => view 与 contiguous 都由 stride 定义，但要求不同：")
+print("     view       : 能用『原 storage 上某一组 (offset, strides)』表达（512 也行）")
+print("     contiguous : 这组 stride 恰好等于行优先紧密排布(256) —— 两个独立判据")
+
+```
+
+### 五、`untyped_storage` 与 `data_ptr` 到底是什么？
+
+要理解前面 demo 里为什么判「是否共享内存」要用 `untyped_storage().data_ptr()` 而不是 `data_ptr()`，得先看 PyTorch Tensor 的内存模型。
+
+**一个 Tensor = 「元数据」+ 「指向一块 Storage 的指针」**：
+
+```
+Tensor                          Storage（底层一维连续 buffer，只存原始字节）
+┌────────────────────┐          ┌───────────────────────────────────────┐
+│ shape   (10,4,64)  │          │ [f0][f1][f2] ...............  [f2559]  │
+│ strides (256,64,1) │ ───────► │  ▲                                    │
+│ storage_offset  0  │          │  └─ untyped_storage().data_ptr()      │
+│ dtype  float32     │          │     = 整块 buffer 的起始地址           │
+└────────────────────┘          └───────────────────────────────────────┘
+```
+
+- **Storage / `untyped_storage()`**：底层那块**一维、连续**的原始内存（一串字节，不带 shape/dtype 语义）。多个 view 张量**共享同一个 Storage**。`untyped` = 不区分 dtype，按字节看；老 API `t.storage()` 是带类型的版本，已不推荐。
+- **`untyped_storage().data_ptr()`**：这块 Storage buffer 的**起始地址**。所有共享它的 view 拿到的都是**同一个值** → 所以判断「是否共享内存」要用它。
+- **`t.data_ptr()`**：**本张量第 0 个元素**的地址，会把 `storage_offset` 算进去。
+
+**两者的关系（一条公式）**：
+
+```
+t.data_ptr() == t.untyped_storage().data_ptr() + t.storage_offset() * t.element_size()
+                └── buffer 起始 ──┘   └─ 本张量从第几个元素开始 ─┘  └ 每个元素几字节 ┘
+```
+
+**为什么之前 `pool[1]` 用 `data_ptr()` 会被误判成「不共享」？**
+
+`pool[1]` 是 view，和 `pool` 共享同一 Storage（`untyped_storage().data_ptr()` 相同），但它的 `storage_offset = 1×4×64 = 256`，于是 `data_ptr()` = 起始地址 + 256×4 字节，**比 `pool.data_ptr()` 大**。所以用 `data_ptr()` 比较会得出「不相等」的错误结论。**判共享看 Storage 地址，判本张量落点看 `data_ptr()`**——这就是区别。
+
+> 📌 一句话记忆：`untyped_storage().data_ptr()` = 「房子的门牌号」（整块 buffer 起点，view 之间都一样）；`data_ptr()` = 「你住在这栋楼第几间」（门牌号 + 偏移）。
+
+```python
+# 附录 Demo: untyped_storage vs data_ptr 的关系
+import torch
+
+pool = torch.arange(10 * 4 * 64, dtype=torch.float32).reshape(10, 4, 64)
+v = pool[1]                      # view，storage_offset != 0
+
+print("dtype =", pool.dtype, " element_size =", pool.element_size(), "bytes")
+print("整块 storage 大小 =", pool.untyped_storage().nbytes(), "bytes =",
+      pool.numel(), "个 float32\n")
+
+# (1) 共享内存 → untyped_storage().data_ptr() 相同（门牌号一样）
+print("pool.untyped_storage().data_ptr() =", pool.untyped_storage().data_ptr())
+print("v.untyped_storage().data_ptr()    =", v.untyped_storage().data_ptr(),
+      " -> 相同:", pool.untyped_storage().data_ptr() == v.untyped_storage().data_ptr())
+
+# (2) data_ptr() 含 offset → view 的落点不同（住第几间）
+print("\nv.storage_offset() =", v.storage_offset(), "个元素")
+print("pool.data_ptr()    =", pool.data_ptr())
+print("v.data_ptr()       =", v.data_ptr(), " -> 比 pool 大", v.data_ptr() - pool.data_ptr(), "字节")
+
+# (3) 验证公式: data_ptr == storage起始 + offset * element_size
+lhs = v.data_ptr()
+rhs = v.untyped_storage().data_ptr() + v.storage_offset() * v.element_size()
+print("\n公式验证 data_ptr == storage_ptr + offset*elem_size :", lhs == rhs)
+print(f"  {lhs} == {v.untyped_storage().data_ptr()} + {v.storage_offset()}*{v.element_size()}")
+
+# (4) 结论：判「是否共享内存」必须用 storage 地址，不能用 data_ptr
+print("\n[错误判法] v.data_ptr() == pool.data_ptr() :", v.data_ptr() == pool.data_ptr(),
+      " <- view 被误判为不共享")
+print("[正确判法] storage 地址相同               :",
+      v.untyped_storage().data_ptr() == pool.untyped_storage().data_ptr())
+
+```
