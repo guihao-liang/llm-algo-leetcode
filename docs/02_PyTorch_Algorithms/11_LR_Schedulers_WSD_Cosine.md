@@ -1,6 +1,6 @@
-# 11. LR Schedulers WSD Cosine | 大模型训练调参难点：学习率调度器 (Warmup, Cosine, WSD)
+# 11. LR Schedulers WSD Cosine | WSD 余弦学习率调度器
 
-**难度：** Medium | **标签：** `Training`, `LR Scheduler`, `Llama-3` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `训练技巧`, `LR Schedule`, `WSD` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -10,13 +10,18 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-在传统的深度学习中，学习率通常是固定的或是按阶梯下降 (Step Decay)。但在大语言模型 (LLM) 的预训练和微调中，学习率的调度 (LR Schedule) 直接决定了模型会不会**崩溃 (Loss Spike)** 以及能否**收敛到平缓的最优解**。
-目前大模型训练有两套绝对主流的方案：
-1. **Cosine Annealing with Warmup** (带预热的余弦退火)：LLaMA-1/2, GPT-3 等绝大多数模型预训练的标配。
-2. **WSD (Warmup-Stable-Decay)**：LLaMA-3 和现代持续预训练 (Continued Pre-training) 最前沿的标配。
+**关键词：** `warmup`, `stable`, `decay`, `scheduler`
+## 前置阅读
 
-本节我们将不依赖 HuggingFace 或 PyTorch 的现成实现，**纯手工通过数学分段函数写一个现代大模型标配的 WSD 调度器**，并将其可视化。
+**导语：** 先看 SFT 和 LoRA 的训练主线，再理解为什么需要 WSD 调度器。
+- [09. SFT Training Loop | SFT 训练循环](./09_SFT_Training_Loop.md)
+- [10. LoRA Tutorial | LoRA 教程](./10_LoRA_Tutorial.md)
 
+## 相关阅读
+
+**导语：** 学完学习率调度后，可以继续看梯度累积和端到端微调实验。
+- [12. Gradient Accumulation | 梯度累积](./12_Gradient_Accumulation.md)
+- [13. End-to-End Fine-Tuning Experiment | 端到端微调实验](./13_End_to_End_Fine_Tuning_Experiment.md)
 ### Step 1: 核心机制剖析
 
 > **为什么一定要有 Warmup (预热)？**

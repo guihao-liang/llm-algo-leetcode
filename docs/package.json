@@ -5,12 +5,14 @@
   },
   "scripts": {
     "docs:sync-homepage": "python ../tools/sync_docs_index.py",
+    "docs:mermaid-cache": "node ../tools/render_mermaid_cache.mjs",
     "docs:dev": "python ../tools/sync_docs_index.py && vitepress dev .",
     "docs:build": "python ../tools/sync_docs_index.py && vitepress build .",
     "docs:preview": "vitepress preview ."
   },
   "dependencies": {
     "@giscus/vue": "^3.1.1",
+    "mermaid": "^11.16.0",
     "vitepress-plugin-image-viewer": "^1.1.6"
   }
 }

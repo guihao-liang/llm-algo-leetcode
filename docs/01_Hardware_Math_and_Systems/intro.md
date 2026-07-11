@@ -1,85 +1,72 @@
-# 第一部分：硬件、数学与系统
+# Part 01: Hardware, Math, and Systems | 第一部分：硬件、数学与系统
 
-## 概览
+## Part Overview | Part 概览
 
-本部分包含 10 个讨论题，覆盖大模型的硬件基础、数学推导和系统架构。它负责把第零部分的基础能力，连接到第二 / 第三部分的工程实现。
+本部分主线覆盖 33 个讨论题（01-33），共同把第零部分的基础能力连接到第二至第五部分的工程实现。其中 `01-10` 是基础主线，`11-20` 是延展主线，`21-33` 是同类扩展主线。正文默认 notebook-first，主线页尽量与 notebook 同页。
 
-## 学习组划分
+Part 1 按 5 个专题组织：`1A`、`1B`、`1C`、`1D`、`1E` 分别承担数值基础、单卡硬件、多卡通信、异构调度和编译生态这五条主线。具体每组怎么读、怎么接后续 Part，由各组导航页分别说明。
 
-当前 10 节内容先映射到 5 个主线组；后续新增内容再沿这条链扩展。
+```mermaid
+flowchart TB
+    P1[Part 1]
+
+    subgraph C[内容分层]
+        L1[01-10 基础主线]
+        L2[11-20 延展主线]
+        L3[21-33 扩展主线]
+    end
+
+    subgraph T[专题分组]
+        G1[1A 数值基础]
+        G2[1B 单卡硬件]
+        G3[1C 多卡通信]
+        G4[1D 执行与编程]
+        G5[1E 编译与生态]
+    end
+
+    P1 --> C
+    P1 --> T
+```
+
+## Part Asset Overview | Part 资产总览
+
+本章内容按 5 个主线组组织，后续页面也沿该结构继续扩展。
 
 > 导航说明：侧边栏和组级入口默认收起，先看总览，再点开具体组页。
-> 组页是知识包，不需要把整组一次性读完；先抓主线，再按需要回看扩展页。
+> 组页是知识包，不需要把整组一次性读完；先抓主线，再按需要查看同组章节页。
+> Part 1 不只是知识目录，也是 Part 2-5 的共同前置底座。
 
-| 学习组 | 核心问题 | 当前内容映射 | 主题 |
+| 学习组 | 核心职责 | 当前内容映射 | 每组多少节 |
 |:---|:---|:---|:---|
-| **1A: 数值基础与算力估算** | 先要算什么？ | 01-02 | 数据格式、参数量、FLOPs |
-| **1B: 单卡硬件与访存优化** | 单卡怎么跑得快？ | 03-04 | GPU 架构、内存层次、Attention 访存 |
-| **1C: 分布式通信与显存共享** | 一张卡不够怎么办？ | 05-06 | 通信拓扑、ZeRO、显存切分 |
-| **1D: 异构调度与算子编程** | 怎么精细控制计算和数据流？ | 07-08 | CPU/GPU 协同、CUDA/Triton |
-| **1E: 编译优化与硬件生态** | 怎么自动优化和做迁移？ | 09-10 | AI 编译器、芯片现状、TCO |
+| [1A](./1A.md) | 建立数量级与资源账本 | [01](./01_Data_Types_and_Precision.md)、[02](./02_LLM_Params_and_FLOPs.md)、[21](./21_Quantization_Theory_and_INT4_INT8.md)、[22](./22_MoE_Parameter_and_Compute.md) | 4 |
+| [1B](./1B.md) | 识别单卡瓶颈与访存路径 | [03](./03_GPU_Architecture_and_Memory.md)、[04](./04_Attention_Memory_Optimization.md)、[23](./23_TensorCore_Deep_Dive.md)、[24](./24_SRAM_Optimization_Techniques.md)、[25](./25_Sparse_Computation_and_Sparse_Attention.md) | 5 |
+| [1C](./1C.md) | 刻画多卡通信边界与切分代价 | [05](./05_Communication_Topologies.md)、[06](./06_VRAM_Calculation_and_ZeRO.md)、[26](./26_Parallel_Strategy_Decision_Framework.md)、[27](./27_Communication_Scheduling_Optimization.md)、[28](./28_Fault_Tolerance_and_Checkpointing.md) | 5 |
+| [1D](./1D.md) | 掌握运行时调度与算子映射 | [07](./07_CPU_GPU_Heterogeneous_Scheduling.md)、[08](./08_Programming_Models_CUDA_Triton.md)、[29](./29_CUDA_Stream_Advanced_Scheduling.md)、[30](./30_Dynamic_Shape_Handling.md)、[31](./31_GPU_Virtualization_and_MIG.md) | 5 |
+| [1E](./1E.md) | 建立编译优化与选型判断 | [09](./09_AI_Compilers_and_Graph_Optimization.md)、[10](./10_Domestic_AI_Chips_Overview.md)、[32](./32_TVM_MLIR_Deep_Practice.md)、[33](./33_TCO_and_Cost_Model.md) | 4 |
 
-### 组级入口
+## Learning Path | 学习路径
 
-| 组页 | 学习组 | 作用 |
-|:---|:---|:---|
-| [1A](./1A.md) | 1A: 数值基础与算力估算 | 先把显存、精度、参数量和 FLOPs 算清楚 |
-| [1B](./1B.md) | 1B: 单卡硬件与访存优化 | 理解 GPU 架构、Attention 和访存瓶颈 |
-| [1C](./1C.md) | 1C: 多卡通信与显存共享 | 处理通信拓扑、ZeRO 和并行扩展 |
-| [1D](./1D.md) | 1D: 异构调度与算子编程 | 连接 CPU/GPU 协同、CUDA/Triton 和运行时调度 |
-| [1E](./1E.md) | 1E: 编译优化与算力生态 | 面向编译器、芯片迁移和成本决策 |
+Part 1 不只是知识目录，也是 Part 2 到 Part 5 的共同前置。阅读上可以按三层理解：`01-10` 是基础主线，`11-20` 是延展主线，`21-33` 是扩展主线。
 
-## 学习建议
+```mermaid
+flowchart LR
+    A[01-10 基础主线] --> B[11-20 延展主线]
+    B --> C[21-33 扩展主线]
+```
 
-- 快速入门：1A → 1B
-- 系统学习：1A → 1B → 1C → 1D → 1E
-- 按组维护：优先看对应组页，再回到题目页
+### Recommended Order | 推荐顺序
 
-## Part 2 / 3 前导路径
+- 快速入门：先看 [1A](./1A.md) → [1B](./1B.md)
+- 系统学习：按 [1A](./1A.md) → [1B](./1B.md) → [1C](./1C.md) → [1D](./1D.md) → [1E](./1E.md) 顺序推进
 
-Part 1 不只是知识目录，也是 Part 2 和 Part 3 的共同前置。下面这条路径可以直接作为进入后续部分的阅读顺序：
+### Next Steps | 后续衔接
 
-| 路径 | 先看哪些页 | 解决什么问题 | 主要服务 |
-|:---|:---|:---|:---|
-| 基础认知层 | 1A、1B | 把精度、参数量、GPU 架构和访存直觉先立起来 | Part 2 / Part 3 |
-| 执行模型层 | 1C、1D、15-18 | 理解通信、调度、block / warp / shared memory 和 Triton block model | Part 3 |
-| 优化与选型层 | 1E、19-20、13 | 理解编译优化、算子融合、NCCL，以及为什么后面要从 PyTorch 走到 Triton，再走到 CUDA | Part 2 / Part 3 |
+- 先看 [1A](./1A.md)、[1B](./1B.md)，把精度、参数量、GPU 架构和访存直觉先立起来，主要服务 Part 2 / Part 3。
+- 先看 [1C](./1C.md)、[1D](./1D.md)，把通信、调度、block / warp / shared memory 和 Triton block model 理顺，主要服务 Part 3。
+- 先看 [1E](./1E.md)，再结合 [19](./19_Operator_Fusion_Introduction.md)、[32](./32_TVM_MLIR_Deep_Practice.md)、[33](./33_TCO_and_Cost_Model.md)，理解编译优化、算子融合、TCO，以及为什么后面会从 PyTorch 走到 Triton，再走到 CUDA，主要服务 Part 2 / Part 3。
 
-如果你已经准备进入 Part 3，建议优先按 `1B -> 1D -> 18 -> 19 -> 20` 的顺序回看；如果你更关心算法实现和训练逻辑，则先看 `1A -> 1B -> 1C`，再回到 Part 2。
+## Environment Notes | 环境说明
 
-## 🔮 扩展候选池（21-33）
-
-以下页面先作为扩展占位，不进入当前主学习路径。当前 `P0` 项已经进入正文草稿阶段，后续内容成熟后再补 Notebook。
-
-| 序号 | 逻辑标签 | 暂定主题 | 归属 | 优先级 | 状态 |
-|:---|:---|:---|:---|:---|:---|
-| 21 | 1A-03 | 量化理论与 INT4/INT8 | 1A | P0 | 草稿 |
-| 22 | 1A-04 | MoE 模型参数量计算 | 1A | P0 | 草稿 |
-| 23 | 1B-03 | Tensor Core 深度剖析 | 1B | P0 | 草稿 |
-| 24 | 1B-04 | SRAM 优化技术 | 1B | P2 | 占位 |
-| 25 | 1B-05 | 稀疏计算与稀疏注意力 | 1B | P1 | 占位 |
-| 26 | 1C-03 | 并行策略决策框架 | 1C | P0 | 草稿 |
-| 27 | 1C-04 | 通信调度优化 | 1C | P1 | 占位 |
-| 28 | 1C-05 | 容错与 Checkpoint | 1C | P2 | 占位 |
-| 29 | 1D-03 | CUDA Stream 高级调度 | 1D | P0 | 草稿 |
-| 30 | 1D-04 | 动态 Shape 处理 | 1D | P1 | 占位 |
-| 31 | 1D-05 | GPU 虚拟化与 MIG | 1D | P2 | 占位 |
-| 32 | 1E-03 | TVM / MLIR 深度实践 | 1E | P1 | 占位 |
-| 33 | 1E-04 | 算力评估与 TCO 模型 | 1E | P0 | 草稿 |
-
-## 预留桥接页（11-20）
-
-`11-14` 偏第二部分前置，`15-20` 偏第三部分前置。后续直接补正文，不改入口。
-
-| 题号 | 暂定标题 | 归属 | 桥接方向 | 状态 |
-|:---|:---|:---|:---|:---|
-| 11 | KV Cache and Memory Growth | 1B 单卡硬件与访存优化 | 第二部分前置 | 占位 |
-| 12 | Tensor Core and Mixed Precision | 1B 单卡硬件与访存优化 | 第二部分前置 | 占位 |
-| 13 | Profiling and Bottleneck Analysis | 1B 单卡硬件与访存优化 | 第二 / 第三部分前置 | 占位 |
-| 14 | FlashAttention Memory Model | 1B 单卡硬件与访存优化 | 第二部分前置 | 占位 |
-| 15 | CUDA Execution Model | 1C 系统与编译 | 第三部分前置 | 占位 |
-| 16 | Warp, Block, and Shared Memory Basics | 1C 系统与编译 | 第三部分前置 | 占位 |
-| 17 | CUDA Stream and Asynchrony | 1C 系统与编译 | 第三部分前置 | 占位 |
-| 18 | Triton Block Model | 1C 系统与编译 | 第三部分前置 | 占位 |
-| 19 | Operator Fusion Introduction | 1C 系统与编译 | 第三部分前置 | 占位 |
-| 20 | NCCL and AllReduce Basics | 1C 系统与编译 | 第二 / 第三部分前置 | 占位 |
+- 默认按 `CPU-first` 设计
+- 这里只写 Part 级统一前提，不点到具体节号
+- 少数页面如需 `GPU optional` 或 `GPU required`，以后续单页说明为准

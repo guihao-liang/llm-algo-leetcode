@@ -35,15 +35,15 @@
 
 /* 正文排版自适应：不同屏幕下保持相对稳定的阅读尺度 */
 :root {
-  --llm-doc-font-body: clamp(17px, 0.22vw + 16px, 19px);
-  --llm-doc-font-body-wide: clamp(17.5px, 0.18vw + 16px, 19.5px);
-  --llm-doc-font-h1: clamp(30px, 0.55vw + 26px, 38px);
-  --llm-doc-font-h2: clamp(24px, 0.4vw + 21px, 30px);
-  --llm-doc-font-h3: clamp(20px, 0.3vw + 18px, 24px);
-  --llm-doc-font-h4: clamp(18px, 0.18vw + 17px, 20px);
-  --llm-doc-line-body: 1.76;
-  --llm-doc-line-heading: 1.22;
-  --llm-doc-line-code: 1.65;
+  --llm-doc-font-body: clamp(11.5px, 0.08vw + 10px, 13px);
+  --llm-doc-font-body-wide: clamp(12px, 0.06vw + 10px, 13.5px);
+  --llm-doc-font-h1: clamp(22px, 0.22vw + 19px, 27px);
+  --llm-doc-font-h2: clamp(16px, 0.16vw + 15px, 22px);
+  --llm-doc-font-h3: clamp(14px, 0.12vw + 13px, 16px);
+  --llm-doc-font-h4: clamp(13px, 0.06vw + 12px, 15px);
+  --llm-doc-line-body: 1.58;
+  --llm-doc-line-heading: 1.12;
+  --llm-doc-line-code: 1.44;
   --llm-doc-font-family-base:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC',
@@ -65,8 +65,8 @@
 
 @media (max-width: 767px) {
   .vp-doc {
-    font-size: 16px;
-    line-height: 1.72;
+    font-size: 12px;
+    line-height: 1.56;
   }
 }
 
@@ -125,7 +125,7 @@
 }
 
 .vp-doc div[class*='language-'] {
-  font-size: clamp(15.5px, 0.18vw + 14px, 16.5px);
+  font-size: clamp(11.5px, 0.08vw + 10px, 12.5px);
   margin: clamp(16px, 1.4vw, 22px) 0;
   border: 1px solid color-mix(in srgb, var(--vp-c-divider) 72%, transparent);
   border-radius: 14px;
@@ -150,21 +150,48 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
+.vp-doc .mermaid-snapshot,
+.vp-doc .mermaid-fallback {
+  margin: clamp(16px, 1.4vw, 22px) 0;
+  overflow-x: auto;
+}
+
+.vp-doc .mermaid-snapshot svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.vp-doc .mermaid-fallback {
+  padding: 14px 16px;
+  border: 1px dashed color-mix(in srgb, var(--vp-c-divider) 72%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 72%, transparent);
+}
+
 /* 导航栏标题过长时省略，避免挤压搜索框 */
 @media (min-width: 960px) {
   .VPNavBar.has-sidebar .content {
     padding-left: 16px !important;
     padding-right: 16px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .VPNavBarMenu {
     order: 1;
-    flex: 1 1 auto;
+    flex: 0 0 787px;
     min-width: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    align-items: stretch;
+    width: 787px;
+    max-width: 787px;
+    margin: 0 auto;
+    position: static;
+    transform: none;
   }
 
   .VPNavBarSearch {
@@ -197,7 +224,10 @@
     align-items: center !important;
     height: var(--vp-nav-height) !important;
     line-height: 1.1 !important;
-    padding: 0 16px !important;
+    width: 100%;
+    min-width: 0;
+    padding: 0 7px !important;
+    font-size: 11px !important;
     overflow: hidden !important;
     border: 1px solid transparent;
     border-radius: 14px;
@@ -234,6 +264,30 @@
     line-height: 1.05 !important;
     white-space: pre-line !important;
     text-align: center !important;
+    word-break: keep-all;
+  }
+
+  .VPNavBarTitle {
+    flex: 0 0 auto;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    margin-right: 8px;
+    overflow: hidden;
+  }
+
+  .VPNavBarTitle .title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 12px;
+  }
+
+  .VPNavBarTitle .logo {
+    flex: 0 0 auto;
   }
 
   .DocSearch-Button-Keys {
@@ -243,7 +297,7 @@
 
 @media (min-width: 1280px) {
   .vp-doc {
-    font-size: clamp(18px, 0.28vw + 16px, 19px);
+    font-size: clamp(14px, 0.1vw + 11px, 15.2px);
   }
 
   .vp-doc p,
@@ -252,7 +306,7 @@
   .vp-doc td,
   .vp-doc th,
   .vp-doc blockquote > p {
-    line-height: 1.82;
+    line-height: 1.72;
   }
 }
 
@@ -273,16 +327,79 @@
   }
 
   .VPDoc.has-aside .content-container {
-    padding: clamp(20px, 2vw, 30px) clamp(24px, 2.2vw, 36px);
+    padding: clamp(18px, 1.8vw, 26px) clamp(20px, 2vw, 30px);
   }
 
   .VPSidebar {
-    padding: 12px 10px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .VPSidebarItem.level-0 {
+    padding-bottom: 0 !important;
+  }
+
+  .VPSidebarItem.collapsed.level-0 {
+    padding-bottom: 0 !important;
+  }
+
+  .VPSidebarGroup .group + .group {
+    padding-top: 4px !important;
+  }
+
+  .VPSidebarGroup .group {
+    padding-top: 4px !important;
+  }
+
+  .VPSidebarItem.level-0 > .items {
+    padding-top: 0 !important;
+    margin-top: -4px !important;
   }
 
   .VPDoc.has-aside .aside-container,
   .VPDoc.has-aside .aside-content {
-    padding: 12px 14px;
+    padding: 10px 12px;
+  }
+
+  .VPSidebarItem .text {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .VPSidebarItem.level-1 .text,
+  .VPSidebarItem.level-2 .text,
+  .VPSidebarItem.level-3 .text,
+  .VPSidebarItem.level-4 .text,
+  .VPSidebarItem.level-5 .text {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    line-height: 20px;
+  }
+
+  .VPDocOutlineItem .text,
+  .VPDocOutlineItem .link {
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .VPDocAsideOutline .outline-link {
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    height: auto;
+  }
+
+  .VPDocAsideOutline .VPDocOutlineItem li {
+    margin-bottom: 4px;
   }
 }
 
@@ -365,10 +482,10 @@
 /* --vp-sidebar-width: 272px; */
 
 :root {
-  --vp-sidebar-width: 360px;
-  --llm-doc-content-max-width: clamp(1120px, 70vw, 1500px);
-  --llm-doc-content-max-width-code: clamp(1240px, 76vw, 1700px);
-  --llm-doc-content-max-width-table: clamp(1320px, 80vw, 1800px);
+  --vp-sidebar-width: 260px;
+  --llm-doc-content-max-width: clamp(1080px, 64vw, 1360px);
+  --llm-doc-content-max-width-code: clamp(1180px, 70vw, 1520px);
+  --llm-doc-content-max-width-table: clamp(1240px, 74vw, 1600px);
 }
 
 /* 侧边栏背景色
@@ -622,17 +739,19 @@
 
 /* 右侧 outline 也显式收窄，避免内容区两侧都显得过宽 */
 .VPDoc.has-aside .aside {
-  width: 360px !important;
-  min-width: 360px !important;
-  max-width: 360px !important;
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  margin-top: 0;
 }
 
-.VPDoc.has-aside .aside-container,
-.VPDoc.has-aside .aside-content {
-  width: 360px !important;
-  min-width: 360px !important;
-  max-width: 360px !important;
-}
+  .VPDoc.has-aside .aside-container,
+  .VPDoc.has-aside .aside-content {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + var(--vp-doc-top-height, 0px) + 30px) !important;
+  }
 
 /* 如果右侧目录本身为空，直接隐藏，避免 intro / group 页右侧空白过大 */
 .VPDoc.has-aside .aside:has(.VPDocOutlineItem.root:empty) {
@@ -749,8 +868,15 @@
    ============================================================================ */
 
 /* 表格样式 */
-th,
-td {
+.vp-doc table {
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+.vp-doc th,
+.vp-doc td {
+  font-size: 13px;
+  line-height: 1.42;
   /* white-space: nowrap !important; */
   /* 不让th，td内容换行显示 */
   width: 10%;
