@@ -6,6 +6,8 @@ import re
 import argparse
 
 SOURCE_DIRS = [
+    "00_Prerequisites",
+    "01_Hardware_Math_and_Systems",
     "02_PyTorch_Algorithms",
     "03_Triton_Kernels",
     "04_CUDA_and_System_Optimization",
@@ -165,7 +167,9 @@ def collect_targets(args):
         if norm in seen:
             continue
         if not (
-            norm.startswith("02_PyTorch_Algorithms" + os.sep)
+            norm.startswith("00_Prerequisites" + os.sep)
+            or norm.startswith("01_Hardware_Math_and_Systems" + os.sep)
+            or norm.startswith("02_PyTorch_Algorithms" + os.sep)
             or norm.startswith("03_Triton_Kernels" + os.sep)
             or norm.startswith("04_CUDA_and_System_Optimization" + os.sep)
         ):
@@ -177,6 +181,8 @@ def collect_targets(args):
 
 def clean_full_docs_tree():
     for d in [
+        "docs/00_Prerequisites",
+        "docs/01_Hardware_Math_and_Systems",
         "docs/02_PyTorch_Algorithms",
         "docs/03_Triton_Kernels",
         "docs/04_CUDA_and_System_Optimization",

@@ -1,6 +1,6 @@
-# 10. LoRA Tutorial | 参数高效微调: 深入剖析 LoRA (PEFT)
+# 10. LoRA Tutorial | LoRA 教程
 
-**难度：** Medium | **标签：** `微调`, `PEFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `微调`, `PEFT`, `PyTorch` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -12,6 +12,19 @@
 
 本节我们将解析大语言模型领域最具影响力的微调算法：**LoRA (Low-Rank Adaptation)**。我们将实现一个 `LoRALinear` 层，替换标准的 `nn.Linear`，体验矩阵秩分解是如何极大地节省显存开销的。
 
+**关键词：** `LoRA`, `PEFT`, `low-rank`, `adapter`
+
+## 前置阅读
+
+**导语：** 先把 SFT 的训练闭环看过，再回来看 LoRA 的参数高效微调。
+- [09. SFT Training Loop | SFT 训练循环](./09_SFT_Training_Loop.md)
+- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
+
+## 相关阅读
+
+**导语：** LoRA 之后可以继续看学习率调度和梯度累积，补齐训练闭环。
+- [11. LR Schedulers WSD Cosine | WSD 调度器](./11_LR_Schedulers_WSD_Cosine.md)
+- [12. Gradient Accumulation | 梯度累积](./12_Gradient_Accumulation.md)
 ### Step 1: 核心思想与痛点
 
 > **为什么需要 LoRA？**

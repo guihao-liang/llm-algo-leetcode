@@ -1,70 +1,48 @@
-# 第三部分：Triton 算子开发
+# Part 03: Triton Kernel Development | 第三部分：Triton 算子开发
 
-## 🎯 本部分概览
+## Part Overview | Part 概览
 
-本部分聚焦大模型算子的高性能实现，重点是把第二部分的算法实现落到 Triton 层。
+本部分位于 Part 2 之后、Part 4 之前，重点是把第二部分的算法实现进一步落到 Triton 层，形成从 `PyTorch -> Triton` 的算子实现过渡：先理解算子行为，再把 kernel、融合、调优和 profiling 真正落到 GPU 上。它承担的是“从框架级实现走向高性能 kernel”的中间层作用，也是后续 CUDA 系统优化的重要前导。
 
-这条主线可以概括为 `PyTorch -> Triton`：先在 PyTorch 层理解算法与行为，再用 Triton 把算子高效落到 GPU。
+Part 3 更像一张 Triton 实战地图：基础 kernel、设计模式、Attention 优化、推理优化和项目收口可以从不同入口进入，最后都汇到可运行、可调优的 kernel 实战。
 
-从叙事上看，Part 3 其实分成两条并列主线：
+## Part Asset Overview | Part 资产总览
 
-- **主线一：Attention 优化（07-09）**，回答“Attention 怎么算得更快、更省显存？”
-- **主线二：推理优化（10-11）**，回答“推理服务怎么支持更多用户、更省带宽？”
+本章内容按 5 个主题组组织，后续页面也沿该结构继续扩展。
 
-前者偏单次算子与 KV Cache 路径，后者偏权重压缩与多租户路由。它们共同构成完整的推理优化视图，而不是一条严格线性递进的章节链。
+> 导航说明：先看总览，再进入具体组页。
+> 组页负责组内阅读顺序与资产收口，不需要一次性读完全部页面。
+> Part 3 既是 Triton 算子开发目录，也是 Part 2 之后、Part 4 之前的实现衔接层。
 
-如果你是在 Colab 里打开本部分，优先选择免费的 `T4 GPU`，或者任意可用的 GPU runtime。然后先运行 notebook 开头的环境准备单元；该单元会在 `triton` 缺失时自动安装依赖，避免直接在正文里 `import triton` 时报错。
-
-这不是从零开始的入门章，建议先完成 Part 1 的 `1B`、`1D`（其中的 `18 / 19` 也属于这条前导链）和 Part 2 的基础算子、模型组装相关内容，再进入 Part 3。
-
-### Part 3 学习路径
-
-- 先从 `3.1 基础篇` 进入，完成 Triton 的编程模型和基础 kernel 写法。
-- 再到 `3.2 过渡篇`，用 Softmax 和设计模式把基础算子过渡到复杂算子。
-- 接着顺着两条主线推进：
-  - `3.3 进阶A：Attention优化`
-  - `3.4 进阶B：推理优化`
-- `06.5 Triton 设计模式与过渡总结` 负责把前面的常用模式收束成可复用骨架。
-- 最后进入 `3.5 项目篇`，做调试、内存模型和综合项目。
-
-### 学习组划分
-
-| 学习组 | 题目范围 | 主题 | 难度 |
+| 学习组 | 职责作用 | 当前内容映射 | 每组多少节 |
 |:---|:---|:---|:---|
-| **3.1: 基础篇** | 01-05 | Triton 入门与基础融合 | Medium |
-| **3.2: 过渡篇** | 06, 06.5 | Safe Softmax 与设计模式桥接 | Medium |
-| **3.3: 进阶A：Attention优化** | 07-09 | RoPE / FlashAttention / PagedAttention | Hard |
-| **3.4: 进阶B：推理优化** | 10-11 | Quantization 与 Multi-LoRA | Hard |
-| **3.5: 项目篇** | 12-14 | 调试、内存模型与综合项目 | Hard |
+| [3.1](./3_1.md) | 建立 Triton 编程模型和基础 kernel 直觉 | [01](./01_Triton_Vector_Addition.md)、[02](./02_Triton_Fused_SwiGLU.md)、[03](./03_Triton_Fused_RMSNorm.md)、[04](./04_Triton_GEMM_Tutorial.md)、[05](./05_Triton_Autotune_and_Profiling.md) | 5 |
+| [3.2](./3_2.md) | 过渡到 Softmax 和设计模式 | [06](./06_Triton_Fused_Softmax.md)、[06.5](./06_5_Triton_Design_Patterns.md) | 2 |
+| [3.3](./3_3.md) | 推进 Attention 路径上的算子优化 | [07](./07_Triton_Fused_RoPE.md)、[08](./08_Triton_Flash_Attention.md)、[09](./09_Triton_PagedAttention.md) | 3 |
+| [3.4](./3_4.md) | 补齐推理侧的压缩和多 LoRA | [10](./10_Triton_Quantization.md)、[11](./11_Triton_Multi_LoRA.md) | 2 |
+| [3.5](./3_5.md) | 收口调试、内存模型与综合项目 | [12](./12_Triton_Memory_Model_and_Debug.md)、[13](./13_Triton_Llama3_Block_Project.md)、[14](./14_Triton_Best_Practices_and_FAQ.md) | 3 |
 
-### 环境边界（代码审计版）
+## Learning Path | 学习路径
 
-- **整体定位：GPU-required**
-- **完整体验**：需要 NVIDIA GPU，且推荐 Linux + CUDA + Triton
-- **代码审计结果**：第三部分的 Triton notebook 直接面向 GPU 内核与融合算子行为，不能把 CPU 作为完整替代
-- **例外说明**：少数页面可能支持 CPU fallback 或仅用于阅读，但不构成第三部分的标准运行路径
+Part 3 可以按多条入口理解：基础入门入口先把 Triton 编程模型和基础 kernel 立住；Attention 优先、推理优先和项目优先入口则可以从不同工程目标切入，最后都回到项目篇。
 
-### 前置页面
+### Recommended Order | 推荐顺序
 
-- [2.1 基础算子](../02_PyTorch_Algorithms/2_1.md)
-- [2.5 反向传播与显存优化](../02_PyTorch_Algorithms/2_5.md)
+- 基础入门入口：先看 [3.1](./3_1.md) -> [3.2](./3_2.md)
+- Attention 优先入口：先看 [3.1](./3_1.md) -> [3.2](./3_2.md) -> [3.3](./3_3.md) -> [3.5](./3_5.md)
+- 推理优先入口：先看 [3.1](./3_1.md) -> [3.2](./3_2.md) -> [3.4](./3_4.md) -> [3.5](./3_5.md)
+- 项目优先入口：先看 [3.5](./3_5.md)，再回补 [3.1](./3_1.md)、[3.2](./3_2.md)、[3.3](./3_3.md)、[3.4](./3_4.md)
+- 系统学习：按 [3.1](./3_1.md) -> [3.2](./3_2.md) -> [3.3](./3_3.md) -> [3.4](./3_4.md) -> [3.5](./3_5.md) 顺序推进
 
-### Part 1 前导路径
+### Next Steps | 后续衔接
 
-如果你希望先把 Part 3 的认知桥搭稳，建议回看 Part 1 的这条路径：
+- 基础认知层：先看 [3.1](./3_1.md)、[3.2](./3_2.md)，把 Triton 编程模型、Softmax 和设计模式先立住，再按需要进入 [3.3](./3_3.md)。
+- Attention 与推理层：先看 [3.3](./3_3.md)、[3.4](./3_4.md)，把 Attention 优化、量化和多 LoRA 的实现链路理顺，主要衔接后续项目篇。
+- 项目收口：最后看 [3.5](./3_5.md)，把调试、内存模型和综合项目串起来，并为 Part 4 的系统优化提供实现背景。
 
-- **基础认知层**：`1B / 1D`
-- **Triton 前置层**：`18 / 19`（隶属 Part 1 的 `1D：异构调度与算子编程`）
-- **分布式与系统边界**：`20`
+## Environment Notes | 环境说明
 
-如果你对 GPU 访存、block / warp、shared memory、算子融合还不熟，先按 `1B -> 1D -> 18 -> 19` 的顺序回看，再进入 3.1 / 3.2 / 3.3 / 3.4 / 3.5 会更顺。
-
-### 后续页面
-
-- [3.1 基础篇](../03_Triton_Kernels/3_1.md)
-- [3.2 过渡篇](../03_Triton_Kernels/3_2.md)
-- [06.5 Triton 设计模式与过渡总结](../03_Triton_Kernels/06_5_Triton_Design_Patterns.md)
-
-### 环境说明
-
-详细的 GPU / CUDA / Triton 环境分层与平台建议，请见 [使用指南](../guide.md)。
+- 整体定位：GPU-required
+- 这里只写 Part 级统一前提，不点到具体节号
+- 完整体验需要 NVIDIA GPU，推荐 Linux + CUDA + Triton
+- 少数 notebook 可能支持 CPU fallback 或仅用于阅读，但不构成第三部分的标准运行路径

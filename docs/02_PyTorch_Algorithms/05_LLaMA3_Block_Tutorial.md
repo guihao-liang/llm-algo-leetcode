@@ -1,6 +1,6 @@
-# 05. LLaMA3 Block Tutorial | 经典模型搭建: LLaMA-3 Transformer Block
+# 05. LLaMA3 Block Tutorial | LLaMA3 Block 教程
 
-**难度：** Medium | **标签：** `模型架构`, `PyTorch` | **目标人群：** 模型微调与工程部署
+**难度：** Medium | **环境：** CPU-first | **标签：** `模型架构`, `PyTorch` | **目标人群：** 模型微调与工程部署
 
 > 🚀 **云端运行环境**
 >
@@ -11,6 +11,21 @@
 
 
 本节我们将进入激动人心的“组装阶段”！我们将把之前实现的 **RMSNorm**、**RoPE** 和 **GQA (Grouped-Query Attention)** 拼装在一起，外加一个 **SwiGLU** 激活函数的 MLP 层，构建一个真正的 **LLaMA-3 Decoder Layer**。这也是面试中常考的全局架构题。
+
+**关键词：** `LLaMA3`, `Transformer Block`, `Decoder Layer`, `SwiGLU`
+
+## 前置阅读
+
+**导语：** 如果还没把 Attention、RoPE 和 KV Cache 的组合关系理顺，先看下面两页再进入 LLaMA-3 Block 会更顺。
+- [04. Attention MHA GQA | 注意力机制（MHA / GQA）](./04_Attention_MHA_GQA.md)
+- [03. RoPE Tutorial | RoPE 教程](./03_RoPE_Tutorial.md)
+
+## 相关阅读
+
+**导语：** 本节先把 Block 组装讲清楚；如果想继续看稀疏路由和结构变体，再看后面的 MoE 与架构技巧。
+- [06. MoE Router | MoE 路由](./06_MoE_Router.md)
+- [08. Architecture Tricks | 架构技巧](./08_Architecture_Tricks.md)
+
 
 ### Step 1: 核心思想与痛点
 

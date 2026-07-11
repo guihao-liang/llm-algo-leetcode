@@ -1,149 +1,208 @@
-# 06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化 (VRAM Calculation & ZeRO)
+# 06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化
 
-**难度：** Hard | **标签：** `算力评估`, `ZeRO` | **目标人群：** 模型微调与工程部署
+**难度：** Hard | **环境：** CPU-first | **标签：** `算力评估`, `ZeRO` | **目标人群：** 模型微调与工程部署
 
-在工业界和算法工程师的面试中，评估大模型训练所需的显存资源是一项核心基本功。
-这不仅考察对混合精度训练底层机制的理解，还深度考察对 DeepSpeed ZeRO 优化器各阶段（Stage 1/2/3）分布式切分原理的掌握。
+> 🚀 **云端运行环境**
+>
+> 本章节的实战代码可以点击以下链接在免费 GPU 算力平台上直接运行：
+>
+> [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/datawhalechina/llm-algo-leetcode/blob/main/01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.ipynb)
+> [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
-## 本节如何和 Notebook 配合
 
-这一节建议和 [练习页](./06_VRAM_Calculation_and_ZeRO_Practice.md) 一起学：
+这一页把 DDP、ZeRO 和激活值显存的理论推导落成可运行代码，帮助你从“会算”走到“会验证”。
 
-- 先看本文，理解 16 bytes、ZeRO-1/2/3 和激活值显存的理论推导
-- 再做 Notebook，把 DDP、ZeRO 和最大模型规模真正算一遍
-- Notebook 里的测试用来确认你不是“看懂了”，而是真的“会估算、会反推”
+**关键词：** `VRAM`, `ZeRO`, `AdamW`
 
-如果你后面要判断模型能不能装下、训练是否会 OOM，这一页负责让你知道**怎么算显存**，Notebook 负责让你验证**算出来的结果是否可信**。
+## 前置阅读
 
-> **相关阅读**:  
-> 本章对应的练习资产：  
-> [练习页](./06_VRAM_Calculation_and_ZeRO_Practice.md)  
-> [`06_VRAM_Calculation_and_ZeRO_Practice.md`](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO_Practice.md)  
+**导语：** 这一页先把混合精度训练和显存计算的底层推导接上，再进入 DDP / ZeRO 的具体公式。
 
----
+- [05. Communication Topologies | 通信拓扑与分布式基石](./05_Communication_Topologies.md)
+- [03. GPU Architecture and Memory | GPU 物理架构与内存层级](./03_GPU_Architecture_and_Memory.md)
+- [Group 1C: Distributed Communication and Memory Sharing | 1C: 多卡通信与显存共享](./1C.md)
 
-## Q1：在采用 AdamW 优化器的标准混合精度训练中，每个模型参数在静态状态下占用多少显存？
+## 相关阅读
 
-<details>
-<summary>点击展开查看解析</summary>
+**导语：** 如果想继续把显存估算和训练策略补完整，可以接着看这些页。
 
-在主流的大模型混合精度训练（如 BF16 权重 + FP32 优化器状态）中，显存占用主要由三部分构成：
+- [21. Quantization Theory and INT4/INT8 | 量化理论与 INT4/INT8](./21_Quantization_Theory_and_INT4_INT8.md)
+- [26. Parallel Strategy Decision Framework | 并行策略决策框架](./26_Parallel_Strategy_Decision_Framework.md)
+- [29. Tensor Parallelism Sim | Tensor 并行模拟](../02_PyTorch_Algorithms/29_Tensor_Parallelism_Sim.md)
 
-1. **模型权重 (Model Weights)**: 使用 BF16 或 FP16 存储，每个参数占用 **2 bytes**。
-2. **梯度 (Gradients)**: 同样使用 BF16 存储，用于参数更新前的信息累加，每个参数占用 **2 bytes**。
-3. **优化器状态 (Optimizer States)**: 
-   为了避免极小学习率下的参数更新更容易发生下溢出，AdamW 通常会在 FP32 精度下维护三组数据：
-   - FP32 的权重高精度副本 (Master Weights): 4 bytes
-   - 第一阶动量 (Momentum / m): 4 bytes
-   - 第二阶动量 (Variance / v): 4 bytes
-   - *总计优化器状态占用*: 4 + 4 + 4 =  **12 bytes**。
-
-**核心结论：在未切分状态下，每 1 个模型参数对应约 16 bytes 的静态显存开销。**
-</details>
-
----
-
-## Q2：基于 Q1 的结论，为什么单张 80GB 显存的 A100 无法完成 7B 模型（70亿参数）的全参数微调？
+## Q1：DDP 显存计算
 
 <details>
 <summary>点击展开查看解析</summary>
 
-我们可以通过静态显存的理论计算来评估单卡的承载能力：
+在 DDP 下，每张卡都保存完整模型、完整梯度和完整优化器状态。对于 Adam + FP16/BF16 训练，常用的粗略估算是 **16Φ**：
 
-- 7B 模型拥有 7 × 10^9 个参数。
-- 根据 Q1 的公式，每个参数占用 16 字节。
-- **总静态显存占用** = 7 × 10^9 × 16 bytes ≈ 112 GB。
+- 模型参数：`2Φ`
+- 梯度：`2Φ`
+- 优化器状态：`12Φ`
 
-**结论**：
-仅仅是存放模型自身的训练状态（权重、梯度、优化器状态），就已经需要约 112 GB 的显存。这还不包括前向传播中产生的激活值 (Activations) 缓存，以及深度学习框架运行时的上下文开销。因此，单张 80GB 的 A100 很可能会发生 OOM (Out Of Memory)，通常需要引入 ZeRO 等分布式并行优化策略。
+把这三部分相加，就得到 `16Φ` 这一条经验公式。
+
 </details>
+### Q1小验证：DDP 显存计算
 
----
+```python
+def calculate_ddp_memory(num_params_b, model_dtype='fp16', optimizer='adam'):
+    model_bytes = {'fp32': 4, 'fp16': 2, 'bf16': 2}[model_dtype]
+    gradient_bytes = model_bytes
+    optimizer_bytes = {'adam': 12, 'sgd': 4}[optimizer]
+    total_bytes = model_bytes + gradient_bytes + optimizer_bytes
+    return num_params_b * total_bytes
+```
 
-## Q3：DeepSpeed ZeRO-1 是如何通过状态切分解决单卡显存不足问题的？（以单机 8 卡为例）
+
+```python
+def test_calculate_ddp_memory():
+    try:
+        result = calculate_ddp_memory(7, 'fp16', 'adam')
+        assert result == 112, f"错误：期望 112 GB，实际 {result} GB"
+
+        result = calculate_ddp_memory(7, 'fp16', 'sgd')
+        assert result == 56, f"错误：期望 56 GB，实际 {result} GB"
+
+        print("✅ DDP 显存函数测试通过！")
+    except AssertionError as e:
+        print(f"❌ 测试失败: {e}")
+    except Exception as e:
+        print(f"❌ 运行错误: {e}")
+
+test_calculate_ddp_memory()
+```
+
+## Q2：ZeRO 显存计算
 
 <details>
 <summary>点击展开查看解析</summary>
 
-ZeRO (Zero Redundancy Optimizer) 的核心思想是消除数据并行 (Data Parallelism) 中各节点对模型状态的冗余存储。
+ZeRO 的核心思想是把训练状态分摊到多张 GPU 上：
 
-**ZeRO-1 的机制**：
-- 它选择对显存占用最大、但在前反向计算中不需要参与全量矩阵乘法的**优化器状态 (Optimizer States)** 进行切分。
-- 模型权重和梯度依然在每张卡上保留完整备份。
+- **ZeRO-1**：切分优化器状态
+- **ZeRO-2**：切分优化器状态和梯度
+- **ZeRO-3**：切分参数、梯度和优化器状态
 
-**理论显存计算 (假设 DP=8)**：
-- **每卡权重**: 2 bytes × 7B = 14 GB
-- **每卡梯度**: 2 bytes × 7B = 14 GB
-- **每卡优化器状态**: 12 / 8 bytes × 7B = 1.5 bytes × 7B = 10.5 GB
+因此，随着 stage 提升，单卡显存会持续下降，但通信和调度复杂度会增加。
 
-**单卡静态显存总计 = 14 + 14 + 10.5 = 38.5 GB**。
-
-**结论**：
-通过 ZeRO-1 的优化，原本 112 GB 的占用被大幅缩减。对于 80GB A100，这通常已经足以覆盖 7B 模型的基础参数驻留需求；对于 40GB A100，则往往需要进一步控制序列长度、批大小和激活值占用，才能稳定跑起来（通常还要配合 Gradient Checkpointing）。
 </details>
+### Q2小验证：ZeRO 显存计算
 
----
+```python
+def calculate_zero_memory(num_params_b, zero_stage, num_gpus, model_dtype='fp16', optimizer='adam'):
+    model_bytes = {'fp32': 4, 'fp16': 2, 'bf16': 2}[model_dtype]
+    gradient_bytes = model_bytes
+    optimizer_bytes = {'adam': 12, 'sgd': 4}[optimizer]
 
-## Q4：ZeRO-3 的高阶切分策略是如何工作的？理论上单卡显存下限是多少？
+    if zero_stage == 0 or zero_stage == 'ddp':
+        bytes_per_param = model_bytes + gradient_bytes + optimizer_bytes
+    elif zero_stage == 1:
+        bytes_per_param = model_bytes + gradient_bytes + optimizer_bytes / num_gpus
+    elif zero_stage == 2:
+        bytes_per_param = model_bytes + gradient_bytes / num_gpus + optimizer_bytes / num_gpus
+    elif zero_stage == 3:
+        bytes_per_param = (model_bytes + gradient_bytes + optimizer_bytes) / num_gpus
+    else:
+        raise ValueError('zero_stage must be 0/ddp, 1, 2 or 3')
+
+    return num_params_b * bytes_per_param
+```
+
+
+```python
+def test_calculate_zero_memory():
+    try:
+        result = calculate_zero_memory(7, 1, 8, 'fp16', 'adam')
+        assert abs(result - 38.5) < 1e-9, f"错误：ZeRO-1 应该是 38.5 GB，实际 {result} GB"
+
+        result = calculate_zero_memory(7, 2, 8, 'fp16', 'adam')
+        assert abs(result - 26.25) < 1e-9, f"错误：ZeRO-2 应该是 26.25 GB，实际 {result} GB"
+
+        result = calculate_zero_memory(7, 3, 8, 'fp16', 'adam')
+        assert abs(result - 14) < 1e-9, f"错误：ZeRO-3 应该是 14 GB，实际 {result} GB"
+
+        print("✅ ZeRO 显存函数测试通过！")
+    except AssertionError as e:
+        print(f"❌ 测试失败: {e}")
+    except Exception as e:
+        print(f"❌ 运行错误: {e}")
+
+test_calculate_zero_memory()
+```
+
+### Q2扩展验证：最大模型规模反推
+
+给定 GPU 显存容量和 ZeRO stage，反推最大可训练参数量。
+
+```python
+def max_trainable_params(gpu_memory_gb, num_gpus, zero_stage, overhead_ratio=0.2, model_dtype='fp16', optimizer='adam'):
+    available_memory = gpu_memory_gb * (1 - overhead_ratio)
+    model_bytes = {'fp32': 4, 'fp16': 2, 'bf16': 2}[model_dtype]
+    gradient_bytes = model_bytes
+    optimizer_bytes = {'adam': 12, 'sgd': 4}[optimizer]
+
+    if zero_stage == 0 or zero_stage == 'ddp':
+        bytes_per_param = model_bytes + gradient_bytes + optimizer_bytes
+    elif zero_stage == 1:
+        bytes_per_param = model_bytes + gradient_bytes + optimizer_bytes / num_gpus
+    elif zero_stage == 2:
+        bytes_per_param = model_bytes + gradient_bytes / num_gpus + optimizer_bytes / num_gpus
+    elif zero_stage == 3:
+        bytes_per_param = (model_bytes + gradient_bytes + optimizer_bytes) / num_gpus
+    else:
+        raise ValueError('zero_stage must be 0/ddp, 1, 2 or 3')
+
+    return available_memory / bytes_per_param
+```
+
+
+```python
+def test_max_trainable_params():
+    try:
+        result = max_trainable_params(80, 8, 'ddp', 0.2)
+        assert abs(result - 4) < 1e-9, f"错误：DDP 应该最多训练 4B，实际 {result}B"
+
+        result = max_trainable_params(80, 8, 3, 0.2)
+        assert abs(result - 32) < 1e-9, f"错误：ZeRO-3 应该最多训练 32B，实际 {result}B"
+
+        print("✅ 最大模型反推函数测试通过！")
+    except AssertionError as e:
+        print(f"❌ 测试失败: {e}")
+    except Exception as e:
+        print(f"❌ 运行错误: {e}")
+
+test_max_trainable_params()
+```
+
+## Q3：8×80GB GPU 下的最大模型规模估算
+
+**问题：** 如果你手上只有 8 张 80GB GPU，并且希望预留 20% 显存给 activation 和通信开销，DDP、ZeRO-1、ZeRO-2、ZeRO-3 分别能支撑多大的模型？
+
+请把四种策略放在同一个表里比较最大可训练模型规模。
 
 <details>
 <summary>点击展开查看解析</summary>
 
-如果说 ZeRO-1/2 主要切分了优化器和梯度，那么 ZeRO-3 则进一步把参数、梯度和优化器状态都纳入切分范围。
-
-**ZeRO-3 的机制**：
-- 它将**优化器状态、梯度、以及模型权重**全方位地切分并分布到 N 张卡上。
-- **通信换显存**：在计算前向或反向传播时，当前计算层如果需要完整的权重，当前卡会通过网络 (All-Gather) 临时从其他卡拉取所需的参数切片。计算一旦完成，立即释放该高精度副本，显存回落。
-
-**理论显存下限 (假设 DP=8)**：
-- **单卡总参数显存** = 16 bytes / N × 参数量
-- 在 N=8 的情况下：16 / 8 × 7B = 2 bytes × 7B = 14 GB
-- 这里的 14 GB 只表示参数状态的持久驻留下限，不代表峰值显存；真实运行时还会叠加临时 All-Gather、通信缓冲区和框架开销
-
-**工程考量**：
-虽然理论上每张卡只需要 14 GB 的显存，但在真实工程环境中，ZeRO-3 为了维持较高的网络传输效率，通常需要预留和维护额外的通信缓冲区 (Communication Buffers / Fetch Buffers)。因此，实际的峰值显存占用往往高于理论下限，并带来明显的机内通信带宽压力。
-</details>
-
-
----
-
-## Q5：在真实微调中，除了模型静态状态，激活值 (Activations) 也会占用海量显存。工业界是如何通过 FlashAttention-2 和 Gradient Checkpointing 解决这个问题的？
-
-<details>
-<summary>点击展开查看解析</summary>
-
-在前面的计算中我们暂时忽略了激活值。实际上，如果使用原生的 PyTorch 实现，由于需要保存前向传播的中间结果以供反向传播计算梯度，激活值的显存占用会随着序列长度 (Sequence Length) N 的增长显著增加，Attention 相关中间矩阵尤其容易成为 OOM 来源之一。
-
-目前工业界在 A100/H100 服务器上的标准解法是“双管齐下”：
-
-1. **FlashAttention-2 (算子层访存优化)**：
-   - 原生 Attention 在计算时会在 HBM (全局显存) 中实例化一个庞大的 N × N 注意力分数矩阵，这是激活值显存溢出的主要来源之一。
-   - FlashAttention-2 充分利用了 A100 较大的片上 SRAM (共享内存)，通过分块计算 (Tiling) 和在线 Softmax (Online Softmax) 技术，在 SRAM 内部直接完成主要计算并输出最终结果，**避免了向 HBM 写入和读取 O(N^2) 的中间激活矩阵**。这不仅提升了运行速度，也显著降低了激活值显存压力。
-
-2. **Gradient Checkpointing (框架层重算优化)**：
-   - 即“激活重算”机制。它不再于前向传播中保存所有层的激活值，而是仅保存少数几个关键层作为“检查点 (Checkpoints)”。
-   - 在反向传播过程中，如果需要使用未保存的激活值，框架会从最近的检查点**重新进行一次前向计算**以恢复该值。这是一种经典的“以计算换显存”策略，通常能显著降低激活值缓存需求，并把显存占用压到远低于全量保存的水平。
-   - 一个简单的直觉例子是：如果 100 层网络只保留 10 个检查点，那么常驻保存的激活量通常可以降到接近 10% 的量级，但具体比例仍取决于检查点间隔和模型结构。
-
-**工程总结**：ZeRO 解决了**模型参数与优化器状态**的分布式存储问题，而 FlashAttention-2 配合 Gradient Checkpointing 则解决了**动态激活值**的显存爆炸问题。三者紧密结合，构成了现代大模型全参数微调和超长文本训练的底层系统基石。
-</details>
-
----
-
-## Q6：综合练习 - 估算不同 ZeRO 阶段下的可训练模型规模
-
-<details>
-<summary>点击展开查看提示</summary>
-
-请你尝试自己完成下面的估算题：
-
-1. 如果你有 `8 × A100 80GB`，用 `FP16/BF16 + AdamW` 训练 `13B` 模型，`ZeRO-2` 是否足够？
-2. 如果把同样的模型换成 `33B`，`ZeRO-2` 和 `ZeRO-3` 分别还能不能放下？
-3. 如果是 `70B` 模型，想要在 `8 × A100 80GB` 上跑全参数微调，你会优先考虑哪种并行组合？
-
-**提示**：
-- 先算静态显存，再加上激活值和框架开销的安全裕量
-- 不要只看理论下限，要把峰值显存和通信压力一起考虑进去
-- 如果你能说清“能不能放下”和“能不能稳定训练”之间的区别，就说明你已经真正掌握这道题了
+把 DDP、ZeRO-1、ZeRO-2、ZeRO-3 放在同一个表里，比较不同策略的可训练模型规模。这个问题的目标是把前面的 DDP / ZeRO 公式真正落到工程场景里，而不是只停留在概念层。
 
 </details>
+
+```python
+gpu_memory = 80
+num_gpus = 8
+overhead_ratio = 0.2
+strategies = [
+    ('DDP', 'ddp'),
+    ('ZeRO-1', 1),
+    ('ZeRO-2', 2),
+    ('ZeRO-3', 3),
+]
+
+print('8 x A100 80GB 的最大可训练模型规模（FP16 + Adam，预留 20% 显存）：')
+print('-' * 78)
+for name, stage in strategies:
+    max_params = max_trainable_params(gpu_memory, num_gpus, stage, overhead_ratio)
+    print(f"{name:<8} {max_params:>8.2f}B 参数")
+```
