@@ -10,7 +10,7 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-在 `02_PyTorch_Algorithms/13_FlashAttention_Sim` 和 `03_Triton_Kernels/06_Triton_Fused_Softmax` 中，我们已经覆盖了 Flash Attention 的两大数学核心：**分块计算 (Tiling)** 和 **在线安全 Softmax 归约 (Online Safe Softmax)**。
+在 `02_PyTorch_Algorithms/20_FlashAttention_Sim` 和 `03_Triton_Kernels/06_Triton_Fused_Softmax` 中，我们已经覆盖了 Flash Attention 的两大数学核心：**分块计算 (Tiling)** 和 **在线安全 Softmax 归约 (Online Safe Softmax)**。
 本节我们将把这两者结合起来，利用 Triton 在 SRAM 中的极速读写，编写一个可运行在 GPU 上的 Flash Attention 前向计算内核。这是大模型推理与训练提速的重要算子之一。
 
 ## 前置
@@ -24,7 +24,7 @@
 
 ## 相关阅读
 **导语：** 如果你想先把 FlashAttention 的 PyTorch 推导过一遍，可以继续看这页；不影响继续读本节，但会更容易对齐在线 Softmax。
-- [Part 2: 13 FlashAttention Sim](../02_PyTorch_Algorithms/13_FlashAttention_Sim.md)
+- [Part 2: 20 FlashAttention Sim](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
 
 ### Step 1: Flash Attention 内核的执行逻辑
 
