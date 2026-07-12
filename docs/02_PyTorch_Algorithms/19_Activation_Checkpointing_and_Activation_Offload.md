@@ -26,7 +26,7 @@
 **导语：** 看完显存优化后，可以继续进入性能分析和推理优化主线。
 
 - [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-- [18. Activation Checkpointing and Activation Offload | 激活检查点与激活卸载](../01_Hardware_Math_and_Systems/18_Activation_Checkpointing_and_Activation_Offload.md)
+- [18. Activation and Loss Backward | 激活函数与损失反向传播](../02_PyTorch_Algorithms/18_Activation_and_Loss_Backward.md)
 - [20. FlashAttention Sim | FlashAttention 模拟](../02_PyTorch_Algorithms/20_FlashAttention_Sim.md)
 
 ### Step 1: 核心思想与痛点
