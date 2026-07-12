@@ -36,11 +36,11 @@ def run_cmd(cmd: list[str], cwd: Path | None = None) -> None:
 
 
 def convert_notebooks(part_dir: str) -> None:
-    run_cmd([sys.executable, str(ROOT / "convert_notebook.py"), "--dir", part_dir])
+    run_cmd([sys.executable, str(ROOT / "tools" / "convert_notebook.py"), "--dir", part_dir])
 
 
 def check_mirror() -> None:
-    run_cmd([sys.executable, str(ROOT / "check_source_docs_mirror.py")])
+    run_cmd([sys.executable, str(ROOT / "tools" / "check_source_docs_mirror.py")])
 
 
 def build_docs() -> None:
