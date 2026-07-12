@@ -16,16 +16,16 @@
 ## 前置阅读
 
 **导语：** 先把 SFT、LoRA、训练闭环和显存优化相关的具体小节看过，再做端到端微调实验最顺。
-- [09. PyTorch nn.Module Basics | PyTorch nn.Module 基础](./09_PyTorch_nn_Module_Basics.md)
-- [11. PyTorch Optimizers and Loss | PyTorch 优化器与损失](./11_PyTorch_Optimizers_and_Loss.md)
-- [13. Simple Neural Network Training | 简单神经网络训练](./13_Simple_Neural_Network_Training.md)
+- [09. PyTorch nn.Module Basics | PyTorch nn.Module 基础](../00_Prerequisites/09_PyTorch_nn_Module_Basics.md)
+- [11. PyTorch Optimizers and Loss | PyTorch 优化器与损失](../00_Prerequisites/11_PyTorch_Optimizers_and_Loss.md)
+- [13. Simple Neural Network Training | 简单神经网络训练](../00_Prerequisites/13_Simple_Neural_Network_Training.md)
 
 ## 相关阅读
 
 **导语：** 完成训练收束后，可以继续进入显存与并行、性能分析相关的小节。
-- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO](./06_VRAM_Calculation_and_ZeRO.md)
-- [13. Profiling and Bottleneck Analysis | Profiling 与瓶颈分析](./13_Profiling_and_Bottleneck_Analysis.md)
-- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](./20_NCCL_and_AllReduce_Basics.md)
+- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.md)
+- [13. Profiling and Bottleneck Analysis | Profiling 与瓶颈分析](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
+- [20. NCCL and AllReduce Basics | NCCL 与 AllReduce 基础](../01_Hardware_Math_and_Systems/20_NCCL_and_AllReduce_Basics.md)
 
 ### Step 1: 端到端训练闭环长什么样
 

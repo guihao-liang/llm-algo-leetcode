@@ -24,7 +24,7 @@
 ## 相关阅读
 
 **导语：** 如果想把 vLLM 的分页管理和纯 Python 模拟再对照一遍，可以继续看这页；不影响继续读本节，但会更容易理解间接寻址。
-- [Part 2: 17 vLLM PagedAttention](../02_PyTorch_Algorithms/17_vLLM_PagedAttention.md)
+- [Part 2: 22 vLLM PagedAttention](../02_PyTorch_Algorithms/22_vLLM_PagedAttention.md)
 
 ### Step 1: Paged KV Cache 的物理存储与逻辑映射
 
