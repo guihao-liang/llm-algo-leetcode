@@ -3,7 +3,7 @@
 
 This script mirrors each Part's intro page and group pages into docs/.
 It does not touch notebook part mirrors, which remain the job of
-convert_notebook.py.
+tools/convert_notebook.py.
 """
 
 from __future__ import annotations
@@ -37,6 +37,8 @@ NAV_FILES = {
     "team_study": [
         "intro.md",
         "part2_l1_202606/intro.md",
+        "part2_l1_202606/group_topic_1.md",
+        "part2_l1_202606/group_topic_2.md",
         "part2_l1_202607/intro.md",
         "part2_l2_202607/intro.md",
     ],
