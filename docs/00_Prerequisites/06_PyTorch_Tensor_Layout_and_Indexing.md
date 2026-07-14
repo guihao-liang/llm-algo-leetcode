@@ -10,7 +10,7 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-本页聚焦：读懂 Tensor 的维度、步长和连续性；掌握切片、广播和维度变换的最小判断；为后面的 Attention、KV cache 和 layout 讨论打底。
+本页聚焦：读懂 Tensor 的维度、步长和连续性；掌握切片、广播和维度变换的最小判断；为后面的 Attention、KV cache 和 layout 讨论打底。你可以把这一页理解成“Tensor 已经拿到了，接下来要决定它怎么排、怎么取、怎么重组”。后面 Part 2 里常见的 `permute / reshape / view / contiguous`、mask 和序列变换，都会直接复用这里的判断方式。
 
 **关键词：** `shape`, `stride`, `contiguous`
 
@@ -27,7 +27,7 @@
 
 ## Q1：shape、stride 和 contiguous 分别解决什么问题？
 
-看到一个 Tensor 时，先别急着看值，先看它的 shape、stride 和是否连续。后面只要涉及 layout、view 或切片，这三个信息就决定你能不能直接继续算。
+看到一个 Tensor 时，先别急着看值，先看它的 shape、stride 和是否连续。shape 决定维度是否对得上，stride 决定这些维度在内存里怎么走，contiguous 决定后续能不能直接 `view()` 或交给更底层的算子。这里重点熟悉 `x[:, 1:3]` 这种切片、`x.t()` 这种转置，以及 `x.stride()` / `x.is_contiguous()` 这两个最常用的布局判断接口。后面只要涉及 layout、view 或切片，这三个信息就要一起看。
 
 
 ```python
@@ -46,22 +46,12 @@ x = torch.arange(12).reshape(3, 4)
 y = x[:, 1:3]
 z = x.t()
 
+# `shape`、`stride` 和 `contiguous` 是 layout 里的三个核心信号。
 print('x:', describe_layout(x))
 print('y:', describe_layout(y))
 print('z:', describe_layout(z))
 
-```
-
-## Q1验证：切片和转置后布局是否变化？
-
-这里直接看三个视图：原始张量、切片张量、转置张量。重点不是它们的值，而是它们的 stride 和 contiguous 是否发生变化。
-
-
-```python
-x = torch.arange(12).reshape(3, 4)
-y = x[:, 1:3]
-z = x.t()
-
+# 切片和转置通常都会破坏连续性，这里只要记住判断结果即可。
 assert x.is_contiguous() is True
 assert y.is_contiguous() is False
 assert z.is_contiguous() is False
@@ -69,14 +59,16 @@ print('✅ layout 基本判断通过')
 
 ```
 
-## Q2：什么时候该先做索引和广播判断？
+## Q2：什么时候该先做索引、广播和查表判断？
 
-当你要取局部片段、做 mask、或者把一个小张量扩展到大张量上时，先确认索引和广播会不会改变语义。很多后续错误不是算错，而是把维度关系写错了。
+当你要取局部片段、做 mask、增加或删除一维，或者把一个小张量扩展到大张量上时，先确认索引和广播会不会改变语义。很多后续错误不是算错，而是把维度关系写错了；在 Part 2 里，attention mask、位置编码、局部查表、batch 拼接都会反复用到这类判断。这里重点看 `masked_fill`、`~mask`、`unsqueeze / squeeze`、`stack / cat`、`index_select`、`gather` 和广播加法的写法。`mask` 一般表示“保留哪些位置”，`~mask` 就表示“要屏蔽哪些位置”，所以经常拿来配合 `masked_fill` 使用。
 
 
 ```python
 x = torch.arange(1, 13).reshape(3, 4)
 mask = x % 2 == 0
+row = x[0]
+# `masked_fill` 会把 `~mask` 为 True 的位置替换成指定值。
 print('原始张量：')
 print(x)
 print('布尔 mask：')
@@ -84,68 +76,74 @@ print(mask)
 print('masked 后：')
 print(x.masked_fill(~mask, -1))
 
+# `unsqueeze / squeeze` 负责加一维 / 去一维；`stack / cat` 负责拼接张量。
+row_2d = row.unsqueeze(0)
+print('unsqueeze 后 shape：', row_2d.shape)
+print('squeeze 后 shape：', row_2d.squeeze(0).shape)
+print('stack 后 shape：', torch.stack([row, row], dim=0).shape)
+print('cat 后 shape：', torch.cat([row_2d, row_2d], dim=0).shape)
+
+# `index_select` / 高级索引常用于按 id 查表；`gather` 常用于按位置取值。
+table = torch.tensor([[10, 11, 12, 13], [20, 21, 22, 23], [30, 31, 32, 33]])
+ids = torch.tensor([2, 0], dtype=torch.long)
+print('高级索引查表：', table[ids])
+print('index_select 查表：', torch.index_select(table, 0, ids))
+pos = torch.tensor([[0], [3], [1]])
+print('gather 取值：', torch.gather(table, 1, pos))
+
+# 一维张量会自动广播到二维张量的每一行；`expand` 只改变视图语义，`repeat` 会真正复制数据。
 bias = torch.tensor([10, 20, 30, 40])
 print('广播加 bias：')
 print(x + bias)
+print('expand shape：', row_2d.expand(3, -1).shape)
+print('repeat shape：', row_2d.repeat(3, 1).shape)
 
-```
-
-## Q2验证：mask 和广播是否符合预期？
-
-这里直接检查两件事：偶数元素是否保留，以及一维 bias 是否能按列广播到二维张量。
-
-
-```python
-x = torch.arange(1, 13).reshape(3, 4)
-mask = x % 2 == 0
 masked = x.masked_fill(~mask, -1)
+# 通过断言把输出形状和数值都固定下来。
 assert masked.tolist() == [[-1, 2, -1, 4], [-1, 6, -1, 8], [-1, 10, -1, 12]]
-
-bias = torch.tensor([10, 20, 30, 40])
 broadcasted = x + bias
 assert broadcasted.tolist() == [[11, 22, 33, 44], [15, 26, 37, 48], [19, 30, 41, 52]]
-print('✅ mask 和广播通过')
+assert row_2d.squeeze(0).shape == (4,)
+assert torch.stack([row, row], dim=0).shape == (2, 4)
+assert torch.cat([row_2d, row_2d], dim=0).shape == (2, 4)
+assert row_2d.expand(3, -1).shape == (3, 4)
+assert row_2d.repeat(3, 1).shape == (3, 4)
+assert torch.index_select(table, 0, ids).tolist() == [[30, 31, 32, 33], [10, 11, 12, 13]]
+assert torch.gather(table, 1, pos).tolist() == [[10], [23], [31]]
+print('✅ mask、广播、拼接和查表通过')
 
 ```
 
-## Q3：什么时候必须先保证内存连续？
+## Q3：什么时候必须先保证内存连续，什么时候会卡在 transpose / permute 之后？
 
-只要你后面要调用 `view()`、交给更底层的算子，或者想减少额外拷贝，就要先检查连续性。连续性不是“可选信息”，它会直接决定后续操作能不能顺利进行。
+只要你后面要调用 `view()`、交给更底层的算子，或者想减少额外拷贝，就要先检查连续性。特别是 `transpose / permute` 之后，shape 看起来可能还对，但 layout 往往已经变了；连续性不是“可选信息”，它会直接决定后续操作能不能顺利进行。这里重点看 `transpose`、`view`、`reshape` 在连续性上的差别。
 
 
 ```python
 x = torch.arange(24).reshape(2, 3, 4)
 y = x.transpose(1, 2)
 
+# `transpose` 会交换维度，但不会帮你重排内存。
 print('x contiguous:', x.is_contiguous())
 print('y contiguous:', y.is_contiguous())
 
+# 不连续的 Tensor 直接 `view()`，通常会抛出 RuntimeError。
 try:
     y.view(-1)
 except RuntimeError as e:
-    print('view 失败：', str(e).split('\n')[0])
+    print('view 失败：', str(e).split(':', 1)[0])
 
+# `reshape()` 会在需要时帮你返回正确结果，更适合不确定连续性的场景。
 print('reshape 结果 shape：', y.reshape(-1).shape)
-
-```
-
-## Q3验证：连续性和 reshape 是否如预期？
-
-这里直接确认：转置后通常不是连续的，`view()` 会失败，但 `reshape()` 还能给出正确结果。
-
-
-```python
-x = torch.arange(24).reshape(2, 3, 4)
-y = x.transpose(1, 2)
 assert y.is_contiguous() is False
 assert y.reshape(-1).shape == (24,)
 print('✅ contiguous 和 reshape 通过')
 
 ```
 
-## Q4：什么时候 contiguous 不是性能问题，什么时候就是？
+## Q4：shape contract 和 layout contract 有什么区别？什么时候优先用 reshape 而不是 view？
 
-如果后续只是读，不一定非要连续；如果要 view、reshape 或进某些算子，连续性就会变成硬约束。
+shape 对的是“能不能对齐维度”，layout 对的是“这些维度是不是按你想的顺序存着”。两者不是一回事，前者对了不代表后者也对；这也是为什么 `shape` 对了，`view()` 仍然可能失败。这里重点看一个判断函数如何根据 `shape_ok / layout_ok / need_view` 返回不同路径。只要你不确定内存是不是连续，或者更关心结果正确而不是零拷贝，就优先用 `reshape`；如果你确认 layout 已经对齐、又想要零拷贝，才优先用 `view`。
 
 
 ```python
@@ -157,39 +155,13 @@ def contiguous_priority(need_view, need_kernel, read_only):
     return 'profile_first'
 
 
+# 先用一个小判断函数，把“需不需要连续”写成可读规则。
 print('case1:', contiguous_priority(True, False, False))
 print('case2:', contiguous_priority(False, False, True))
 print('case3:', contiguous_priority(False, True, False))
 # 输出示例: must_fix_contiguous / maybe_ok / must_fix_contiguous
 
-```
 
-## Q5：transpose 后为什么不能直接 view？
-
-因为 transpose 改了 stride，shape 看起来没变，但内存布局已经不是原来的连续顺序。
-
-
-```python
-def view_after_transpose_ok(shape_ok, stride_ok, contiguous_ok):
-    if not stride_ok or not contiguous_ok:
-        return 'view_will_fail'
-    if shape_ok:
-        return 'view_safe'
-    return 'shape_mismatch'
-
-
-print('result1:', view_after_transpose_ok(True, False, False))
-print('result2:', view_after_transpose_ok(True, True, True))
-# 输出示例: view_will_fail / view_safe
-
-```
-
-## Q6：shape contract 和 layout contract 有什么区别？
-
-shape 对的是“能不能对齐维度”，layout 对的是“这些维度是不是按你想的顺序存着”。两者不是一回事，前者对了不代表后者也对。
-
-
-```python
 def contract_report(shape_ok, layout_ok, need_view):
     if not shape_ok:
         return {'status': 'shape_fail', 'next': 'fix_shape_first'}
@@ -198,28 +170,42 @@ def contract_report(shape_ok, layout_ok, need_view):
     return {'status': 'ok', 'next': 'continue'}
 
 
+# 这里把 shape / layout / view 三个条件合在一起看，便于快速决策。
 print(contract_report(True, False, True))
 print(contract_report(True, True, True))
-# 输出示例: layout_fail -> make_contiguous_or_use_reshape
+print(contract_report(False, True, False))
 
 ```
 
-## Q7：什么时候该优先用 reshape 而不是 view？
+## Q5：transpose / permute 后为什么不能直接 view，什么时候该用 reshape？
 
-只要你不确定内存是不是连续，或者更关心结果正确而不是零拷贝，就优先用 reshape；view 是“布局已经对齐”的更强前提。
+这一题把前面几道题合起来看：先确认 layout 是否还连续，再决定是直接 `view()`，还是先用 `reshape()` 让结果正确落地。这里重点看 `permute`、`view` 失败和 `reshape` 接住结果这条语法链。
 
 
 ```python
-def prefer_reshape(contiguous_ok, must_zero_copy):
-    if must_zero_copy and contiguous_ok:
-        return 'view'
-    if not contiguous_ok:
-        return 'reshape'
-    return 'either_but_view_preferred'
+x = torch.arange(24).reshape(2, 3, 4)
+y = x.permute(0, 2, 1)
 
+# `permute` 和 `transpose` 一样，都会改变维度顺序，但不会自动修正 layout。
+print('x contiguous:', x.is_contiguous())
+print('y contiguous:', y.is_contiguous())
 
-print(prefer_reshape(False, False))
-print(prefer_reshape(True, True))
-# 输出示例: reshape / view
+# 这一步故意触发 `view` 失败，方便你记住问题根因是 layout。
+try:
+    y.view(-1)
+except RuntimeError as e:
+    print('view 失败：', str(e).split(':', 1)[0])
+
+# `reshape` 会在必要时返回一份新的结果，保证语义正确。
+print('reshape 结果 shape：', y.reshape(-1).shape)
+assert y.is_contiguous() is False
+assert y.reshape(-1).shape == (24,)
+print('✅ transpose / permute 后 view 与 reshape 关系通过')
 
 ```
+
+### 本节小结
+
+- `shape` 负责对齐，`stride / contiguous` 负责决定能不能直接重排。
+- `mask / 广播 / 查表` 是高频语法，先看语义再看实现。
+- `reshape` 是更稳的默认选择，`view` 只适合布局已经对齐的场景。

@@ -16,16 +16,16 @@
 ## 前置阅读
 
 **导语：** 先补齐 PyTorch 学习率调度和训练闭环所需的基础，再来看 WSD 退火策略。
-- [11. PyTorch Optimizers and Loss | 优化器与损失](../00_Prerequisites/11_PyTorch_Optimizers_and_Loss.md)
-- [12. PyTorch Minimal Training Interface | 最小训练接口](../00_Prerequisites/12_PyTorch_Minimal_Training_Interface.md)
-- [13. Simple Neural Network Training | 简单神经网络训练](../00_Prerequisites/13_Simple_Neural_Network_Training.md)
+- [P0: 11. PyTorch Optimizers and Loss | 优化器与损失](../00_Prerequisites/11_PyTorch_Optimizers_and_Loss.md)
+- [P0: 12. PyTorch Minimal Training Interface | 最小训练接口](../00_Prerequisites/12_PyTorch_Minimal_Training_Interface.md)
+- [P0: 13. Simple Neural Network Training | 简单神经网络训练](../00_Prerequisites/13_Simple_Neural_Network_Training.md)
 
 ## 相关阅读
 
 **导语：** WSD 的学习率曲线和训练稳定性，也可以结合性能分析与调度背景一起理解。
-- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-- [17. CUDA Stream and Asynchrony | CUDA 流与异步](../01_Hardware_Math_and_Systems/17_CUDA_Stream_and_Asynchrony.md)
-- [19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
+- [P1: 13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
+- [P1: 17. CUDA Stream and Asynchrony | CUDA 流与异步](../01_Hardware_Math_and_Systems/17_CUDA_Stream_and_Asynchrony.md)
+- [P1: 19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
 ### Step 1: 核心机制剖析
 这一节先把 Warmup、Stable 和 Decay 各自解决什么问题讲清楚，再落到代码分支。
 

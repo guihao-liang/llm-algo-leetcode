@@ -19,16 +19,16 @@
 
 **导语：** 如果还没把张量运算、激活函数和归一化顺理清楚，先看下面几页会更容易进入门控激活。
 
-- [05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
-- [14. Activation Functions | 激活函数](../00_Prerequisites/14_Activation_Functions.md)
-- [15. Normalization Techniques | 归一化技术](../00_Prerequisites/15_Normalization_Techniques.md)
+- [P0: 05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
+- [P0: 14. Activation Functions | 激活函数](../00_Prerequisites/14_Activation_Functions.md)
+- [P0: 15. Normalization Techniques | 归一化技术](../00_Prerequisites/15_Normalization_Techniques.md)
 
 ## 相关阅读
 
 **导语：** 本节先用纯 PyTorch 讲清 SwiGLU 的门控原理与维度变化；如果想看同一结构在更高吞吐实现里怎么落地，再看混合精度和算子融合相关页面。
 
-- [12. TensorCore and Mixed Precision | Tensor Core 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
-- [19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
+- [P1: 12. TensorCore and Mixed Precision | Tensor Core 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
+- [P1: 19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
 
 ### Step 1: 核心思想与痛点
 

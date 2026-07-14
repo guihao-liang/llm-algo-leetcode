@@ -16,18 +16,17 @@
 **关键词：** `RoPE`, `positional encoding`, `complex tensor`
 ## 前置阅读
 
-**导语：** 如果还没把张量变换、自动求导和注意力直觉理顺，先看下面几页再进入 RoPE 会更顺。
+**导语：** 如果还没把张量变换和注意力直觉理顺，先看下面几页再进入 RoPE 会更顺。
 
-- [05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
-- [07. PyTorch Autograd and Backward | PyTorch 自动求导与反向传播](../00_Prerequisites/07_PyTorch_Autograd_and_Backward.md)
-- [16. Attention Mechanism Intro | 注意力机制导论](../00_Prerequisites/16_Attention_Mechanism_Intro.md)
+- [P0: 05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
+- [P0: 16. Attention Mechanism Intro | 注意力机制导论](../00_Prerequisites/16_Attention_Mechanism_Intro.md)
 
 ## 相关阅读
 
 **导语：** 本节先把 RoPE 的旋转位置编码数学推导讲清楚；如果想看它和 Attention 融合后在实现层怎么落地，再看硬件直觉和算子融合页面。
 
-- [03. GPU Architecture and Memory | GPU 物理架构与内存层级](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
-- [19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
+- [P1: 03. GPU Architecture and Memory | GPU 物理架构与内存层级](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
+- [P1: 19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
 
 ### Step 1: 核心思想与痛点
 
@@ -254,24 +253,24 @@ def apply_rotary_emb(
 
 **1. TODO 1 (预计算旋转频率与极坐标复数生成)**
 
-- **逆频率计算：** 使用公式 $\Theta = 10000^{-2i/d}$ 计算每个维度的旋转频率。代码中  步长为 2，对应复数的实部和虚部配对，除以  后取负指数。
-- **位置编码矩阵：** 通过  生成  的角度矩阵，其中  是位置索引 。
-- **极坐标复数：**  生成复数 ^{i\theta}$，这里  全为 1（模长）， 是预计算的角度矩阵。这是 RoPE 的核心数学表示。
-- **工程细节：** 为什么代码用  而公式是 hmtBc2i/d$？因为 PyTorch 复数将最后一维按  成对存储，步长 2 正好对应公式中的  指数。
+- **逆频率计算：** 使用公式 $\text{inv\_freq}_i = \theta^{-2i/d}$ 计算每个维度的旋转频率。代码中用 `torch.arange(0, dim, 2)` 以步长 2 取偶数维索引，对应复数的实部和虚部配对，并在除以 `dim` 后取负指数。
+- **位置编码矩阵：** 通过 `torch.outer(t, inv_freq)` 生成位置 `t` 与频率 `inv_freq` 的角度矩阵，其中 `t` 是位置索引。
+- **极坐标复数：** `torch.polar(torch.ones_like(freqs), freqs)` 生成复数 $e^{i\theta}$，这里 `torch.ones_like(freqs)` 全为 1（模长），`freqs` 是预计算的角度矩阵。这是 RoPE 的核心数学表示。
+- **工程细节：** 为什么代码用 `torch.arange(0, dim, 2)` 而公式是 $\theta^{-2i/d}$？因为 PyTorch 复数将最后一维按 2 成对存储，步长 2 正好对应公式中的 $2i$ 指数。
 
 **2. TODO 2 (实数张量转复数张量与精度提升)**
 
-- **精度提升的必要性（Critical）：** 在执行  之前必须先调用  将张量提升到 FP32。这是因为复数乘法在 FP16/BF16 下极易发散或产生 NaN，导致训练崩溃。这是 RoPE 实现中最容易踩的坑，LLaMA 等开源模型的源码中都强制使用 FP32 进行旋转计算。
-- **维度重塑：**  将最后一维  拆分为 ，其中 2 对应实部和虚部。
-- **复数转换：**  将形状  的实数张量解释为复数张量 ，每两个相邻元素组成一个复数。
+- **精度提升的必要性（Critical）：** 在执行 `torch.view_as_complex` 之前必须先调用 `.float()` 将张量提升到 FP32。这是因为复数乘法在 FP16/BF16 下极易发散或产生 NaN，导致训练崩溃。这是 RoPE 实现中最容易踩的坑，LLaMA 等开源模型的源码中都强制使用 FP32 进行旋转计算。
+- **维度重塑：** 将最后一维 `head_dim` 拆分为 `(-1, 2)`，其中 `2` 对应实部和虚部。
+- **复数转换：** 将形状 `(..., head_dim)` 的实数张量解释为复数张量 `(..., head_dim // 2)`，每两个相邻元素组成一个复数。
 
 **3. TODO 3 (复数乘法旋转与实数还原)**
 
-- **广播机制：**  将  的形状从  扩展为 ，以便与  的形状  进行广播。
-- **复数乘法：**  完成旋转操作，这是 RoPE 的核心计算。复数乘法 (c+di) = (ac-bd) + (ad+bc)i$ 自动实现了旋转矩阵的效果。
-- **实数还原：**  将复数张量转回实数表示，在最后增加一个大小为 2 的维度 。
-- **维度展平：**  将最后两个维度  合并回 ，恢复原始形状。
-- **类型恢复：**  将结果转回输入的原始精度（如 FP16），因为前面为了数值稳定性提升到了 FP32。
+- **广播机制：** 将 `freqs_cis` 的形状从 `(seq_len, head_dim // 2)` 扩展为广播友好的形状，以便与 `xq_` / `xk_` 的形状对齐。
+- **复数乘法：** 完成旋转操作，这是 RoPE 的核心计算。复数乘法 $(a+bi)(c+di) = (ac-bd) + (ad+bc)i$ 自动实现了旋转矩阵的效果。
+- **实数还原：** 将复数张量转回实数表示，在最后增加一个大小为 2 的维度。
+- **维度展平：** 将最后两个维度 `(..., 2)` 合并回 `head_dim`，恢复原始形状。
+- **类型恢复：** 将结果转回输入的原始精度（如 FP16），因为前面为了数值稳定性提升到了 FP32。
 
 **进阶思考：RoPE 的上下文外推 (Context Extension)**
 

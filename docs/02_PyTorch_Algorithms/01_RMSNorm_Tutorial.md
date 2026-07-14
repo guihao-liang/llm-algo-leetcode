@@ -18,16 +18,16 @@
 
 **导语：** 如果还没把张量基础和归一化直觉理顺，先看下面几页会更顺。
 
-- [05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
-- [13. Simple Neural Network Training | 简单神经网络训练循环](../00_Prerequisites/13_Simple_Neural_Network_Training.md)
-- [15. Normalization Techniques | 归一化技术](../00_Prerequisites/15_Normalization_Techniques.md)
+- [P0: 05. PyTorch Tensor Fundamentals | PyTorch 张量基础操作](../00_Prerequisites/05_PyTorch_Tensor_Fundamentals.md)
+- [P0: 13. Simple Neural Network Training | 简单神经网络训练循环](../00_Prerequisites/13_Simple_Neural_Network_Training.md)
+- [P0: 15. Normalization Techniques | 归一化技术](../00_Prerequisites/15_Normalization_Techniques.md)
 
 ## 相关阅读
 
 **导语：** 本节先用纯 PyTorch 讲清 RMSNorm 的归一化逻辑与数值稳定性；如果想看同一算子在更高吞吐实现里的做法，再看硬件与融合优化相关页面。
 
-- [03. GPU Architecture and Memory | GPU 物理架构与内存层级](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
-- [19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
+- [P1: 03. GPU Architecture and Memory | GPU 物理架构与内存层级](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
+- [P1: 19. Operator Fusion Introduction | 算子融合导论](../01_Hardware_Math_and_Systems/19_Operator_Fusion_Introduction.md)
 
 ### Step 1: 核心思想与痛点
 
