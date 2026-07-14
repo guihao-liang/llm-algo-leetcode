@@ -20,10 +20,9 @@
 **导语：** 先看 0D 组页，把训练骨架和激活分布的边界对齐，再进入这一页会更顺。
 - [13. Simple Neural Network Training | 简单神经网络训练循环](./13_Simple_Neural_Network_Training.md)
 - [0D 组页](./0D.md)
-- [12. TensorCore and Mixed Precision | TensorCore 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
-
 ## 相关阅读
 **导语：** 本页先把常见激活函数和数值分布的最小判断讲清楚；如果想继续看归一化怎么配合激活使用，再顺着看下面这一页。
+- [P1: 12. TensorCore and Mixed Precision | TensorCore 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
 - [15. Normalization Techniques | 归一化技术](./15_Normalization_Techniques.md)
 
 ## Q1：激活函数在模型里解决什么问题？

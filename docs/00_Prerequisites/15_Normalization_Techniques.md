@@ -20,10 +20,9 @@
 **导语：** 先看 0D 组页，把激活函数和训练稳定性的边界对齐，再进入这一页会更顺。
 - [14. Activation Functions | 激活函数](./14_Activation_Functions.md)
 - [0D 组页](./0D.md)
-- [12. TensorCore and Mixed Precision | TensorCore 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
-
 ## 相关阅读
 **导语：** 本页先把 BatchNorm、LayerNorm 和训练态 / 推理态的最小判断讲清楚；如果想继续看 Attention 如何接上这些稳定性直觉，再顺着看下面这一页。
+- [P1: 12. TensorCore and Mixed Precision | TensorCore 与混合精度](../01_Hardware_Math_and_Systems/12_TensorCore_and_Mixed_Precision.md)
 - [16. Attention Mechanism Intro | Attention 机制导论](./16_Attention_Mechanism_Intro.md)
 
 ## Q1：BatchNorm 和 LayerNorm 分别解决什么问题？
