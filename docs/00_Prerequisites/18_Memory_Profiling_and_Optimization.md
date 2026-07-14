@@ -18,9 +18,6 @@
 **导语：** 先看 0E 组页，把性能分析和显存账本的边界对齐，再进入这一页会更顺。
 - [17. PyTorch Profiling Basics | PyTorch 性能分析基础](./17_PyTorch_Profiling_Basics.md)
 - [0E 组页](./0E.md)
-- [03. GPU Architecture and Memory | GPU 物理架构、内存层级与核心硬件单元](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
-- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.md)
-
 ## 相关阅读
 **导语：** 本页先把显存账本和优化手段的最小判断讲清楚；如果想继续看调试技巧，再顺着看下面这一页。
 - [19. Debugging and Anomaly Localization | 调试与异常定位](./19_Debugging_and_Anomaly_Localization.md)

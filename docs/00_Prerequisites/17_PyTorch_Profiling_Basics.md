@@ -16,10 +16,8 @@
 
 ## 前置阅读
 **导语：** 先看 0E 组页，把注意力和性能分析的边界对齐，再进入这一页会更顺。
-- [16. Attention Mechanism Intro | Attention 机制导论](./16_Attention_Mechanism_Intro.md)
 - [0E 组页](./0E.md)
-- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-
+- [P1: 13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
 ## 相关阅读
 **导语：** 本页先把 profiling 的最小判断讲清楚；如果想继续看显存占用和内存账本，再顺着看下面这一页。
 - [18. Memory Profiling and Optimization | 显存分析与优化](./18_Memory_Profiling_and_Optimization.md)

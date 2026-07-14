@@ -18,11 +18,9 @@
 **导语：** 先看 0E 组页，把调试和性能排查的边界对齐，再进入这一页会更顺。
 - [18. Memory Profiling and Optimization | 显存分析与优化](./18_Memory_Profiling_and_Optimization.md)
 - [0E 组页](./0E.md)
-- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-
 ## 相关阅读
 **导语：** 如果想把异常定位接上 Part 1 的性能和硬件视角，可以顺着看下面这一页。
-- [03. GPU Architecture and Memory | GPU 物理架构、内存层级与核心硬件单元](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
+- [P1: 03. GPU Architecture and Memory | GPU 物理架构、内存层级与核心硬件单元](../01_Hardware_Math_and_Systems/03_GPU_Architecture_and_Memory.md)
 
 ## Q1：异常先归到哪几类，才能开始排查？
 
