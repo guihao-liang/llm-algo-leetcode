@@ -18,11 +18,9 @@
 **导语：** 先看 0E 组页，把性能剖析和显存账本的边界对齐，再进入这一页会更顺。
 - [19. Debugging and Anomaly Localization | 调试与异常定位](./19_Debugging_and_Anomaly_Localization.md)
 - [0E 组页](./0E.md)
-- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-
 ## 相关阅读
 **导语：** 如果想把性能剖析和显存账本接上 Part 1，可以顺着看下面这一页。
-- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.md)
+- [P1: 06. VRAM Calculation and ZeRO | 显存计算与 ZeRO 优化](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.md)
 
 ## Q1：性能问题先看哪几个指标？
 

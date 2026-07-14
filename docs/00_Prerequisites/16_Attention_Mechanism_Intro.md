@@ -22,12 +22,11 @@
 **导语：** 先看 0D 组页，把归一化和训练稳定性的边界对齐，再进入这一页会更顺。
 - [15. Normalization Techniques | 归一化技术](./15_Normalization_Techniques.md)
 - [0D 组页](./0D.md)
-- [04. Attention Memory Optimization | Attention 显存优化](../01_Hardware_Math_and_Systems/04_Attention_Memory_Optimization.md)
-
 ## 相关阅读
 **导语：** 本页先把 Q / K / V 和 causal mask 的最小判断讲清楚；如果想继续看注意力实现和显存模型，再顺着看下面这一页。
+- [P1: 04. Attention Memory Optimization | Attention 显存优化](../01_Hardware_Math_and_Systems/04_Attention_Memory_Optimization.md)
 - [17. PyTorch Profiling Basics | PyTorch 性能分析基础](./17_PyTorch_Profiling_Basics.md)
-- [14. FlashAttention Memory Model | FlashAttention 显存模型](../01_Hardware_Math_and_Systems/14_FlashAttention_Memory_Model.md)
+- [P1: 14. FlashAttention Memory Model | FlashAttention 显存模型](../01_Hardware_Math_and_Systems/14_FlashAttention_Memory_Model.md)
 
 ## Q1：Q / K / V 分别承担什么职责？
 

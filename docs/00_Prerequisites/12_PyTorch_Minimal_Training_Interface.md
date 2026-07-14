@@ -18,7 +18,6 @@
 **导语：** 先看 0C 组页，把训练闭环和数据接口的边界对齐，再进入这一页会更顺。
 - [11. PyTorch Optimizers and Loss | PyTorch 优化器与损失函数](./11_PyTorch_Optimizers_and_Loss.md)
 - [0C 组页](./0C.md)
-- [02. Communication Topologies | 通信拓扑](../01_Hardware_Math_and_Systems/05_Communication_Topologies.md)
 
 ## 相关阅读
 **导语：** 本页先把 Dataset、DataLoader 和 batch 契约讲清楚；如果想继续看训练循环怎么把这些接口串起来，再顺着看下面这一页。

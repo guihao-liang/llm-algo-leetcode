@@ -37,11 +37,11 @@ Part 0 建议按组推进，逐步补齐表达、数据入口、PyTorch、训练
 
 Part 0 和 Part 1 是两层互补的前置：Part 0 先把代码写法、数据入口和训练入口补齐，Part 1 再把数量级、硬件和系统判断讲深。对于 Part 2 的学习来说，Part 1 不是必须先读完，但它能把“为什么这样写代码”背后的资源与系统原因补全。
 
-- [1A](../01_Hardware_Math_and_Systems/1A.md)：`0A` / `0B` 的数量级对照，补数据类型、精度、参数量和 FLOPs 的判断。
-- [1B](../01_Hardware_Math_and_Systems/1B.md)：`0B` / `0D` / `0E` 的性能对照，补 GPU 架构、访存和 profiling 直觉。
-- [1C](../01_Hardware_Math_and_Systems/1C.md)：`0C` / `0D` / `0E` 的训练对照，补多卡通信、VRAM 计算和 checkpoint 代价。
-- [1D](../01_Hardware_Math_and_Systems/1D.md)：`0B` / `0D` / `0E` 的执行对照，补 CUDA / Triton、调度和算子编程视角。
-- [1E](../01_Hardware_Math_and_Systems/1E.md)：`0C` / `0E` 的选型对照，补编译优化、硬件判断和 TCO 视角。
+- [P1: 1A](../01_Hardware_Math_and_Systems/1A.md)：`0A` / `0B` 的数量级对照，补数据类型、精度、参数量和 FLOPs 的判断。
+- [P1: 1B](../01_Hardware_Math_and_Systems/1B.md)：`0B` / `0D` / `0E` 的性能对照，补 GPU 架构、访存和 profiling 直觉。
+- [P1: 1C](../01_Hardware_Math_and_Systems/1C.md)：`0C` / `0D` / `0E` 的训练对照，补多卡通信、VRAM 计算和 checkpoint 代价。
+- [P1: 1D](../01_Hardware_Math_and_Systems/1D.md)：`0B` / `0D` / `0E` 的执行对照，补 CUDA / Triton、调度和算子编程视角。
+- [P1: 1E](../01_Hardware_Math_and_Systems/1E.md)：`0C` / `0E` 的选型对照，补编译优化、硬件判断和 TCO 视角。
 
 ## 环境说明
 

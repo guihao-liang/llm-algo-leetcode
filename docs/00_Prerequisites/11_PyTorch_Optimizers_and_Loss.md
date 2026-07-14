@@ -18,7 +18,6 @@
 **导语：** 先看 0C 组页，把状态管理和训练闭环的边界对齐，再进入这一页会更顺。
 - [10. PyTorch State_dict and Persistence | PyTorch 状态管理与持久化](./10_PyTorch_State_dict_and_Persistence.md)
 - [0C 组页](./0C.md)
-- [02. LLM Params and FLOPs | 大模型参数量与 FLOPs](../01_Hardware_Math_and_Systems/02_LLM_Params_and_FLOPs.md)
 
 ## 相关阅读
 **导语：** 本页先把 loss、optimizer 和最小训练步讲清楚；如果想继续看数据接口和 batch 契约，再顺着看下面这一页。

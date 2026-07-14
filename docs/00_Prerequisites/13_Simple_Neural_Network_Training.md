@@ -20,10 +20,9 @@
 **导语：** 先看 0D 组页，把训练循环和模型直觉的边界对齐，再进入这一页会更顺。
 - [12. PyTorch Minimal Training Interface | PyTorch 最小训练接口](./12_PyTorch_Minimal_Training_Interface.md)
 - [0D 组页](./0D.md)
-- [13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
-
 ## 相关阅读
 **导语：** 本页先把最小训练循环、模式切换和保存逻辑讲清楚；如果想继续看激活函数如何影响训练稳定性，再顺着看下面这一页。
+- [P1: 13. Profiling and Bottleneck Analysis | 性能分析与瓶颈定位](../01_Hardware_Math_and_Systems/13_Profiling_and_Bottleneck_Analysis.md)
 - [14. Activation Functions | 激活函数](./14_Activation_Functions.md)
 
 ## Q1：训练循环的固定骨架是什么？

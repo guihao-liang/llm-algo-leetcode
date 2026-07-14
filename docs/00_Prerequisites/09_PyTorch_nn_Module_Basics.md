@@ -20,7 +20,6 @@
 **导语：** 先看 0C 组页，把梯度边界和模型封装的边界对齐，再进入这一页会更顺。
 - [08. PyTorch Grad Hygiene and No-Grad | PyTorch 梯度习惯与无梯度模式](./08_PyTorch_Grad_Hygiene_and_No_Grad.md)
 - [0C 组页](./0C.md)
-- [06. VRAM Calculation and ZeRO | 显存计算与 ZeRO](../01_Hardware_Math_and_Systems/06_VRAM_Calculation_and_ZeRO.md)
 
 ## 相关阅读
 **导语：** 本页先把 `nn.Module`、参数注册和状态保存的最小判断讲清楚；如果想继续看 state_dict 的持久化细节，再顺着看下面这一页。
