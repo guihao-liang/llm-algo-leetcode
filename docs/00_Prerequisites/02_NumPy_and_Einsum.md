@@ -10,7 +10,7 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-本页聚焦：先看 shape，再看公式；能把简单循环改写成数组运算；能用 `einsum` 表达常见的维度关系。
+本页聚焦：先看 shape，再看公式；能把简单循环改写成数组运算；能用 `einsum` 表达常见的维度关系。这里先把 NumPy 当成“维度思维的练习场”：学会用数组、索引、广播和 `einsum` 讲清楚 shape 关系，后面进 Tensor、mask 和 attention 时会顺很多。
 
 **关键词：** `ndarray`, `shape`, `einsum`
 
@@ -27,7 +27,7 @@
 
 ## Q1：ndarray、索引和广播分别解决什么问题？
 
-这一页先把三个最常见的 NumPy 判断立住：数据是不是同质的、能不能按维度切片、能不能用广播省掉手写循环。后面你看到 `mask`、`shape`、`batch` 时，先回到这三个判断。
+这一页先把三个最常见的 NumPy 判断立住：数据是不是同质的、能不能按维度切片、能不能用广播省掉手写循环。后面你看到 `mask`、`shape`、`batch` 时，先回到这三个判断。对 Part 2 来说，这一题就是在提前练“维度和位置怎么对上”；等你进入 0B 里的 Tensor、layout 和 mask 时，这个判断会直接复用。
 
 
 ```python
@@ -59,7 +59,7 @@ def rms_normalize(x, eps=1e-6):
 
 ## Q1验证：因果掩码和矩阵乘法
 
-这里先验证两个最常见的场景：一个是 mask 形状是否正确，一个是 `einsum` 能不能替代普通矩阵乘法。
+这里先验证两个最常见的场景：一个是 mask 形状是否正确，一个是 `einsum` 能不能替代普通矩阵乘法。这个验证的目的，不是背公式，而是先确认“维度对了，结果才可能对”。
 
 
 ```python
@@ -91,7 +91,7 @@ test_matmul_einsum()
 
 ## Q2：什么时候该用 `einsum` 直接表达维度关系？
 
-当你已经能看清 `B / T / D / H` 这些维度时，`einsum` 的作用不是炫技，而是把维度关系直接写在式子里，避免先写一堆 reshape 再猜结果对不对。
+当你已经能看清 `B / T / D / H` 这些维度时，`einsum` 的作用不是炫技，而是把维度关系直接写在式子里，避免先写一堆 reshape 再猜结果对不对。对 Part 2 来说，它更像是“把 shape contract 直接写出来”的工具。
 
 
 ```python
@@ -126,7 +126,7 @@ print(build_causal_mask(5).astype(int))
 
 ## Q3：什么时候必须先看 shape，再看公式？
 
-后面进 PyTorch、Attention 和更复杂的张量操作时，先看 shape 再看公式通常更稳。只要你能先确认 batch、seq、feature 和 head 这些维度，后面的 reshape、transpose 和广播就不容易写错。
+后面进 PyTorch、Attention 和更复杂的张量操作时，先看 shape 再看公式通常更稳。只要你能先确认 batch、seq、feature 和 head 这些维度，后面的 reshape、transpose 和广播就不容易写错。这里可以把它当成 0B 的前置：先看维度，再看实现；进到 Tensor、embedding 和 attention 时，这个顺序最重要。
 
 
 ```python
@@ -149,7 +149,7 @@ def add_feature_bias(x, bias):
 
 ## Q3验证：shape contract 和 head 拆分是否正确？
 
-这里直接看两件事：`(B, T, D)` 的数据加上 feature bias 后是否还能对齐，以及 split / merge heads 后 shape 是否能回到原样。
+这里直接看两件事：`(B, T, D)` 的数据加上 feature bias 后是否还能对齐，以及 split / merge heads 后 shape 是否能回到原样。只要这一步能对上，后面的 Tensor 和 attention 语法就不会太陌生，也更容易接到 0B 里的 layout 和 mask。
 
 
 ```python

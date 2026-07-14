@@ -10,7 +10,7 @@
 > [![Open In Studio](https://img.shields.io/badge/Open%20In-ModelScope-blueviolet?logo=alibabacloud)](https://modelscope.cn/my/mynotebook) *(国内推荐：魔搭社区免费实例)*
 
 
-本页聚焦：能用 `list`、`dict`、`class`、`with` 组织后续章节里的 Python 代码；能看懂并改写后续算法页中的基础片段。
+本页聚焦：能用 `list`、`dict`、`class`、`with` 组织后续章节里的 Python 代码；能看懂并改写后续算法页中的基础片段。这里先把 Python 当成“表达、封装和收尾”的起点：后面看对象封装、配置管理和临时文件时，这一页的判断会直接复用。
 
 **关键词：** `list`, `dict`, `class`
 
@@ -20,14 +20,14 @@
 - [01. Data Types and Precision | 大模型的数据格式与混合精度](../01_Hardware_Math_and_Systems/01_Data_Types_and_Precision.md)
 
 ## 相关阅读
-**导语：** 本页先把 Python 的最小工程写法讲清楚；如果想继续把张量、对象和 I/O 的写法补完整，可以顺着看下面这些页。
+**导语：** 本页先把 Python 的最小工程写法讲清楚；如果想继续把张量、对象和 I/O 的写法补完整，可以顺着看下面这些页。这里的目标不是把语法讲满，而是先把 `list / dict / class / with` 这条最小表达链立住。
 - [02. NumPy and Einsum | NumPy 与 Einsum](./02_NumPy_and_Einsum.md)
 - [03. Python OOP and Utility Patterns | Python 面向对象与工具模式](./03_Python_OOP_and_Utility_Patterns.md)
-- [04. Python Config and IO Patterns | Python 配置与 I/O 模式](./04_Python_Config_and_IO_Patterns.md)
+- [04. Python Config, I/O, and Data Entry | Python 配置、I/O 与数据入口](./04_Python_Config_and_Data_Entry.md)
 
 ## Q1：list / dict / class / with 各自负责什么？
 
-后续章节里，Python 不是用来写长篇说明的，而是用来把配置、状态和结果放进合适的结构里。先把四个最常见的入口分清：`list` 装顺序数据，`dict` 装命名状态，`class` 装可复用对象，`with` 管资源收尾。
+后续章节里，Python 不是用来写长篇说明的，而是用来把配置、状态和结果放进合适的结构里。先把四个最常见的入口分清：`list` 装顺序数据，`dict` 装命名状态，`class` 装可复用对象，`with` 管资源收尾。后面看 `0C` 里的对象封装、`04` 里的配置 / I/O 时，这几个判断会反复出现。
 
 
 ```python
@@ -65,7 +65,7 @@ print('token 统计示例：', count_token_frequency(['llm', 'llm', 'algo']))
 
 ## Q1验证：配置合并 + 状态封装
 
-这里直接看两件事：配置能不能覆盖，状态对象能不能把摘要稳定输出。
+这里直接看两件事：配置能不能覆盖，状态对象能不能把摘要稳定输出。只要这两个动作稳定，后面做对象封装和实验记录时就更容易统一格式。
 
 
 ```python
@@ -129,7 +129,7 @@ print('✅ Q2 通过')
 
 ## Q3：什么时候该用 with 管资源？
 
-当你只是临时检查输出、保存中间结果或做一次性调试时，临时目录比手动创建和清理目录更稳，也更不容易残留脏文件。
+当你只是临时检查输出、保存中间结果或做一次性调试时，临时目录比手动创建和清理目录更稳，也更不容易残留脏文件。后面做预处理缓存、日志和 checkpoint 这类事情时，这个习惯会直接用上。
 
 
 ```python
