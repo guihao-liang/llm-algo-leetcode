@@ -384,7 +384,7 @@ def build_toy_batch(
         labels: [batch_size, seq_len]
     """
     # 一个极小的 next-token toy batch，用来演示最小训练闭环。
-    # input_ids 是模型输入，labels 是右移一位后的监督信号。
+    # input_ids 是模型输入
     input_ids = torch.randint(0, vocab_size, (batch_size, seq_len), device=device)
     # labels 是 input_ids 的简单右移版本
     labels = torch.roll(input_ids, shifts=-1, dims=1)
@@ -419,10 +419,6 @@ def train_one_step(
     shift_labels = labels[:, 1:].reshape(-1)
 
     # 只保留 next-token 监督关系：预测 t+1 的 token
-    # loss = F.cross_entropy(
-    #     logits[:, :-1].reshape(-1, logits.size(-1)),
-    #     labels[:, 1:].reshape(-1),
-    # )
     loss = F.cross_entropy(shift_logits, shift_labels)
 
     # 标准训练三连：清梯度 -> 反传 -> 更新参数
@@ -486,26 +482,6 @@ def run_minimal_validation(
         print(f"⚠️ Loss 未明显下降: {losses[0]:.6f} → {losses[-1]:.6f}")
 
     print("✅ 最小数据逻辑与训练循环通过\n")
-    
-
-# # 一个最小训练 demo：跑两步，观察 loss 是否可计算、logits 形状是否正确
-# torch.manual_seed(0)
-# vocab_size = 16
-# hidden_size = 32
-# intermediate_size = 80
-# model = TinyLlamaLM(vocab_size, hidden_size, intermediate_size)
-# optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
-# batch = build_toy_batch()
-
-# loss_1, logits_1 = train_one_step(model, batch, optimizer)
-# loss_2, logits_2 = train_one_step(model, batch, optimizer)
-
-# print('first loss:', float(loss_1))
-# print('second loss:', float(loss_2))
-# print('logits shape:', tuple(logits_1.shape))
-# assert logits_1.shape == (2, 4, vocab_size)
-# assert torch.isfinite(loss_1) and torch.isfinite(loss_2)
-# print('✅ 最小数据逻辑与训练循环通过')
 
 if __name__ == "__main__":
     # 运行验证
